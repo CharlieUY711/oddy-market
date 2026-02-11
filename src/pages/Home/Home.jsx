@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/Card';
 import { Button } from '../../components/Button';
 import styles from './Home.module.css';
@@ -6,16 +7,18 @@ import styles from './Home.module.css';
 export const Home = () => {
   return (
     <div className={styles.home}>
-      <section className={styles.hero}>
+      <section className={styles.hero} aria-label="Hero section">
         <h1 className={styles.title}>Bienvenido a ODDY Market</h1>
         <p className={styles.subtitle}>
-          Tu tienda departamental moderna con las mejores ofertas
+          Tu tienda departamental moderna con las mejores ofertas y servicio al cliente excepcional
         </p>
         <div className={styles.actions}>
-          <Button variant="primary" size="lg">
-            Explorar Productos
-          </Button>
-          <Button variant="outline" size="lg">
+          <Link to="/products">
+            <Button variant="primary" size="lg" aria-label="Explorar productos">
+              Explorar Productos
+            </Button>
+          </Link>
+          <Button variant="outline" size="lg" aria-label="Ver ofertas especiales">
             Ver Ofertas
           </Button>
         </div>

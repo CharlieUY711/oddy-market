@@ -35,6 +35,10 @@
   justify-content: center;
 }
 
+.actions a {
+  text-decoration: none;
+}
+
 .features {
   padding: var(--spacing-3xl) var(--spacing-md);
   max-width: 1200px;
