@@ -15,12 +15,16 @@
 ### 🔷 Celeste - Secondary
 - **Hex:** `#4ecdc4`
 - **RGB:** `78, 205, 196`
-- **Uso:**
-  - Fondo del logo
+- **Uso en Logo:**
+  - Hexágonos del logo (outline)
+  - Texto "ODDY" del logo
+  - Color principal del logo sobre fondo negro
+- **Uso en Aplicación:**
   - Badges de descuento
   - Iconos de features
   - Notificaciones de éxito
   - Acentos secundarios
+  - Botones secundarios
 
 ## Variables CSS Principales
 
