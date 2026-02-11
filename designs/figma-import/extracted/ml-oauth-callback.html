@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercado Libre OAuth - ODDY Market</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #FFE259 0%, #FFA751 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFE259, #FFA751);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .code-box {
+            background: #f5f5f5;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        
+        .code-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .code-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h3 {
+            color: #1976D2;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .info-box ol {
+            margin-left: 20px;
+            color: #333;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .info-box code {
+            background: rgba(0,0,0,0.05);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FFE259, #FFA751);
+            color: #333;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 16px;
+            border-radius: 4px;
+            color: #c62828;
+        }
+        
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 16px;
+            border-radius: 4px;
+            color: #2e7d32;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #FFA751;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🛒</div>
+        <h1>Mercado Libre OAuth</h1>
+        <p>Callback de autorización para ODDY Market</p>
+        
+        <div id="content">
+            <div class="spinner"></div>
+            <p style="text-align: center; color: #999;">Procesando autorización...</p>
+        </div>
+    </div>
+
+    <script>
+        // Extraer parámetros de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+        
+        const contentDiv = document.getElementById('content');
+        
+        if (error) {
+            contentDiv.innerHTML = `
+                <div class="error">
+                    <h3>❌ Error de autorización</h3>
+                    <p><strong>Error:</strong> ${error}</p>
+                    <p>${errorDescription || 'No se pudo completar la autorización.'}</p>
+                </div>
+                <button class="btn" onclick="window.close()">Cerrar ventana</button>
+            `;
+        } else if (code) {
+            contentDiv.innerHTML = `
+                <div class="success">
+                    <h3>✅ Autorización exitosa</h3>
+                    <p>Has autorizado correctamente la aplicación.</p>
+                </div>
+                
+                <div class="code-box">
+                    <div class="code-label">Código de autorización:</div>
+                    <div class="code-value">${code}</div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>📋 Próximos pasos:</h3>
+                    <ol>
+                        <li>Copia el código de autorización que aparece arriba</li>
+                        <li>Intercambia este código por un <code>access_token</code> usando la API de Mercado Libre</li>
+                        <li>Usa este endpoint para el intercambio:
+                            <br><code>POST https://api.mercadolibre.com/oauth/token</code>
+                        </li>
+                        <li>Los parámetros requeridos son:
+                            <ul style="margin-top: 8px;">
+                                <li><code>grant_type: authorization_code</code></li>
+                                <li><code>client_id: TU_APP_ID</code></li>
+                                <li><code>client_secret: TU_APP_SECRET</code></li>
+                                <li><code>code: ${code}</code></li>
+                                <li><code>redirect_uri: ${window.location.origin}/ml-oauth-callback</code></li>
+                            </ul>
+                        </li>
+                        <li>Guarda el <code>access_token</code> y <code>refresh_token</code> en las variables de entorno de Supabase:
+                            <ul style="margin-top: 8px;">
+                                <li><code>MERCADOLIBRE_ACCESS_TOKEN</code></li>
+                                <li><code>MERCADOLIBRE_REFRESH_TOKEN</code></li>
+                                <li><code>MERCADOLIBRE_USER_ID</code></li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                
+                <button class="btn" onclick="copyCode()">📋 Copiar código</button>
+            `;
+        } else {
+            contentDiv.innerHTML = `
+                <div class="error">
+                    <h3>❌ No se recibió ningún código</h3>
+                    <p>La URL no contiene un código de autorización válido.</p>
+                </div>
+                <button class="btn" onclick="window.close()">Cerrar ventana</button>
+            `;
+        }
+        
+        function copyCode() {
+            const code = '${code}';
+            
+            // Intenta usar Clipboard API moderno
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('✅ Código copiado al portapapeles');
+                }).catch(err => {
+                    // Fallback si falla
+                    fallbackCopy(code);
+                });
+            } else {
+                // Fallback directo
+                fallbackCopy(code);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                const success = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                if (success) {
+                    alert('✅ Código copiado al portapapeles');
+                } else {
+                    alert('❌ No se pudo copiar. Copia manualmente: ' + text);
+                }
+            } catch (err) {
+                alert('❌ Error al copiar: ' + err);
+            }
+        }
+    </script>
+</body>
+</html>
