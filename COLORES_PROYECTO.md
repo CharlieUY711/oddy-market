@@ -46,7 +46,8 @@
 --color-error-foreground: #ffffff;   /* Blanco */
 --color-success: #4ecdc4;            /* Celeste */
 --color-warning: #ffc107;            /* Amarillo */
---color-info: #17a2b8;               /* Azul */
+--color-info: #0063a6;             /* Azul alternativo ODDY */
+--color-info-hover: #004f86;        /* Azul alternativo hover */
 ```
 
 ### Resumen de Colores Adicionales
@@ -56,7 +57,8 @@
 - **Foreground:** `#1a1a1a` (Negro) - Texto principal
 - **Error:** `#ef4444` (Rojo) - Mensajes de error, acciones destructivas
 - **Warning:** `#ffc107` (Amarillo) - Advertencias
-- **Info:** `#17a2b8` (Azul) - Información general
+- **Info:** `#0063a6` (Azul alternativo ODDY) - Información general, usado en landing page
+- **Info Hover:** `#004f86` (Azul alternativo oscuro) - Estado hover del azul alternativo
 
 ## Uso en Componentes
 
@@ -79,5 +81,12 @@
 
 ---
 
+## Colores Alternativos (Landing Page)
+
+- **Azul Alternativo:** `#0063a6` - Color usado en landing page de ODDY
+- **Azul Alternativo Hover:** `#004f86` - Estado hover del azul alternativo
+
+---
+
 **Última actualización:** 11/02/2026  
-**Sincronizado con:** Logo oficial ODDY Market
+**Sincronizado con:** Logo oficial ODDY Market y landing page
