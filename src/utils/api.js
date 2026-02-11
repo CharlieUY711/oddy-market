@@ -54,6 +54,39 @@ export const api = {
     });
   },
 
+  // Auth
+  login: (email, password) => {
+    return apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  },
+
+  register: (email, password, name) => {
+    return apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name }),
+    });
+  },
+
+  logout: () => {
+    return apiRequest('/auth/logout', {
+      method: 'POST',
+    });
+  },
+
+  // Orders
+  createOrder: (orderData) => {
+    return apiRequest('/orders', {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    });
+  },
+
+  getOrders: () => {
+    return apiRequest('/orders');
+  },
+
   // Mock data for development
   getMockProducts: () => {
     return Promise.resolve([

@@ -76,6 +76,18 @@
   display: inline-block;
 }
 
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.userName {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
 @media (max-width: 768px) {
   .container {
     flex-wrap: wrap;

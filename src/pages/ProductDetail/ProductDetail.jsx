@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { Button } from '../../components/Button';
 import { Card, CardContent } from '../../components/Card';
 import { Loading } from '../../components/Loading';
@@ -11,6 +12,7 @@ export const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart, products } = useApp();
+  const { success } = useNotifications();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,6 +56,7 @@ export const ProductDetail = () => {
       for (let i = 0; i < quantity; i++) {
         addToCart(product);
       }
+      success(`${quantity} ${quantity === 1 ? 'producto' : 'productos'} agregado${quantity > 1 ? 's' : ''} al carrito`);
       // Navegar al carrito después de agregar
       navigate('/cart');
     }

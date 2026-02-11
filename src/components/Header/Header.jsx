@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../Button';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import styles from './Header.module.css';
 
 export const Header = () => {
   const { cartItemsCount } = useApp();
+  const { user, logout } = useAuth();
 
   return (
     <header className={styles.header}>
@@ -27,7 +29,18 @@ export const Header = () => {
               Carrito {cartItemsCount > 0 && <span className={styles.badge}>{cartItemsCount}</span>}
             </Button>
           </Link>
-          <Button variant="primary" size="sm">Iniciar Sesión</Button>
+          {user ? (
+            <div className={styles.userMenu}>
+              <span className={styles.userName}>{user.name}</span>
+              <Button variant="outline" size="sm" onClick={logout}>
+                Cerrar Sesión
+              </Button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button variant="primary" size="sm">Iniciar Sesión</Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>

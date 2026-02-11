@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { ProductCard } from '../../components/ProductCard';
 import { Loading } from '../../components/Loading';
 import { api } from '../../utils/api';
@@ -9,6 +10,7 @@ import styles from './Products.module.css';
 export const Products = () => {
   const navigate = useNavigate();
   const { products, loading, error, setProducts, setLoading, addToCart } = useApp();
+  const { success } = useNotifications();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -33,6 +35,7 @@ export const Products = () => {
     const product = products.find(p => p.id === productId);
     if (product) {
       addToCart(product);
+      success(`${product.name} agregado al carrito`);
     }
   };
 
