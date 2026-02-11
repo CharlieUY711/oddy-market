@@ -1,0 +1,10 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hexágono pequeño con fill -->
+  <path d="M20 10 L30 15.8 L30 27.3 L20 33.1 L10 27.3 L10 15.8 Z" fill="#FF6B35"/>
+  <path d="M10 33.1 L20 38.9 L20 50.4 L10 56.2 L0 50.4 L0 38.9 Z" fill="#FF6B35"/>
+  <path d="M30 33.1 L40 38.9 L40 50.4 L30 56.2 L20 50.4 L20 38.9 Z" fill="#FF6B35"/>
+  
+  <!-- Texto ODDY Market -->
+  <text x="48" y="38" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" fill="#FF6B35">ODDY</text>
+  <text x="140" y="38" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="#4ECDC4">Market</text>
+</svg>
