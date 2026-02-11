@@ -8,6 +8,12 @@
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--color-border);
   padding: var(--spacing-lg);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .header {
