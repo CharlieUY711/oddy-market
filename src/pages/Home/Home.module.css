@@ -3,78 +3,410 @@
   min-height: 100vh;
 }
 
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Hero Section */
 .hero {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 107, 53, 0.1) 0%,
+    rgba(78, 205, 196, 0.1) 50%,
+    var(--color-background) 100%
+  );
+  padding: var(--spacing-3xl) var(--spacing-md);
+}
+
+.heroContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-3xl);
+  align-items: center;
+}
+
+.heroText {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-md);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  color: white;
-  margin-bottom: var(--spacing-3xl);
+  gap: var(--spacing-md);
 }
 
 .title {
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-md);
   line-height: 1.2;
+  margin: 0;
+  color: var(--color-foreground);
+}
+
+.titleAccent {
+  color: var(--color-primary);
 }
 
 .subtitle {
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--spacing-xl);
-  opacity: 0.95;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 .actions {
   display: flex;
   gap: var(--spacing-md);
   flex-wrap: wrap;
-  justify-content: center;
 }
 
 .actions a {
   text-decoration: none;
 }
 
+.heroButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.iconSmall {
+  width: 16px;
+  height: 16px;
+}
+
+.heroImage {
+  display: none;
+}
+
+.heroImageWrapper {
+  position: relative;
+}
+
+.heroImageWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 107, 53, 0.2) 0%,
+    rgba(78, 205, 196, 0.2) 100%
+  );
+  border-radius: var(--border-radius-xl);
+  filter: blur(40px);
+  z-index: -1;
+}
+
+.heroImg {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  position: relative;
+}
+
+/* Features Section */
 .features {
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-background);
+  padding: var(--spacing-xl) 0;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.feature {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: rgba(78, 205, 196, 0.1);
+  color: var(--color-secondary);
+  border-radius: 50%;
+  margin-bottom: var(--spacing-xs);
+}
+
+.featureIcon .icon {
+  width: 24px;
+  height: 24px;
+}
+
+.featureTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+  color: var(--color-foreground);
+}
+
+.featureDescription {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Second Hand Banner */
+.secondHandBanner {
+  background: linear-gradient(to right, #ff6b35, #ef4444);
   padding: var(--spacing-3xl) var(--spacing-md);
-  max-width: 1200px;
+  color: white;
+}
+
+.secondHandContent {
+  text-align: center;
+  max-width: 800px;
   margin: 0 auto;
+}
+
+.secondHandEmoji {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.secondHandTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: white;
+}
+
+.secondHandDescription {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-xl);
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.secondHandButton {
+  background-color: white;
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-xl);
+}
+
+.secondHandButton:hover {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Departments Section */
+.departments {
+  padding: var(--spacing-3xl) var(--spacing-md);
 }
 
 .sectionTitle {
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
-  text-align: center;
   margin-bottom: var(--spacing-xl);
   color: var(--color-foreground);
 }
 
-.cardsGrid {
+.departmentsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+.departmentCard {
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  text-align: center;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.departmentCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.departmentEmoji {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.departmentName {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+/* Featured Products & New Arrivals */
+.featuredProducts,
+.newArrivals {
+  padding: var(--spacing-3xl) var(--spacing-md);
+}
+
+.featuredProducts {
+  background-color: rgba(245, 245, 245, 0.3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+}
+
+.seeAll {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.seeAll:hover {
+  opacity: 0.8;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+/* Newsletter Section */
+.newsletter {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  padding: var(--spacing-3xl) var(--spacing-md);
+  color: white;
+}
+
+.newsletterContent {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.newsletterTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  color: white;
+}
+
+.newsletterDescription {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-xl);
+  opacity: 0.9;
+}
+
+.newsletterForm {
+  display: flex;
+  gap: var(--spacing-sm);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.newsletterInput {
+  flex: 1;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  border: none;
+  font-size: var(--font-size-base);
+  color: var(--color-foreground);
+  outline: none;
+}
+
+.newsletterInput:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.newsletterButton {
+  background-color: white;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.newsletterButton:hover {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+@media (min-width: 768px) {
+  .heroImage {
+    display: block;
+  }
+
+  .featuresGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .departmentsGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .productsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .title {
-    font-size: var(--font-size-3xl);
+  .heroContent {
+    grid-template-columns: 1fr;
+    text-align: center;
   }
 
-  .subtitle {
-    font-size: var(--font-size-lg);
+  .title {
+    font-size: var(--font-size-3xl);
   }
 
   .actions {
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
   }
 
-  .actions button {
+  .actions button,
+  .actions a {
+    width: 100%;
+  }
+
+  .secondHandTitle {
+    font-size: var(--font-size-2xl);
+  }
+
+  .newsletterForm {
+    flex-direction: column;
+  }
+
+  .newsletterInput,
+  .newsletterButton {
     width: 100%;
   }
 }

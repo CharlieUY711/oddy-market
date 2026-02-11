@@ -80,6 +80,10 @@ export const Products = () => {
               price={product.price}
               description={product.description}
               image={product.image}
+              category={product.category}
+              discount={product.discount}
+              rating={product.rating}
+              stock={product.stock}
               onAddToCart={handleAddToCart}
               onViewDetails={handleViewDetails}
             />
