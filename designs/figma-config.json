@@ -19,7 +19,7 @@
     "inputBackground": "#f9fafb",
     "error": "#ef4444",
     "errorForeground": "#ffffff",
-    "success": "#28a745",
+    "success": "#4ecdc4",
     "warning": "#ffc107",
     "info": "#17a2b8",
     "ring": "#ff6b35"

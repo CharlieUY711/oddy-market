@@ -76,8 +76,8 @@
 /* Type variants */
 .success {
   border-left-color: var(--color-success);
-  background-color: #f0fdf4;
-  color: #166534;
+  background-color: rgba(78, 205, 196, 0.1);
+  color: #0d7377;
 }
 
 .success .icon {
