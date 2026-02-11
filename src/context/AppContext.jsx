@@ -13,9 +13,21 @@ const loadCartFromStorage = () => {
   }
 };
 
+// Load favorites from localStorage
+const loadFavoritesFromStorage = () => {
+  try {
+    const savedFavorites = localStorage.getItem('oddy_favorites');
+    return savedFavorites ? JSON.parse(savedFavorites) : [];
+  } catch (error) {
+    console.error('Error loading favorites from storage:', error);
+    return [];
+  }
+};
+
 // Initial state
 const initialState = {
   cart: loadCartFromStorage(),
+  favorites: loadFavoritesFromStorage(),
   products: [],
   loading: false,
   error: null,
@@ -75,6 +87,22 @@ function appReducer(state, action) {
       return {
         ...state,
         cart: [],
+      };
+
+    case ActionTypes.ADD_TO_FAVORITES: {
+      if (state.favorites.find((id) => id === action.payload)) {
+        return state;
+      }
+      return {
+        ...state,
+        favorites: [...state.favorites, action.payload],
+      };
+    }
+
+    case ActionTypes.REMOVE_FROM_FAVORITES:
+      return {
+        ...state,
+        favorites: state.favorites.filter((id) => id !== action.payload),
       };
 
     case ActionTypes.SET_PRODUCTS:
@@ -147,6 +175,18 @@ export function AppProvider({ children }) {
     dispatch({ type: ActionTypes.SET_USER, payload: user });
   }, []);
 
+  const addToFavorites = useCallback((productId) => {
+    dispatch({ type: ActionTypes.ADD_TO_FAVORITES, payload: productId });
+  }, []);
+
+  const removeFromFavorites = useCallback((productId) => {
+    dispatch({ type: ActionTypes.REMOVE_FROM_FAVORITES, payload: productId });
+  }, []);
+
+  const isFavorite = useCallback((productId) => {
+    return state.favorites.includes(productId);
+  }, [state.favorites]);
+
   const cartTotal = state.cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -166,12 +206,24 @@ export function AppProvider({ children }) {
     }
   }, [state.cart]);
 
+  // Persist favorites to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('oddy_favorites', JSON.stringify(state.favorites));
+    } catch (error) {
+      console.error('Error saving favorites to storage:', error);
+    }
+  }, [state.favorites]);
+
   const value = {
     ...state,
     addToCart,
     removeFromCart,
     updateCartItem,
     clearCart,
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite,
     setProducts,
     setLoading,
     setError,

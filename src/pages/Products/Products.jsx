@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { ProductCard } from '../../components/ProductCard';
@@ -9,8 +9,23 @@ import styles from './Products.module.css';
 
 export const Products = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
   const { products, loading, error, setProducts, setLoading, addToCart } = useApp();
   const { success } = useNotifications();
+
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return products;
+    }
+    const query = searchQuery.toLowerCase();
+    return products.filter(
+      (product) =>
+        product.name.toLowerCase().includes(query) ||
+        product.description?.toLowerCase().includes(query) ||
+        product.category?.toLowerCase().includes(query)
+    );
+  }, [products, searchQuery]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,19 +75,27 @@ export const Products = () => {
   return (
     <div className={styles.products}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Nuestros Productos</h1>
+        <h1 className={styles.title}>
+          {searchQuery ? `Resultados para "${searchQuery}"` : 'Nuestros Productos'}
+        </h1>
         <p className={styles.subtitle}>
-          Explora nuestro catálogo completo de productos de calidad
+          {searchQuery
+            ? `${filteredProducts.length} producto${filteredProducts.length !== 1 ? 's' : ''} encontrado${filteredProducts.length !== 1 ? 's' : ''}`
+            : 'Explora nuestro catálogo completo de productos de calidad'}
         </p>
       </div>
 
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <div className={styles.empty}>
-          <p>No hay productos disponibles en este momento.</p>
+          <p>
+            {searchQuery
+              ? `No se encontraron productos para "${searchQuery}"`
+              : 'No hay productos disponibles en este momento.'}
+          </p>
         </div>
       ) : (
         <div className={styles.grid}>
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
               id={product.id}

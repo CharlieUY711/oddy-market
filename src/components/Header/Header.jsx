@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Heart, User, ShoppingCart, Menu } from 'lucide-react';
 import { Button } from '../Button';
+import { SearchBar } from '../SearchBar';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Header.module.css';
@@ -100,6 +101,7 @@ export const Header = () => {
           </div>
         </div>
       </div>
+      <SearchBar isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 };

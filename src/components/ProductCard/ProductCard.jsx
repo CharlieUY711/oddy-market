@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Eye, ShoppingCart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../Card';
 import { Button } from '../Button';
+import { useApp } from '../../context/AppContext';
 import styles from './ProductCard.module.css';
 
 export const ProductCard = ({
@@ -18,7 +19,8 @@ export const ProductCard = ({
   onViewDetails,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, addToFavorites, removeFromFavorites } = useApp();
+  const favorite = isFavorite(id);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-UY', {
@@ -41,7 +43,11 @@ export const ProductCard = ({
 
   const handleFavorite = (e) => {
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
+    if (favorite) {
+      removeFromFavorites(id);
+    } else {
+      addToFavorites(id);
+    }
   };
 
   return (
@@ -78,9 +84,9 @@ export const ProductCard = ({
           <button
             className={styles.quickActionButton}
             onClick={handleFavorite}
-            aria-label="Agregar a favoritos"
+            aria-label={favorite ? "Quitar de favoritos" : "Agregar a favoritos"}
           >
-            <Heart className={`${styles.quickActionIcon} ${isFavorite ? styles.favorite : ''}`} />
+            <Heart className={`${styles.quickActionIcon} ${favorite ? styles.favorite : ''}`} />
           </button>
           <button
             className={styles.quickActionButton}
