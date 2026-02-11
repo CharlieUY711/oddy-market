@@ -293,7 +293,7 @@
 }
 
 .featuredProducts {
-  background-color: rgba(245, 245, 245, 0.3);
+  background-color: rgba(78, 205, 196, 0.1);
 }
 
 .sectionHeader {
@@ -320,7 +320,7 @@
 .productsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
 }
 
 /* Newsletter Section */
