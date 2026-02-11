@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Heart, User, ShoppingCart, Menu } from 'lucide-react';
+import { Search, Heart, User, ShoppingCart, Menu, ChevronDown } from 'lucide-react';
 import { Button } from '../Button';
 import { SearchBar } from '../SearchBar';
+import { MegaMenu } from '../MegaMenu';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Header.module.css';
@@ -13,6 +14,7 @@ export const Header = () => {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
 
   return (
     <header className={styles.header}>
@@ -28,7 +30,10 @@ export const Header = () => {
           <div className={styles.logoSection}>
             <button
               className={styles.mobileMenuButton}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen);
+                setMegaMenuOpen(!mobileMenuOpen);
+              }}
               aria-label="Menú móvil"
             >
               <Menu className={styles.icon} />
@@ -48,8 +53,15 @@ export const Header = () => {
           {/* Desktop Navigation */}
           <nav className={styles.nav} aria-label="Navegación principal">
             <Link to="/" className={styles.navLink}>Inicio</Link>
+            <button
+              className={styles.navLink}
+              onMouseEnter={() => setMegaMenuOpen(true)}
+              onMouseLeave={() => setMegaMenuOpen(false)}
+            >
+              Departamentos
+              <ChevronDown className={styles.navChevron} />
+            </button>
             <Link to="/products" className={styles.navLink}>Productos</Link>
-            <Link to="/products" className={styles.navLink}>Departamentos</Link>
             <Link to="/products" className={styles.navLink}>
               🔄 Second Hand
             </Link>
@@ -101,6 +113,10 @@ export const Header = () => {
           </div>
         </div>
       </div>
+      <MegaMenu
+        isOpen={megaMenuOpen}
+        onClose={() => setMegaMenuOpen(false)}
+      />
       <SearchBar isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );

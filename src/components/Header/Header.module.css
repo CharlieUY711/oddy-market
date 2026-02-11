@@ -86,10 +86,23 @@
   transition: color 0.2s ease;
   padding: var(--spacing-xs) var(--spacing-sm);
   white-space: nowrap;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .navLink:hover {
   color: var(--color-primary);
+}
+
+.navChevron {
+  width: 14px;
+  height: 14px;
 }
 
 .actions {
