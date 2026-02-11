@@ -1,0 +1,14 @@
+{
+  "name": "oddy-market",
+  "version": "1.0.0",
+  "description": "Proyecto ODDY Market - Desarrollo en paralelo con Figma",
+  "scripts": {
+    "sync-figma": "node scripts/sync-figma.js",
+    "sync": "node scripts/sync-figma.js",
+    "analyze-zip": "node scripts/analyze-figma-zip.js",
+    "analyze": "node scripts/analyze-figma-zip.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
