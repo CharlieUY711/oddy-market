@@ -46,8 +46,10 @@
 --color-error-foreground: #ffffff;   /* Blanco */
 --color-success: #4ecdc4;            /* Celeste */
 --color-warning: #ffc107;            /* Amarillo */
---color-info: #0063a6;             /* Azul alternativo ODDY */
---color-info-hover: #004f86;        /* Azul alternativo hover */
+--color-info: #4ecdc4;             /* Celeste */
+--color-info-hover: #3db8ae;        /* Celeste oscuro */
+--color-alternative-blue: #0063a6;  /* Azul alternativo ODDY (landing) */
+--color-alternative-blue-hover: #004f86; /* Azul alternativo hover */
 ```
 
 ### Resumen de Colores Adicionales
@@ -57,8 +59,10 @@
 - **Foreground:** `#1a1a1a` (Negro) - Texto principal
 - **Error:** `#ef4444` (Rojo) - Mensajes de error, acciones destructivas
 - **Warning:** `#ffc107` (Amarillo) - Advertencias
-- **Info:** `#0063a6` (Azul alternativo ODDY) - Información general, usado en landing page
-- **Info Hover:** `#004f86` (Azul alternativo oscuro) - Estado hover del azul alternativo
+- **Info:** `#4ecdc4` (Celeste) - Información general, notificaciones info
+- **Info Hover:** `#3db8ae` (Celeste oscuro) - Estado hover del celeste
+- **Azul Alternativo:** `#0063a6` - Color usado en landing page de ODDY (no es el color info)
+- **Azul Alternativo Hover:** `#004f86` - Estado hover del azul alternativo
 
 ## Uso en Componentes
 

@@ -109,8 +109,8 @@
 
 .info {
   border-left-color: var(--color-info);
-  background-color: #eff6ff;
-  color: #1e40af;
+  background-color: rgba(78, 205, 196, 0.1);
+  color: #0d7377;
 }
 
 .info .icon {

@@ -21,8 +21,10 @@
     "errorForeground": "#ffffff",
     "success": "#4ecdc4",
     "warning": "#ffc107",
-    "info": "#0063a6",
-    "infoHover": "#004f86",
+    "info": "#4ecdc4",
+    "infoHover": "#3db8ae",
+    "alternativeBlue": "#0063a6",
+    "alternativeBlueHover": "#004f86",
     "ring": "#ff6b35"
   },
   "typography": {

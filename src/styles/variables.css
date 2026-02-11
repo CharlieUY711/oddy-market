@@ -24,8 +24,10 @@
   --color-error-foreground: #ffffff;
   --color-success: #4ecdc4;
   --color-warning: #ffc107;
-  --color-info: #0063a6;
-  --color-info-hover: #004f86;
+  --color-info: #4ecdc4;
+  --color-info-hover: #3db8ae;
+  --color-alternative-blue: #0063a6;
+  --color-alternative-blue-hover: #004f86;
   --color-ring: #ff6b35;
 
   /* ===== TIPOGRAFÍA ===== */
