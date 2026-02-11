@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Loading } from '../../components/Loading';
+import { formatCurrency } from '../../utils/formatting';
 import styles from './Cart.module.css';
 
 export const Cart = () => {
@@ -16,13 +17,6 @@ export const Cart = () => {
     clearCart,
   } = useApp();
   const navigate = useNavigate();
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-UY', {
-      style: 'currency',
-      currency: 'UYU',
-    }).format(price);
-  };
 
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity <= 0) {
@@ -73,7 +67,7 @@ export const Cart = () => {
                 <CardContent>
                   <div className={styles.itemDetails}>
                     <div className={styles.itemPrice}>
-                      {formatPrice(item.price)} c/u
+                      {formatCurrency(item.price)} c/u
                     </div>
                     <div className={styles.quantityControls}>
                       <Button
@@ -95,7 +89,7 @@ export const Cart = () => {
                       </Button>
                     </div>
                     <div className={styles.itemTotal}>
-                      Total: {formatPrice(item.price * item.quantity)}
+                      Total: {formatCurrency(item.price * item.quantity)}
                     </div>
                     <Button
                       variant="ghost"
@@ -121,22 +115,22 @@ export const Cart = () => {
             <CardContent>
               <div className={styles.summaryRow}>
                 <span>Subtotal ({cartItemsCount} items)</span>
-                <span>{formatPrice(cartTotal)}</span>
+                <span>{formatCurrency(cartTotal)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>Envío</span>
                 <span>
-                  {cartTotal > 5000 ? 'Gratis' : formatPrice(500)}
+                  {cartTotal > 5000 ? 'Gratis' : formatCurrency(500)}
                 </span>
               </div>
               <div className={styles.summaryDivider}></div>
               <div className={styles.summaryRowTotal}>
                 <span>Total</span>
-                <span>{formatPrice(cartTotal + (cartTotal > 5000 ? 0 : 500))}</span>
+                <span>{formatCurrency(cartTotal + (cartTotal > 5000 ? 0 : 500))}</span>
               </div>
               {cartTotal < 5000 && (
                 <p className={styles.freeShipping}>
-                  Agrega {formatPrice(5000 - cartTotal)} más para envío gratis
+                  Agrega {formatCurrency(5000 - cartTotal)} más para envío gratis
                 </p>
               )}
               <div className={styles.checkoutActions}>

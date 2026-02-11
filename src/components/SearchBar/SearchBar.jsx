@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { formatCurrency } from '../../utils/formatting';
 import styles from './SearchBar.module.css';
 
 export const SearchBar = ({ isOpen, onClose }) => {
@@ -75,12 +76,6 @@ export const SearchBar = ({ isOpen, onClose }) => {
     setSearchQuery('');
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-UY', {
-      style: 'currency',
-      currency: 'UYU',
-    }).format(price);
-  };
 
   if (!isOpen) return null;
 
@@ -134,7 +129,7 @@ export const SearchBar = ({ isOpen, onClose }) => {
                         {product.category && (
                           <p className={styles.resultCategory}>{product.category}</p>
                         )}
-                        <p className={styles.resultPrice}>{formatPrice(product.price)}</p>
+                        <p className={styles.resultPrice}>{formatCurrency(product.price)}</p>
                       </div>
                     </button>
                   ))}

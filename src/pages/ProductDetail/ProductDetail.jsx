@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import { Card, CardContent } from '../../components/Card';
 import { Loading } from '../../components/Loading';
 import { api } from '../../utils/api';
+import { formatCurrency } from '../../utils/formatting';
 import styles from './ProductDetail.module.css';
 
 export const ProductDetail = () => {
@@ -62,12 +63,6 @@ export const ProductDetail = () => {
     }
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-UY', {
-      style: 'currency',
-      currency: 'UYU',
-    }).format(price);
-  };
 
   if (loading) {
     return <Loading fullScreen />;
@@ -109,7 +104,7 @@ export const ProductDetail = () => {
 
         <div className={styles.infoSection}>
           <h1 className={styles.title}>{product.name}</h1>
-          <div className={styles.price}>{formatPrice(product.price)}</div>
+          <div className={styles.price}>{formatCurrency(product.price)}</div>
           
           <div className={styles.description}>
             <h2>Descripción</h2>

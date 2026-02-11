@@ -11,6 +11,7 @@ import {
   formatCardNumber,
   formatCardExpiry,
 } from '../../utils/validation';
+import { formatCurrency } from '../../utils/formatting';
 import styles from './Checkout.module.css';
 
 export const Checkout = () => {
@@ -126,12 +127,6 @@ export const Checkout = () => {
     }
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-UY', {
-      style: 'currency',
-      currency: 'UYU',
-    }).format(price);
-  };
 
   const shippingCost = cartTotal > 5000 ? 0 : 500;
   const total = cartTotal + shippingCost;
@@ -397,16 +392,16 @@ export const Checkout = () => {
               <CardContent>
                 <div className={styles.summaryItem}>
                   <span>Subtotal ({cart.length} items)</span>
-                  <span>{formatPrice(cartTotal)}</span>
+                  <span>{formatCurrency(cartTotal)}</span>
                 </div>
                 <div className={styles.summaryItem}>
                   <span>Envío</span>
-                  <span>{shippingCost === 0 ? 'Gratis' : formatPrice(shippingCost)}</span>
+                  <span>{shippingCost === 0 ? 'Gratis' : formatCurrency(shippingCost)}</span>
                 </div>
                 <div className={styles.summaryDivider}></div>
                 <div className={styles.summaryTotal}>
                   <span>Total</span>
-                  <span>{formatPrice(total)}</span>
+                  <span>{formatCurrency(total)}</span>
                 </div>
 
                 <Button

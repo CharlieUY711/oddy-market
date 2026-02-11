@@ -3,6 +3,7 @@ import { Heart, Eye, ShoppingCart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../Card';
 import { Button } from '../Button';
 import { useApp } from '../../context/AppContext';
+import { formatCurrency } from '../../utils/formatting';
 import styles from './ProductCard.module.css';
 
 export const ProductCard = ({
@@ -21,13 +22,6 @@ export const ProductCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const { isFavorite, addToFavorites, removeFromFavorites } = useApp();
   const favorite = isFavorite(id);
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-UY', {
-      style: 'currency',
-      currency: 'UYU',
-    }).format(price);
-  };
 
   const discountedPrice = discount ? price * (1 - discount / 100) : price;
 
@@ -127,11 +121,11 @@ export const ProductCard = ({
         <div className={styles.priceContainer}>
           {discount ? (
             <>
-              <div className={styles.priceOriginal}>{formatPrice(price)}</div>
-              <div className={styles.price}>{formatPrice(discountedPrice)}</div>
+              <div className={styles.priceOriginal}>{formatCurrency(price)}</div>
+              <div className={styles.price}>{formatCurrency(discountedPrice)}</div>
             </>
           ) : (
-            <div className={styles.price}>{formatPrice(price)}</div>
+            <div className={styles.price}>{formatCurrency(price)}</div>
           )}
         </div>
 
