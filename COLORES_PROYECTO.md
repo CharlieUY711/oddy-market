@@ -22,24 +22,37 @@
   - Notificaciones de éxito
   - Acentos secundarios
 
-## Variables CSS
+## Variables CSS Principales
 
 ```css
 --color-primary: #ff6b35;           /* Naranja */
 --color-primary-foreground: #ffffff; /* Blanco */
 --color-secondary: #4ecdc4;           /* Celeste */
 --color-secondary-foreground: #ffffff; /* Blanco */
---color-success: #4ecdc4;            /* Celeste (antes verde) */
 ```
 
 ## Colores Adicionales
 
-- **Accent:** `#ffe0d6` (Naranja claro)
-- **Background:** `#ffffff` (Blanco)
-- **Foreground:** `#1a1a1a` (Negro)
-- **Error:** `#ef4444` (Rojo)
-- **Warning:** `#ffc107` (Amarillo)
-- **Info:** `#17a2b8` (Azul)
+```css
+--color-accent: #ffe0d6;             /* Naranja claro */
+--color-accent-foreground: #1a1a1a;  /* Negro */
+--color-background: #ffffff;          /* Blanco */
+--color-foreground: #1a1a1a;         /* Negro */
+--color-error: #ef4444;              /* Rojo */
+--color-error-foreground: #ffffff;   /* Blanco */
+--color-success: #4ecdc4;            /* Celeste */
+--color-warning: #ffc107;            /* Amarillo */
+--color-info: #17a2b8;               /* Azul */
+```
+
+### Resumen de Colores Adicionales
+
+- **Accent:** `#ffe0d6` (Naranja claro) - Fondos sutiles, hover states
+- **Background:** `#ffffff` (Blanco) - Fondo principal de la aplicación
+- **Foreground:** `#1a1a1a` (Negro) - Texto principal
+- **Error:** `#ef4444` (Rojo) - Mensajes de error, acciones destructivas
+- **Warning:** `#ffc107` (Amarillo) - Advertencias
+- **Info:** `#17a2b8` (Azul) - Información general
 
 ## Uso en Componentes
 
