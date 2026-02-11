@@ -136,6 +136,25 @@
   }
 }
 
+.errorMessage {
+  display: block;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+  font-weight: var(--font-weight-normal);
+}
+
+.formGroup input[aria-invalid='true'],
+.formGroup select[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.formGroup input[aria-invalid='true']:focus,
+.formGroup select[aria-invalid='true']:focus {
+  border-color: var(--color-error);
+  outline-color: var(--color-error);
+}
+
 @media (max-width: 768px) {
   .formRow {
     grid-template-columns: 1fr;

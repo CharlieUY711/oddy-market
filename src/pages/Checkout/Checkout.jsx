@@ -6,6 +6,11 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card'
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { Loading } from '../../components/Loading';
+import {
+  validateCheckoutForm,
+  formatCardNumber,
+  formatCardExpiry,
+} from '../../utils/validation';
 import styles from './Checkout.module.css';
 
 export const Checkout = () => {
@@ -13,6 +18,8 @@ export const Checkout = () => {
   const { cart, cartTotal, clearCart } = useApp();
   const { success, error } = useNotifications();
   const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -29,21 +36,71 @@ export const Checkout = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let formattedValue = value;
+
+    // Formatear campos especiales
+    if (name === 'cardNumber') {
+      formattedValue = formatCardNumber(value);
+    } else if (name === 'cardExpiry') {
+      formattedValue = formatCardExpiry(value);
+    } else if (name === 'cardCVC') {
+      formattedValue = value.replace(/\D/g, '').substring(0, 4);
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
+
+    // Validar en tiempo real si el campo fue tocado
+    if (touched[name]) {
+      const newFormData = { ...formData, [name]: formattedValue };
+      const validation = validateCheckoutForm(newFormData);
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: validation.errors[name] || null,
+      }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    
+    const validation = validateCheckoutForm(formData);
+    setFormErrors((prev) => ({
+      ...prev,
+      [name]: validation.errors[name] || null,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validación básica
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.address) {
-      error('Por favor completa todos los campos requeridos');
-      return;
-    }
 
     if (cart.length === 0) {
       error('Tu carrito está vacío');
       navigate('/products');
+      return;
+    }
+
+    // Marcar todos los campos como tocados
+    const allFields = Object.keys(formData);
+    const newTouched = {};
+    allFields.forEach((field) => {
+      newTouched[field] = true;
+    });
+    setTouched(newTouched);
+
+    // Validar formulario completo
+    const validation = validateCheckoutForm(formData);
+    setFormErrors(validation.errors);
+
+    if (!validation.isValid) {
+      error('Por favor corrige los errores en el formulario');
+      // Scroll al primer error
+      const firstErrorField = Object.keys(validation.errors)[0];
+      const errorElement = document.getElementById(firstErrorField);
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorElement.focus();
+      }
       return;
     }
 
@@ -113,8 +170,16 @@ export const Checkout = () => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       required
+                      aria-invalid={formErrors.firstName ? 'true' : 'false'}
+                      aria-describedby={formErrors.firstName ? 'firstName-error' : undefined}
                     />
+                    {formErrors.firstName && touched.firstName && (
+                      <span id="firstName-error" className={styles.errorMessage} role="alert">
+                        {formErrors.firstName}
+                      </span>
+                    )}
                   </div>
                   <div className={styles.formGroup}>
                     <label htmlFor="lastName">Apellido *</label>
@@ -123,8 +188,16 @@ export const Checkout = () => {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       required
+                      aria-invalid={formErrors.lastName ? 'true' : 'false'}
+                      aria-describedby={formErrors.lastName ? 'lastName-error' : undefined}
                     />
+                    {formErrors.lastName && touched.lastName && (
+                      <span id="lastName-error" className={styles.errorMessage} role="alert">
+                        {formErrors.lastName}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -136,8 +209,16 @@ export const Checkout = () => {
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     required
+                    aria-invalid={formErrors.email ? 'true' : 'false'}
+                    aria-describedby={formErrors.email ? 'email-error' : undefined}
                   />
+                  {formErrors.email && touched.email && (
+                    <span id="email-error" className={styles.errorMessage} role="alert">
+                      {formErrors.email}
+                    </span>
+                  )}
                 </div>
 
                 <div className={styles.formGroup}>
@@ -148,7 +229,15 @@ export const Checkout = () => {
                     type="tel"
                     value={formData.phone}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
+                    aria-invalid={formErrors.phone ? 'true' : 'false'}
+                    aria-describedby={formErrors.phone ? 'phone-error' : undefined}
                   />
+                  {formErrors.phone && touched.phone && (
+                    <span id="phone-error" className={styles.errorMessage} role="alert">
+                      {formErrors.phone}
+                    </span>
+                  )}
                 </div>
 
                 <div className={styles.formGroup}>
@@ -158,8 +247,16 @@ export const Checkout = () => {
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     required
+                    aria-invalid={formErrors.address ? 'true' : 'false'}
+                    aria-describedby={formErrors.address ? 'address-error' : undefined}
                   />
+                  {formErrors.address && touched.address && (
+                    <span id="address-error" className={styles.errorMessage} role="alert">
+                      {formErrors.address}
+                    </span>
+                  )}
                 </div>
 
                 <div className={styles.formRow}>
@@ -170,8 +267,16 @@ export const Checkout = () => {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       required
+                      aria-invalid={formErrors.city ? 'true' : 'false'}
+                      aria-describedby={formErrors.city ? 'city-error' : undefined}
                     />
+                    {formErrors.city && touched.city && (
+                      <span id="city-error" className={styles.errorMessage} role="alert">
+                        {formErrors.city}
+                      </span>
+                    )}
                   </div>
                   <div className={styles.formGroup}>
                     <label htmlFor="zipCode">Código Postal</label>
@@ -180,7 +285,15 @@ export const Checkout = () => {
                       name="zipCode"
                       value={formData.zipCode}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      aria-invalid={formErrors.zipCode ? 'true' : 'false'}
+                      aria-describedby={formErrors.zipCode ? 'zipCode-error' : undefined}
                     />
+                    {formErrors.zipCode && touched.zipCode && (
+                      <span id="zipCode-error" className={styles.errorMessage} role="alert">
+                        {formErrors.zipCode}
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -217,8 +330,16 @@ export const Checkout = () => {
                         placeholder="1234 5678 9012 3456"
                         value={formData.cardNumber}
                         onChange={handleInputChange}
+                        onBlur={handleBlur}
                         maxLength="19"
+                        aria-invalid={formErrors.cardNumber ? 'true' : 'false'}
+                        aria-describedby={formErrors.cardNumber ? 'cardNumber-error' : undefined}
                       />
+                      {formErrors.cardNumber && touched.cardNumber && (
+                        <span id="cardNumber-error" className={styles.errorMessage} role="alert">
+                          {formErrors.cardNumber}
+                        </span>
+                      )}
                     </div>
 
                     <div className={styles.formRow}>
@@ -230,8 +351,16 @@ export const Checkout = () => {
                           placeholder="MM/AA"
                           value={formData.cardExpiry}
                           onChange={handleInputChange}
+                          onBlur={handleBlur}
                           maxLength="5"
+                          aria-invalid={formErrors.cardExpiry ? 'true' : 'false'}
+                          aria-describedby={formErrors.cardExpiry ? 'cardExpiry-error' : undefined}
                         />
+                        {formErrors.cardExpiry && touched.cardExpiry && (
+                          <span id="cardExpiry-error" className={styles.errorMessage} role="alert">
+                            {formErrors.cardExpiry}
+                          </span>
+                        )}
                       </div>
                       <div className={styles.formGroup}>
                         <label htmlFor="cardCVC">CVC *</label>
@@ -241,8 +370,17 @@ export const Checkout = () => {
                           placeholder="123"
                           value={formData.cardCVC}
                           onChange={handleInputChange}
-                          maxLength="3"
+                          onBlur={handleBlur}
+                          maxLength="4"
+                          type="password"
+                          aria-invalid={formErrors.cardCVC ? 'true' : 'false'}
+                          aria-describedby={formErrors.cardCVC ? 'cardCVC-error' : undefined}
                         />
+                        {formErrors.cardCVC && touched.cardCVC && (
+                          <span id="cardCVC-error" className={styles.errorMessage} role="alert">
+                            {formErrors.cardCVC}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </>
