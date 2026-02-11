@@ -163,7 +163,7 @@
 
 /* Second Hand Banner */
 .secondHandBanner {
-  background: linear-gradient(to right, #ff6b35, #ef4444);
+  background: linear-gradient(to right, var(--color-primary), #ef4444);
   padding: var(--spacing-3xl) var(--spacing-md);
   color: white;
 }
