@@ -22,9 +22,11 @@ export const Header = () => {
         </nav>
 
         <div className={styles.actions}>
-          <Button variant="ghost" size="sm" aria-label={`Carrito con ${cartItemsCount} items`}>
-            Carrito {cartItemsCount > 0 && <span className={styles.badge}>{cartItemsCount}</span>}
-          </Button>
+          <Link to="/cart">
+            <Button variant="ghost" size="sm" aria-label={`Carrito con ${cartItemsCount} items`}>
+              Carrito {cartItemsCount > 0 && <span className={styles.badge}>{cartItemsCount}</span>}
+            </Button>
+          </Link>
           <Button variant="primary" size="sm">Iniciar Sesión</Button>
         </div>
       </div>

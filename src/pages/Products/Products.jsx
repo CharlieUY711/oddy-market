@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { ProductCard } from '../../components/ProductCard';
 import { Loading } from '../../components/Loading';
@@ -6,6 +7,7 @@ import { api } from '../../utils/api';
 import styles from './Products.module.css';
 
 export const Products = () => {
+  const navigate = useNavigate();
   const { products, loading, error, setProducts, setLoading, addToCart } = useApp();
 
   useEffect(() => {
@@ -35,8 +37,7 @@ export const Products = () => {
   };
 
   const handleViewDetails = (productId) => {
-    // Navegar a detalles del producto
-    console.log('View product:', productId);
+    navigate(`/products/${productId}`);
   };
 
   if (loading) {

@@ -1,10 +1,21 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 
 const AppContext = createContext();
 
+// Load from localStorage
+const loadCartFromStorage = () => {
+  try {
+    const savedCart = localStorage.getItem('oddy_cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  } catch (error) {
+    console.error('Error loading cart from storage:', error);
+    return [];
+  }
+};
+
 // Initial state
 const initialState = {
-  cart: [],
+  cart: loadCartFromStorage(),
   products: [],
   loading: false,
   error: null,
@@ -145,6 +156,15 @@ export function AppProvider({ children }) {
     (count, item) => count + item.quantity,
     0
   );
+
+  // Persist cart to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('oddy_cart', JSON.stringify(state.cart));
+    } catch (error) {
+      console.error('Error saving cart to storage:', error);
+    }
+  }, [state.cart]);
 
   const value = {
     ...state,
