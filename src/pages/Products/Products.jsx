@@ -4,6 +4,8 @@ import { useApp } from '../../context/AppContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { ProductCard } from '../../components/ProductCard';
 import { Loading } from '../../components/Loading';
+import { SkeletonProductGrid } from '../../components/Skeleton';
+import { ErrorMessage } from '../../components/ErrorMessage';
 import { api } from '../../utils/api';
 import styles from './Products.module.css';
 
@@ -59,15 +61,26 @@ export const Products = () => {
   };
 
   if (loading) {
-    return <Loading fullScreen />;
+    return (
+      <div className={styles.products}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Nuestros Productos</h1>
+          <p className={styles.subtitle}>Cargando productos...</p>
+        </div>
+        <SkeletonProductGrid count={12} />
+      </div>
+    );
   }
 
   if (error) {
     return (
       <div className={styles.products}>
-        <div className={styles.error}>
-          <p>Error al cargar productos: {error}</p>
-        </div>
+        <ErrorMessage
+          title="No pudimos cargar los productos"
+          message={error || 'Ocurrió un error al cargar los productos. Por favor intenta de nuevo.'}
+          onRetry={() => window.location.reload()}
+          onGoHome={() => navigate('/')}
+        />
       </div>
     );
   }
