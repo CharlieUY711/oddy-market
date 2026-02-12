@@ -2,14 +2,25 @@ import { Hono } from "npm:hono";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const app = new Hono();
+const kv = await Deno.openKv();
 
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL") ?? "",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-);
+// Create Supabase client (optional for local development)
+const supabaseUrl = Deno.env.get("SUPABASE_URL");
+const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const supabase = supabaseUrl && supabaseKey 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 // Helper para obtener credenciales por canal
 async function getCredentials(tenant_id: string | null, canal: string) {
+  // Si no hay Supabase, buscar en KV (desarrollo local)
+  if (!supabase) {
+    const key = ["credentials", tenant_id || "default", canal];
+    const result = await kv.get(key);
+    return result.value || null;
+  }
+
+  // Producción con Supabase
   const { data, error } = await supabase
     .from('tenant_integrations')
     .select('*')
