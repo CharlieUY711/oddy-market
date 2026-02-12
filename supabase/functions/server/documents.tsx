@@ -18,6 +18,39 @@ const DOCUMENT_TYPES = {
   RECEIPT: "receipt",                // Recibo
   PROFORMA: "proforma",              // Factura proforma
   TICKET: "ticket",                  // Ticket (impresora térmica)
+  LABEL: "label",                    // Etiqueta
+};
+
+// Tipos de etiquetas
+const LABEL_TYPES = {
+  PRICE: "price",                    // Etiqueta de precio
+  BARCODE: "barcode",                // Etiqueta de código de barras
+  SHIPPING: "shipping",              // Etiqueta de envío
+  PRODUCT: "product",                // Etiqueta de producto
+  INVENTORY: "inventory",            // Etiqueta de inventario
+  PROMOTIONAL: "promotional",        // Etiqueta promocional
+  WARNING: "warning",                // Etiqueta de advertencia
+  CUSTOM: "custom",                  // Etiqueta personalizada
+};
+
+// Formatos de etiquetas (en mm)
+const LABEL_FORMATS = {
+  SMALL: { width: 40, height: 30, name: "Pequeña (40x30mm)" },
+  MEDIUM: { width: 70, height: 50, name: "Mediana (70x50mm)" },
+  LARGE: { width: 100, height: 70, name: "Grande (100x70mm)" },
+  SHIPPING: { width: 100, height: 150, name: "Envío (100x150mm)" },
+  A4: { width: 210, height: 297, name: "A4 completa" },
+  CUSTOM: { width: null, height: null, name: "Personalizado" },
+};
+
+// Tipos de códigos de barras
+const BARCODE_TYPES = {
+  EAN13: "ean13",                    // Código EAN-13 (más común)
+  EAN8: "ean8",                      // Código EAN-8
+  CODE128: "code128",                // Code 128
+  CODE39: "code39",                  // Code 39
+  QR: "qr",                          // Código QR
+  DATAMATRIX: "datamatrix",          // Data Matrix
 };
 
 // Proveedores de facturación electrónica por país
@@ -1188,6 +1221,437 @@ app.post("/make-server-0dd48dc4/documents/:id/submit-to-provider", async (c) => 
     return c.json({ error: "Error submitting to provider" }, 500);
   }
 });
+
+// ============================================
+// SISTEMA DE ETIQUETAS
+// ============================================
+
+// Generar código de barras (simulado)
+function generateBarcode(data: string, type: string = BARCODE_TYPES.EAN13) {
+  // En producción, usar librería como bwip-js o similar
+  return {
+    type,
+    data,
+    image_base64: `data:image/png;base64,SIMULATED_BARCODE_${type}_${data}`,
+    svg: `<svg><!-- Barcode SVG for ${data} --></svg>`,
+  };
+}
+
+// Generar etiqueta única
+app.post("/make-server-0dd48dc4/labels/generate", async (c) => {
+  try {
+    const body = await c.req.json();
+    const timestamp = new Date().toISOString();
+
+    const id = `label:${Date.now()}`;
+
+    const label = {
+      id,
+      entity_id: body.entity_id || "default",
+      
+      // Tipo y formato
+      label_type: body.label_type || LABEL_TYPES.PRODUCT,
+      format: body.format || LABEL_FORMATS.MEDIUM,
+      custom_size: body.custom_size || null, // { width, height }
+      
+      // Contenido
+      content: {
+        title: body.content?.title || "",
+        subtitle: body.content?.subtitle || "",
+        description: body.content?.description || "",
+        price: body.content?.price || null,
+        currency: body.content?.currency || "USD",
+        discount: body.content?.discount || null,
+        sku: body.content?.sku || null,
+        barcode_data: body.content?.barcode_data || null,
+        barcode_type: body.content?.barcode_type || BARCODE_TYPES.EAN13,
+        qr_data: body.content?.qr_data || null,
+        image_url: body.content?.image_url || null,
+        custom_fields: body.content?.custom_fields || {},
+      },
+      
+      // Estilo
+      style: {
+        background_color: body.style?.background_color || "#FFFFFF",
+        text_color: body.style?.text_color || "#000000",
+        border: body.style?.border !== false,
+        border_color: body.style?.border_color || "#000000",
+        font_size: body.style?.font_size || "normal",
+        logo: body.style?.logo !== false,
+      },
+      
+      // Datos del producto (si aplica)
+      product_id: body.product_id || null,
+      variant_id: body.variant_id || null,
+      
+      // Metadata
+      metadata: body.metadata || {},
+      
+      created_at: timestamp,
+      updated_at: timestamp,
+      created_by: body.created_by || null,
+    };
+
+    // Generar código de barras si se proporciona
+    if (label.content.barcode_data) {
+      label.content.barcode = generateBarcode(
+        label.content.barcode_data,
+        label.content.barcode_type
+      );
+    }
+
+    // Generar QR si se proporciona
+    if (label.content.qr_data) {
+      label.content.qr = generateBarcode(label.content.qr_data, BARCODE_TYPES.QR);
+    }
+
+    await kv.set([id], label);
+    
+    // Indexar
+    await kv.set(["labels_by_entity", label.entity_id, id], true);
+    await kv.set(["labels_by_type", label.entity_id, label.label_type, id], true);
+    
+    if (label.product_id) {
+      await kv.set(["labels_by_product", label.entity_id, label.product_id, id], true);
+    }
+
+    return c.json({ 
+      label,
+      message: "Label generated successfully",
+      // Comandos para impresora de etiquetas (ZPL, EPL, etc.)
+      printer_data: generateLabelPrinterCommands(label),
+    });
+  } catch (error) {
+    console.log("Error generating label:", error);
+    return c.json({ error: error.message || "Error generating label" }, 500);
+  }
+});
+
+// Generar etiquetas en lote
+app.post("/make-server-0dd48dc4/labels/generate-batch", async (c) => {
+  try {
+    const body = await c.req.json();
+    const products = body.products || [];
+    const label_type = body.label_type || LABEL_TYPES.PRODUCT;
+    const format = body.format || LABEL_FORMATS.MEDIUM;
+    const entity_id = body.entity_id || "default";
+
+    if (products.length === 0) {
+      return c.json({ error: "No products provided" }, 400);
+    }
+
+    const labels = [];
+    const timestamp = new Date().toISOString();
+
+    for (const product of products) {
+      const id = `label:${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      
+      const label = {
+        id,
+        entity_id,
+        label_type,
+        format,
+        
+        content: {
+          title: product.name || product.title || "",
+          subtitle: product.brand || "",
+          description: product.description || "",
+          price: product.price || null,
+          currency: product.currency || "USD",
+          discount: product.discount || null,
+          sku: product.sku || null,
+          barcode_data: product.barcode || product.ean || product.sku || null,
+          barcode_type: product.barcode_type || BARCODE_TYPES.EAN13,
+          qr_data: product.qr_data || product.url || null,
+          image_url: product.image_url || product.image || null,
+        },
+        
+        style: body.style || {
+          background_color: "#FFFFFF",
+          text_color: "#000000",
+          border: true,
+          logo: true,
+        },
+        
+        product_id: product.id || product.product_id || null,
+        variant_id: product.variant_id || null,
+        quantity: product.quantity || 1, // Cantidad de etiquetas a imprimir
+        
+        metadata: product.metadata || {},
+        created_at: timestamp,
+        updated_at: timestamp,
+      };
+
+      // Generar códigos
+      if (label.content.barcode_data) {
+        label.content.barcode = generateBarcode(
+          label.content.barcode_data,
+          label.content.barcode_type
+        );
+      }
+
+      if (label.content.qr_data) {
+        label.content.qr = generateBarcode(label.content.qr_data, BARCODE_TYPES.QR);
+      }
+
+      await kv.set([id], label);
+      await kv.set(["labels_by_entity", entity_id, id], true);
+      await kv.set(["labels_by_type", entity_id, label_type, id], true);
+      
+      if (label.product_id) {
+        await kv.set(["labels_by_product", entity_id, label.product_id, id], true);
+      }
+
+      labels.push(label);
+    }
+
+    return c.json({ 
+      labels,
+      total: labels.length,
+      message: `${labels.length} labels generated successfully`,
+      // Comandos para impresión en lote
+      printer_data: labels.map((l) => generateLabelPrinterCommands(l)),
+    });
+  } catch (error) {
+    console.log("Error generating batch labels:", error);
+    return c.json({ error: "Error generating batch labels" }, 500);
+  }
+});
+
+// Obtener etiqueta
+app.get("/make-server-0dd48dc4/labels/:id", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const entry = await kv.get([id]);
+
+    if (!entry.value) {
+      return c.json({ error: "Label not found" }, 404);
+    }
+
+    return c.json({ label: entry.value });
+  } catch (error) {
+    console.log("Error getting label:", error);
+    return c.json({ error: "Error getting label" }, 500);
+  }
+});
+
+// Listar etiquetas
+app.get("/make-server-0dd48dc4/labels", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+    const label_type = c.req.query("label_type");
+    const product_id = c.req.query("product_id");
+
+    let prefix;
+    
+    if (product_id) {
+      prefix = ["labels_by_product", entity_id, product_id];
+    } else if (label_type) {
+      prefix = ["labels_by_type", entity_id, label_type];
+    } else {
+      prefix = ["labels_by_entity", entity_id];
+    }
+
+    const entries = kv.list({ prefix });
+    
+    let labels = [];
+    for await (const entry of entries) {
+      const labelId = entry.key[entry.key.length - 1];
+      const labelEntry = await kv.get([labelId]);
+      if (labelEntry.value) {
+        labels.push(labelEntry.value);
+      }
+    }
+
+    return c.json({ labels, total: labels.length });
+  } catch (error) {
+    console.log("Error listing labels:", error);
+    return c.json({ error: "Error listing labels" }, 500);
+  }
+});
+
+// Plantillas de etiquetas
+app.get("/make-server-0dd48dc4/labels/templates/list", async (c) => {
+  try {
+    const templates = [
+      {
+        id: "price-basic",
+        name: "Precio Simple",
+        type: LABEL_TYPES.PRICE,
+        format: LABEL_FORMATS.SMALL,
+        preview: "https://example.com/preview-price-basic.png",
+        fields: ["title", "price", "currency"],
+      },
+      {
+        id: "price-discount",
+        name: "Precio con Descuento",
+        type: LABEL_TYPES.PRICE,
+        format: LABEL_FORMATS.MEDIUM,
+        preview: "https://example.com/preview-price-discount.png",
+        fields: ["title", "price", "discount", "currency"],
+      },
+      {
+        id: "barcode-ean13",
+        name: "Código de Barras EAN-13",
+        type: LABEL_TYPES.BARCODE,
+        format: LABEL_FORMATS.MEDIUM,
+        preview: "https://example.com/preview-barcode.png",
+        fields: ["title", "sku", "barcode_data"],
+      },
+      {
+        id: "product-full",
+        name: "Producto Completo",
+        type: LABEL_TYPES.PRODUCT,
+        format: LABEL_FORMATS.LARGE,
+        preview: "https://example.com/preview-product-full.png",
+        fields: ["title", "subtitle", "description", "price", "barcode_data", "qr_data", "image_url"],
+      },
+      {
+        id: "shipping-address",
+        name: "Etiqueta de Envío",
+        type: LABEL_TYPES.SHIPPING,
+        format: LABEL_FORMATS.SHIPPING,
+        preview: "https://example.com/preview-shipping.png",
+        fields: ["title", "subtitle", "description", "barcode_data", "qr_data"],
+      },
+      {
+        id: "inventory-location",
+        name: "Ubicación de Inventario",
+        type: LABEL_TYPES.INVENTORY,
+        format: LABEL_FORMATS.MEDIUM,
+        preview: "https://example.com/preview-inventory.png",
+        fields: ["title", "sku", "barcode_data", "custom_fields.location"],
+      },
+      {
+        id: "promotional",
+        name: "Promocional",
+        type: LABEL_TYPES.PROMOTIONAL,
+        format: LABEL_FORMATS.LARGE,
+        preview: "https://example.com/preview-promo.png",
+        fields: ["title", "subtitle", "price", "discount", "image_url"],
+      },
+    ];
+
+    return c.json({ templates });
+  } catch (error) {
+    console.log("Error listing templates:", error);
+    return c.json({ error: "Error listing templates" }, 500);
+  }
+});
+
+// Generar desde plantilla
+app.post("/make-server-0dd48dc4/labels/from-template", async (c) => {
+  try {
+    const body = await c.req.json();
+    const template_id = body.template_id;
+    
+    // Obtener plantilla (en producción vendría de BD)
+    const templates = {
+      "price-basic": {
+        label_type: LABEL_TYPES.PRICE,
+        format: LABEL_FORMATS.SMALL,
+        style: { background_color: "#FFFFFF", text_color: "#000000", border: true },
+      },
+      "barcode-ean13": {
+        label_type: LABEL_TYPES.BARCODE,
+        format: LABEL_FORMATS.MEDIUM,
+        style: { background_color: "#FFFFFF", text_color: "#000000", border: true },
+      },
+      "product-full": {
+        label_type: LABEL_TYPES.PRODUCT,
+        format: LABEL_FORMATS.LARGE,
+        style: { background_color: "#FFFFFF", text_color: "#000000", border: true, logo: true },
+      },
+    };
+
+    const template = templates[template_id];
+    
+    if (!template) {
+      return c.json({ error: "Template not found" }, 404);
+    }
+
+    // Generar etiqueta usando la plantilla
+    const labelData = {
+      ...body,
+      label_type: template.label_type,
+      format: template.format,
+      style: { ...template.style, ...(body.style || {}) },
+    };
+
+    // Reutilizar endpoint de generación
+    return await app.request(`/make-server-0dd48dc4/labels/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(labelData),
+    });
+  } catch (error) {
+    console.log("Error generating from template:", error);
+    return c.json({ error: "Error generating from template" }, 500);
+  }
+});
+
+// Función auxiliar para generar comandos de impresora de etiquetas
+function generateLabelPrinterCommands(label: any) {
+  const format = label.format;
+  const content = label.content;
+  
+  // Comandos genéricos (en producción usar ZPL para Zebra, EPL para otras)
+  const commands = [];
+  
+  // Inicializar etiqueta
+  commands.push(`SIZE ${format.width}mm,${format.height}mm`);
+  commands.push(`GAP 3mm,0mm`);
+  commands.push(`DIRECTION 0`);
+  commands.push(`CLS`);
+  
+  // Título
+  if (content.title) {
+    commands.push(`TEXT 10,10,"3",0,1,1,"${content.title}"`);
+  }
+  
+  // Subtítulo
+  if (content.subtitle) {
+    commands.push(`TEXT 10,40,"2",0,1,1,"${content.subtitle}"`);
+  }
+  
+  // Precio
+  if (content.price) {
+    const priceText = `${content.currency} ${content.price}`;
+    commands.push(`TEXT 10,70,"4",0,1,1,"${priceText}"`);
+  }
+  
+  // Descuento
+  if (content.discount) {
+    commands.push(`TEXT 10,110,"2",0,1,1,"-${content.discount}%"`);
+  }
+  
+  // Código de barras
+  if (content.barcode_data) {
+    const barcodeY = format.height - 60;
+    commands.push(`BARCODE 10,${barcodeY},"${content.barcode_type.toUpperCase()}",50,1,0,2,2,"${content.barcode_data}"`);
+  }
+  
+  // QR
+  if (content.qr_data) {
+    const qrX = format.width - 60;
+    commands.push(`QRCODE ${qrX},10,H,5,A,0,"${content.qr_data}"`);
+  }
+  
+  // SKU
+  if (content.sku) {
+    const skuY = format.height - 20;
+    commands.push(`TEXT 10,${skuY},"1",0,1,1,"SKU: ${content.sku}"`);
+  }
+  
+  // Finalizar e imprimir
+  commands.push(`PRINT 1,${label.quantity || 1}`);
+  
+  return {
+    format: "TSPL", // Lenguaje genérico de etiquetas
+    commands,
+    raw: commands.join("\n"),
+  };
+}
 
 // ============================================
 // LISTAR DOCUMENTOS ACCESIBLES PARA UNA PARTY
