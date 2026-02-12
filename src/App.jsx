@@ -15,6 +15,7 @@ import { Checkout } from './pages/Checkout';
 import { Login } from './pages/Login';
 import { Test } from './pages/Test';
 import { SecondHand } from './pages/SecondHand';
+import { Admin } from './pages/Admin';
 import './styles/global.css';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/test" element={<Test />} />
                             <Route path="/second-hand" element={<SecondHand />} />
+                            <Route path="/admin" element={<Admin />} />
                             <Route path="/about" element={<div className="container"><h1>Nosotros</h1><p>Página en construcción</p></div>} />
                   </Routes>
                 </main>
