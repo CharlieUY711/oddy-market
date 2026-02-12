@@ -62,7 +62,7 @@ export const Header = () => {
               <ChevronDown className={styles.navChevron} />
             </button>
             <Link to="/products" className={styles.navLink}>Productos</Link>
-            <Link to="/products" className={styles.navLink}>
+            <Link to="/second-hand" className={styles.navLink}>
               🔄 Second Hand
             </Link>
             <Link to="/products" className={styles.navLink}>Ofertas</Link>
