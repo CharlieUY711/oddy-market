@@ -46,19 +46,20 @@ curl http://localhost:8000/
 
 | Módulo | Estado | Endpoints | Descripción |
 |--------|--------|-----------|-------------|
+| **system** | ✅ | 13 | Impuestos, monedas, unidades, configuración global |
+| **entities** | ✅ | 8 | Multi-tenant (entidades, territorios) |
 | **parties** | ✅ | 14 | Personas y Organizaciones (clientes, proveedores) |
 | **products** | ✅ | 12 | Artículos con 3 niveles, variantes, trazabilidad |
 | **orders** | ✅ | 10 | Pedidos con estados, tracking, facturación |
-| **inventory** | ✅ | 8 | Stock, alertas, movimientos, FIFO |
-| **categories** | ✅ | 8 | Categorías jerárquicas, atributos, mapeo |
-| **integrations** | ✅ | 18 | ML, FB, IG, WA, Google, Couriers (FedEx, UPS, DHL, etc) |
-| **entities** | ✅ | 8 | Multi-tenant (entidades, territorios) |
 | **cart** | ✅ | 9 | Carrito de compras con totales y cupones |
 | **auth** | ✅ | 7 | Autenticación (registro, login, reset) |
 | **users** | ✅ | 9 | Usuarios con RBAC y permisos |
 | **documents** | ✅ | 34 | Documentos + Tickets + E-Invoice + Etiquetas + Emotivas |
 | **library** | ✅ | 9 | Almacenamiento de archivos + OCR |
 | **shipping** | ✅ | 9 | Envíos + GPS + Google Maps + Tracking |
+| **inventory** | ✅ | 8 | Stock, alertas, movimientos, FIFO |
+| **categories** | ✅ | 8 | Categorías jerárquicas, atributos, mapeo |
+| **integrations** | ✅ | 18 | ML, FB, IG, WA, Google, Couriers (FedEx, UPS, DHL, etc) |
 | billing | ⚪ | - | Próximamente |
 | fulfillment | ⚪ | - | Próximamente |
 

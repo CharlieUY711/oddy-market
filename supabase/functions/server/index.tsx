@@ -16,6 +16,7 @@ import usersApp from "./users.tsx";
 import documentsApp from "./documents.tsx";
 import libraryApp from "./library.tsx";
 import shippingApp from "./shipping.tsx";
+import systemApp from "./system.tsx";
 
 const app = new Hono();
 
@@ -37,6 +38,7 @@ app.get("/", (c) => {
     message: "ODDY Market API Server",
     version: "1.0.0",
     modules: [
+      "system",
       "entities",
       "parties",
       "products",
@@ -55,6 +57,7 @@ app.get("/", (c) => {
 });
 
 // Mount all module routes
+app.route("/", systemApp);
 app.route("/", entitiesApp);
 app.route("/", partiesApp);
 app.route("/", productsApp);
