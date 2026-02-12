@@ -1,8 +1,8 @@
 import { Hono } from "npm:hono";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { kv } from "./storage.tsx";
 
 const app = new Hono();
-const kv = await Deno.openKv();
 
 // Create Supabase client (optional for local development)
 const supabaseUrl = Deno.env.get("SUPABASE_URL");

@@ -1,7 +1,7 @@
 import { Hono } from "npm:hono";
+import { kv } from "./storage.tsx";
 
 const app = new Hono();
-const kv = await Deno.openKv();
 
 // ============================================================
 // CRUD DE PEDIDOS
