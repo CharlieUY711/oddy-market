@@ -30,6 +30,16 @@ import crmApp from "./crm.tsx";
 import erpApp from "./erp.tsx";
 import departmentsApp from "./departments.tsx";
 import providerApp from "./provider.tsx";
+import notificationsApp from "./notifications.tsx";
+import webhooksApp from "./webhooks.tsx";
+import apiKeysApp from "./api_keys.tsx";
+import auditApp from "./audit.tsx";
+import analyticsApp from "./analytics.tsx";
+import reportsApp from "./reports.tsx";
+import backupsApp from "./backups.tsx";
+import settingsApp from "./settings.tsx";
+import helpApp from "./help.tsx";
+import supportApp from "./support.tsx";
 
 const app = new Hono();
 
@@ -78,6 +88,16 @@ app.get("/", (c) => {
       "erp",
       "departments",
       "provider",
+      "notifications",
+      "webhooks",
+      "api_keys",
+      "audit",
+      "analytics",
+      "reports",
+      "backups",
+      "settings",
+      "help",
+      "support",
     ],
   });
 });
@@ -110,6 +130,16 @@ app.route("/", crmApp);
 app.route("/", erpApp);
 app.route("/", departmentsApp);
 app.route("/", providerApp);
+app.route("/", notificationsApp);
+app.route("/", webhooksApp);
+app.route("/", apiKeysApp);
+app.route("/", auditApp);
+app.route("/", analyticsApp);
+app.route("/", reportsApp);
+app.route("/", backupsApp);
+app.route("/", settingsApp);
+app.route("/", helpApp);
+app.route("/", supportApp);
 
 // 404 handler
 app.notFound((c) => {
@@ -123,6 +153,6 @@ app.onError((err, c) => {
 });
 
 console.log("🚀 ODDY Market API Server starting...");
-console.log("📦 Loaded modules: system, entities, parties, products, orders, cart, auth, users, billing, pos, customs, fulfillment, documents, library, shipping, inventory, categories, integrations, mailing, marketing, automation, social, wheel, crm, erp, departments, provider");
+console.log("📦 Loaded modules (37 total): system, entities, parties, products, orders, cart, auth, users, billing, pos, customs, fulfillment, documents, library, shipping, inventory, categories, integrations, mailing, marketing, automation, social, wheel, crm, erp, departments, provider, notifications, webhooks, api_keys, audit, analytics, reports, backups, settings, help, support");
 
 Deno.serve(app.fetch);
