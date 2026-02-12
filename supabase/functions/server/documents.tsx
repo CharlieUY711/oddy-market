@@ -31,6 +31,7 @@ const LABEL_TYPES = {
   PROMOTIONAL: "promotional",        // Etiqueta promocional
   WARNING: "warning",                // Etiqueta de advertencia
   CUSTOM: "custom",                  // Etiqueta personalizada
+  EMOTIVE: "emotive",                // Etiqueta Emotiva (con mensaje del remitente)
 };
 
 // Formatos de etiquetas (en mm)
@@ -1704,5 +1705,534 @@ app.get("/make-server-0dd48dc4/documents/my-documents", async (c) => {
     return c.json({ error: "Error getting my documents" }, 500);
   }
 });
+
+// ============================================
+// SISTEMA DE ETIQUETAS EMOTIVAS
+// ============================================
+
+// Generar Etiqueta Emotiva (con mensaje del remitente al destinatario)
+app.post("/make-server-0dd48dc4/labels/emotive/generate", async (c) => {
+  try {
+    const body = await c.req.json();
+    const timestamp = new Date().toISOString();
+
+    const id = `emotive:${Date.now()}`;
+
+    const emotiveLabel = {
+      id,
+      entity_id: body.entity_id || "default",
+      
+      // Tipo
+      label_type: LABEL_TYPES.EMOTIVE,
+      format: body.format || LABEL_FORMATS.SHIPPING,
+      
+      // Información del envío
+      package: {
+        tracking_number: body.package?.tracking_number || `PKG-${Date.now()}`,
+        order_id: body.package?.order_id || null,
+        weight: body.package?.weight || null,
+        dimensions: body.package?.dimensions || null,
+      },
+      
+      // Remitente
+      sender: {
+        party_id: body.sender?.party_id || null,
+        name: body.sender?.name || "",
+        phone: body.sender?.phone || "",
+        email: body.sender?.email || "",
+        address: body.sender?.address || "",
+      },
+      
+      // Destinatario
+      recipient: {
+        party_id: body.recipient?.party_id || null,
+        name: body.recipient?.name || "",
+        phone: body.recipient?.phone || "",
+        email: body.recipient?.email || "",
+        address: body.recipient?.address || "",
+      },
+      
+      // Mensaje emotivo del remitente
+      emotive_message: {
+        title: body.emotive_message?.title || "Tienes un mensaje especial",
+        message: body.emotive_message?.message || "",
+        image_url: body.emotive_message?.image_url || null,
+        video_url: body.emotive_message?.video_url || null,
+        sender_signature: body.emotive_message?.sender_signature || "",
+        reveal_on_scan: body.emotive_message?.reveal_on_scan !== false, // Por defecto true
+      },
+      
+      // QR Codes
+      qr_tracking: {
+        type: "tracking",
+        data: null, // Se genera después
+        url: null,
+        scanned: false,
+        scanned_at: null,
+        scanned_by: null,
+      },
+      
+      qr_emotive: {
+        type: "emotive",
+        data: null, // Se genera después
+        url: null,
+        scanned: false,
+        scanned_at: null,
+        scanned_by: null,
+      },
+      
+      // Estado del match
+      match: {
+        matched: false,
+        matched_at: null,
+        recipient_acknowledged: false,
+        acknowledged_at: null,
+        thank_you_message: null,
+      },
+      
+      // Interacciones
+      interactions: [],
+      
+      // Estado
+      status: "pending", // pending, shipped, delivered, revealed, acknowledged
+      
+      // Fechas
+      created_at: timestamp,
+      shipped_at: null,
+      delivered_at: null,
+      revealed_at: null,
+      acknowledged_at: null,
+      
+      metadata: body.metadata || {},
+    };
+
+    // Generar URLs de QR
+    const baseUrl = body.base_url || "https://oddy.market";
+    
+    // QR de Tracking (normal)
+    emotiveLabel.qr_tracking.data = `${baseUrl}/track/${emotiveLabel.package.tracking_number}`;
+    emotiveLabel.qr_tracking.url = `${baseUrl}/track/${emotiveLabel.package.tracking_number}`;
+    
+    // QR Emotivo (con ID único)
+    emotiveLabel.qr_emotive.data = `${baseUrl}/emotive/${id}`;
+    emotiveLabel.qr_emotive.url = `${baseUrl}/emotive/${id}`;
+
+    await kv.set([id], emotiveLabel);
+    
+    // Indexar
+    await kv.set(["emotive_labels", emotiveLabel.entity_id, id], true);
+    await kv.set(["emotive_by_tracking", emotiveLabel.entity_id, emotiveLabel.package.tracking_number], id);
+    
+    if (emotiveLabel.sender.party_id) {
+      await kv.set(["emotive_by_sender", emotiveLabel.entity_id, emotiveLabel.sender.party_id, id], true);
+    }
+    
+    if (emotiveLabel.recipient.party_id) {
+      await kv.set(["emotive_by_recipient", emotiveLabel.entity_id, emotiveLabel.recipient.party_id, id], true);
+    }
+
+    return c.json({ 
+      emotive_label: emotiveLabel,
+      message: "Emotive label generated successfully",
+      qr_codes: {
+        tracking: {
+          url: emotiveLabel.qr_tracking.url,
+          svg: generateBarcode(emotiveLabel.qr_tracking.data, BARCODE_TYPES.QR).svg,
+        },
+        emotive: {
+          url: emotiveLabel.qr_emotive.url,
+          svg: generateBarcode(emotiveLabel.qr_emotive.data, BARCODE_TYPES.QR).svg,
+        },
+      },
+      // Comandos para impresora con ambos QR
+      printer_data: generateEmotiveLabelPrinterCommands(emotiveLabel),
+    });
+  } catch (error) {
+    console.log("Error generating emotive label:", error);
+    return c.json({ error: "Error generating emotive label" }, 500);
+  }
+});
+
+// Escanear QR Emotivo (landing page para el destinatario)
+app.get("/make-server-0dd48dc4/emotive/:id/scan", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const entry = await kv.get([id]);
+
+    if (!entry.value) {
+      return c.json({ error: "Emotive label not found" }, 404);
+    }
+
+    const emotiveLabel = entry.value as any;
+    const timestamp = new Date().toISOString();
+
+    // Registrar escaneo del QR emotivo
+    if (!emotiveLabel.qr_emotive.scanned) {
+      emotiveLabel.qr_emotive.scanned = true;
+      emotiveLabel.qr_emotive.scanned_at = timestamp;
+      emotiveLabel.status = "revealed";
+      emotiveLabel.revealed_at = timestamp;
+    }
+
+    // Registrar interacción
+    emotiveLabel.interactions.push({
+      type: "qr_emotive_scanned",
+      timestamp,
+      ip: c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || "unknown",
+      user_agent: c.req.header("user-agent") || "unknown",
+    });
+
+    // Realizar match (conectar remitente con destinatario)
+    if (!emotiveLabel.match.matched) {
+      emotiveLabel.match.matched = true;
+      emotiveLabel.match.matched_at = timestamp;
+    }
+
+    await kv.set([id], emotiveLabel);
+
+    // Retornar datos para la landing page
+    return c.json({
+      success: true,
+      emotive_label: {
+        id: emotiveLabel.id,
+        package: {
+          tracking_number: emotiveLabel.package.tracking_number,
+        },
+        sender: {
+          name: emotiveLabel.sender.name,
+        },
+        recipient: {
+          name: emotiveLabel.recipient.name,
+        },
+        emotive_message: {
+          title: emotiveLabel.emotive_message.title,
+          message: emotiveLabel.emotive_message.message,
+          image_url: emotiveLabel.emotive_message.image_url,
+          video_url: emotiveLabel.emotive_message.video_url,
+          sender_signature: emotiveLabel.emotive_message.sender_signature,
+        },
+        delivered_at: emotiveLabel.delivered_at,
+        days_since_delivery: emotiveLabel.delivered_at 
+          ? Math.floor((new Date(timestamp).getTime() - new Date(emotiveLabel.delivered_at).getTime()) / (1000 * 60 * 60 * 24))
+          : null,
+      },
+      can_acknowledge: !emotiveLabel.match.recipient_acknowledged,
+    });
+  } catch (error) {
+    console.log("Error scanning emotive QR:", error);
+    return c.json({ error: "Error scanning emotive QR" }, 500);
+  }
+});
+
+// Destinatario agradece el envío
+app.post("/make-server-0dd48dc4/emotive/:id/acknowledge", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const body = await c.req.json();
+    const entry = await kv.get([id]);
+
+    if (!entry.value) {
+      return c.json({ error: "Emotive label not found" }, 404);
+    }
+
+    const emotiveLabel = entry.value as any;
+    const timestamp = new Date().toISOString();
+
+    if (emotiveLabel.match.recipient_acknowledged) {
+      return c.json({ error: "Already acknowledged" }, 400);
+    }
+
+    // Registrar agradecimiento
+    emotiveLabel.match.recipient_acknowledged = true;
+    emotiveLabel.match.acknowledged_at = timestamp;
+    emotiveLabel.match.thank_you_message = body.thank_you_message || "Gracias por el envío ❤️";
+    emotiveLabel.status = "acknowledged";
+    emotiveLabel.acknowledged_at = timestamp;
+
+    // Registrar interacción
+    emotiveLabel.interactions.push({
+      type: "recipient_acknowledged",
+      timestamp,
+      message: body.thank_you_message,
+      ip: c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || "unknown",
+    });
+
+    await kv.set([id], emotiveLabel);
+
+    // TODO: Enviar notificación al remitente (email, SMS, push)
+    console.log(`[NOTIFICATION] Sender ${emotiveLabel.sender.name} should be notified: Recipient acknowledged!`);
+
+    return c.json({
+      success: true,
+      message: "Thank you message sent successfully!",
+      emotive_label: {
+        sender: { name: emotiveLabel.sender.name },
+        recipient: { name: emotiveLabel.recipient.name },
+        acknowledged_at: timestamp,
+      },
+    });
+  } catch (error) {
+    console.log("Error acknowledging:", error);
+    return c.json({ error: "Error acknowledging" }, 500);
+  }
+});
+
+// Obtener etiqueta emotiva
+app.get("/make-server-0dd48dc4/emotive/:id", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const entry = await kv.get([id]);
+
+    if (!entry.value) {
+      return c.json({ error: "Emotive label not found" }, 404);
+    }
+
+    return c.json({ emotive_label: entry.value });
+  } catch (error) {
+    console.log("Error getting emotive label:", error);
+    return c.json({ error: "Error getting emotive label" }, 500);
+  }
+});
+
+// Listar etiquetas emotivas
+app.get("/make-server-0dd48dc4/emotive", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+    const sender_id = c.req.query("sender_id");
+    const recipient_id = c.req.query("recipient_id");
+    const status = c.req.query("status");
+
+    let prefix;
+    
+    if (sender_id) {
+      prefix = ["emotive_by_sender", entity_id, sender_id];
+    } else if (recipient_id) {
+      prefix = ["emotive_by_recipient", entity_id, recipient_id];
+    } else {
+      prefix = ["emotive_labels", entity_id];
+    }
+
+    const entries = kv.list({ prefix });
+    
+    let labels = [];
+    for await (const entry of entries) {
+      const labelId = entry.key[entry.key.length - 1];
+      const labelEntry = await kv.get([labelId]);
+      if (labelEntry.value) {
+        const label = labelEntry.value as any;
+        
+        // Filtrar por status si se proporciona
+        if (!status || label.status === status) {
+          labels.push(label);
+        }
+      }
+    }
+
+    // Ordenar por fecha de creación (más reciente primero)
+    labels.sort((a: any, b: any) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    return c.json({ emotive_labels: labels, total: labels.length });
+  } catch (error) {
+    console.log("Error listing emotive labels:", error);
+    return c.json({ error: "Error listing emotive labels" }, 500);
+  }
+});
+
+// Dashboard de etiquetas emotivas (estadísticas)
+app.get("/make-server-0dd48dc4/emotive/stats/dashboard", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+
+    const prefix = ["emotive_labels", entity_id];
+    const entries = kv.list({ prefix });
+    
+    let labels = [];
+    for await (const entry of entries) {
+      const labelId = entry.key[entry.key.length - 1];
+      const labelEntry = await kv.get([labelId]);
+      if (labelEntry.value) {
+        labels.push(labelEntry.value);
+      }
+    }
+
+    // Calcular estadísticas
+    const stats = {
+      total: labels.length,
+      by_status: {
+        pending: 0,
+        shipped: 0,
+        delivered: 0,
+        revealed: 0,
+        acknowledged: 0,
+      },
+      qr_scans: {
+        tracking: 0,
+        emotive: 0,
+      },
+      matches: {
+        total: 0,
+        acknowledged: 0,
+        pending: 0,
+      },
+      avg_days_to_reveal: 0,
+      avg_days_to_acknowledge: 0,
+    };
+
+    let totalDaysToReveal = 0;
+    let totalDaysToAcknowledge = 0;
+    let revealsCount = 0;
+    let acknowledgesCount = 0;
+
+    labels.forEach((label: any) => {
+      // Contar por status
+      stats.by_status[label.status] = (stats.by_status[label.status] || 0) + 1;
+      
+      // Contar escaneos de QR
+      if (label.qr_tracking.scanned) stats.qr_scans.tracking++;
+      if (label.qr_emotive.scanned) stats.qr_scans.emotive++;
+      
+      // Contar matches
+      if (label.match.matched) {
+        stats.matches.total++;
+        if (label.match.recipient_acknowledged) {
+          stats.matches.acknowledged++;
+        } else {
+          stats.matches.pending++;
+        }
+      }
+      
+      // Calcular días promedio hasta revelar
+      if (label.revealed_at && label.delivered_at) {
+        const days = Math.floor(
+          (new Date(label.revealed_at).getTime() - new Date(label.delivered_at).getTime()) 
+          / (1000 * 60 * 60 * 24)
+        );
+        totalDaysToReveal += days;
+        revealsCount++;
+      }
+      
+      // Calcular días promedio hasta agradecer
+      if (label.acknowledged_at && label.delivered_at) {
+        const days = Math.floor(
+          (new Date(label.acknowledged_at).getTime() - new Date(label.delivered_at).getTime()) 
+          / (1000 * 60 * 60 * 24)
+        );
+        totalDaysToAcknowledge += days;
+        acknowledgesCount++;
+      }
+    });
+
+    stats.avg_days_to_reveal = revealsCount > 0 ? Math.round(totalDaysToReveal / revealsCount) : 0;
+    stats.avg_days_to_acknowledge = acknowledgesCount > 0 ? Math.round(totalDaysToAcknowledge / acknowledgesCount) : 0;
+
+    return c.json({ stats });
+  } catch (error) {
+    console.log("Error getting emotive stats:", error);
+    return c.json({ error: "Error getting emotive stats" }, 500);
+  }
+});
+
+// Actualizar estado de entrega (llamado por el sistema de última milla)
+app.post("/make-server-0dd48dc4/emotive/:id/update-status", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const body = await c.req.json();
+    const entry = await kv.get([id]);
+
+    if (!entry.value) {
+      return c.json({ error: "Emotive label not found" }, 404);
+    }
+
+    const emotiveLabel = entry.value as any;
+    const timestamp = new Date().toISOString();
+
+    // Actualizar status
+    if (body.status) {
+      emotiveLabel.status = body.status;
+    }
+
+    // Actualizar fechas según el status
+    if (body.status === "shipped" && !emotiveLabel.shipped_at) {
+      emotiveLabel.shipped_at = timestamp;
+    }
+    
+    if (body.status === "delivered" && !emotiveLabel.delivered_at) {
+      emotiveLabel.delivered_at = timestamp;
+      
+      // Registrar interacción
+      emotiveLabel.interactions.push({
+        type: "package_delivered",
+        timestamp,
+        delivered_to: body.delivered_to || "unknown",
+      });
+    }
+
+    // Actualizar tracking del paquete
+    if (body.tracking_update) {
+      emotiveLabel.package.tracking_update = body.tracking_update;
+    }
+
+    await kv.set([id], emotiveLabel);
+
+    return c.json({ 
+      success: true,
+      message: "Status updated successfully",
+      emotive_label: emotiveLabel,
+    });
+  } catch (error) {
+    console.log("Error updating status:", error);
+    return c.json({ error: "Error updating status" }, 500);
+  }
+});
+
+// Función auxiliar para generar comandos de impresora para etiqueta emotiva
+function generateEmotiveLabelPrinterCommands(label: any) {
+  const format = label.format;
+  const commands = [];
+  
+  commands.push(`SIZE ${format.width}mm,${format.height}mm`);
+  commands.push(`GAP 3mm,0mm`);
+  commands.push(`CLS`);
+  
+  // Header
+  commands.push(`TEXT 10,10,"4",0,1,1,"${label.sender.name}"`);
+  commands.push(`TEXT 10,40,"2",0,1,1,"para ${label.recipient.name}"`);
+  commands.push(`LINE 10,70,${format.width - 10},70`);
+  
+  // Dirección
+  commands.push(`TEXT 10,80,"2",0,1,1,"PARA:"`);
+  commands.push(`TEXT 10,100,"3",0,1,1,"${label.recipient.name}"`);
+  commands.push(`TEXT 10,130,"2",0,1,1,"${label.recipient.address}"`);
+  
+  // Tracking number
+  commands.push(`TEXT 10,170,"2",0,1,1,"TRACKING: ${label.package.tracking_number}"`);
+  
+  // QR de Tracking (izquierda)
+  commands.push(`QRCODE 10,200,H,5,A,0,"${label.qr_tracking.data}"`);
+  commands.push(`TEXT 10,300,"1",0,1,1,"Escanea para tracking"`);
+  
+  // QR Emotivo (derecha) - MÁS GRANDE Y DESTACADO
+  const qrEmotiveX = format.width - 120;
+  commands.push(`BOX ${qrEmotiveX - 10},190,${format.width - 10},320,3`); // Recuadro
+  commands.push(`QRCODE ${qrEmotiveX},200,H,6,A,0,"${label.qr_emotive.data}"`);
+  commands.push(`TEXT ${qrEmotiveX},310,"2",0,1,1,"MENSAJE"`);
+  commands.push(`TEXT ${qrEmotiveX},330,"2",0,1,1,"ESPECIAL"`);
+  commands.push(`TEXT ${qrEmotiveX},350,"1",0,1,1,"Escanea aqui"`);
+  
+  // Título del mensaje emotivo
+  if (label.emotive_message.title) {
+    commands.push(`TEXT 10,380,"3",0,1,1,"${label.emotive_message.title}"`);
+  }
+  
+  commands.push(`PRINT 1,1`);
+  
+  return {
+    format: "TSPL",
+    commands,
+    raw: commands.join("\n"),
+  };
+}
 
 export default app;
