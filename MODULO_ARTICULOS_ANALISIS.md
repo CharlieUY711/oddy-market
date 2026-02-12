@@ -113,13 +113,13 @@ Ejemplo:
 ---
 
 ### 🟡 NIVEL 2: INTERMEDIA
-**Propósito**: Inventario y logística  
+**Propósito**: Inventario, logística y trazabilidad  
 **Target User**: Usuario con stock físico y control de inventario  
-**Tiempo**: 5-7 minutos
+**Tiempo**: 7-10 minutos
 
 ```
 ┌────────────────────────────────────────┐
-│      INVENTARIO Y LOGÍSTICA            │
+│   INVENTARIO, LOGÍSTICA Y TRAZABILIDAD │
 ├────────────────────────────────────────┤
 │                                        │
 │  🔢 SKU                                │
@@ -132,12 +132,21 @@ Ejemplo:
 │  🏷️ Etiquetas                          │
 │  💸 Descuento (%)                      │
 │                                        │
+│  🔬 TRAZABILIDAD (opcional)            │
+│  ├─ 📦 Lote                           │
+│  ├─ 🏭 Fecha de Elaboración           │
+│  ├─ 📅 Fecha de Compra                │
+│  ├─ 🏢 Proveedor                      │
+│  └─ ⚠️ Fecha de Vencimiento           │
+│                                        │
 │  ← Anterior    Siguiente →            │
 │                                        │
 └────────────────────────────────────────┘
 ```
 
 **Campos identificados:**
+
+**Inventario y Logística:**
 1. ✅ SKU (ej: SKU-001)
 2. ✅ Código de Barras (ej: 123456789012)
 3. ✅ Marca (ej: Nike, Adidas, etc.)
@@ -148,9 +157,43 @@ Ejemplo:
 8. ✅ Etiquetas (input + botón agregar)
 9. ✅ Descuento en % (número)
 
+**Trazabilidad (NUEVO):**
+10. ✅ Lote (ej: LOTE-2026-001)
+11. ✅ Fecha de Elaboración (date picker)
+12. ✅ Fecha de Compra (date picker)
+13. ✅ Proveedor (texto o select)
+14. ✅ Fecha de Vencimiento (date picker)
+
 **Casos de Uso - Nivel Intermedia:**
 
-#### 👤 Usuario 4: Tienda Física con Inventario
+#### 👤 Usuario 4: Comercio de Alimentos/Farmacia
+```
+Perfil:
+- Vende productos con vencimiento
+- Necesita trazabilidad completa
+- Regulaciones sanitarias estrictas
+- Control FIFO (First In, First Out)
+
+Flujo:
+1. Básica completa
+2. Intermedia con TRAZABILIDAD obligatoria:
+   - Lote para identificar origen
+   - Fecha elaboración para control calidad
+   - Fecha compra para FIFO
+   - Proveedor para responsabilidad
+   - Fecha vencimiento para alertas críticas
+3. Sistema alerta productos próximos a vencer
+
+Ejemplo:
+- Supermercado
+- Farmacia
+- Tienda de suplementos
+- Productos orgánicos
+- Cosméticos
+- Productos lácteos
+```
+
+#### 👤 Usuario 5: Tienda Física con Inventario
 ```
 Perfil:
 - Local físico + online
