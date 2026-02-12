@@ -57,13 +57,13 @@ curl http://localhost:8000/
 | **billing** | ✅ | 16 | Facturación multi-país + E-Invoice + Pagos + Reportes |
 | **pos** | ✅ | 14 | Punto de Venta + Turnos + Arqueo + Parking |
 | **customs** | ✅ | 11 | DUA Uruguay + Packing Lists + Certificados + Clasificación |
+| **fulfillment** | ✅ | 12 | Picking + Packing + Guías + Warehouse + Dashboard |
 | **documents** | ✅ | 34 | Documentos + Tickets + E-Invoice + Etiquetas + Emotivas |
 | **library** | ✅ | 9 | Almacenamiento de archivos + OCR |
 | **shipping** | ✅ | 9 | Envíos + GPS + Google Maps + Tracking |
 | **inventory** | ✅ | 8 | Stock, alertas, movimientos, FIFO |
 | **categories** | ✅ | 8 | Categorías jerárquicas, atributos, mapeo |
 | **integrations** | ✅ | 18 | ML, FB, IG, WA, Google, Couriers (FedEx, UPS, DHL, etc) |
-| fulfillment | ⚪ | - | Próximamente |
 
 ---
 
