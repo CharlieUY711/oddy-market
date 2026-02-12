@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-typescript-next",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "dsznajder.es7-react-js-snippets",
+    "eamodio.gitlens",
+    "PKief.material-icon-theme",
+    "usernamehw.errorlens",
+    "steoates.autoimport",
+    "wix.vscode-import-cost",
+    "JakeWilson.vscode-placeholder-images",
+    "mikestead.dotenv"
+  ]
+}
