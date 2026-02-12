@@ -55,6 +55,7 @@ curl http://localhost:8000/
 | **auth** | ✅ | 7 | Autenticación (registro, login, reset) |
 | **users** | ✅ | 9 | Usuarios con RBAC y permisos |
 | **billing** | ✅ | 16 | Facturación multi-país + E-Invoice + Pagos + Reportes |
+| **pos** | ✅ | 14 | Punto de Venta + Turnos + Arqueo + Parking |
 | **documents** | ✅ | 34 | Documentos + Tickets + E-Invoice + Etiquetas + Emotivas |
 | **library** | ✅ | 9 | Almacenamiento de archivos + OCR |
 | **shipping** | ✅ | 9 | Envíos + GPS + Google Maps + Tracking |
