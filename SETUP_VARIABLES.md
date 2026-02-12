@@ -1,5 +1,3 @@
-# 🔐 Variables de Entorno - ODDY Market
-
 ## Instrucciones de Setup
 
 1. Copia el contenido de este archivo
@@ -245,7 +243,3 @@ DEBUG=false
 ### Error en Sentry
 - Verifica el DSN (debe empezar con `https://`)
 - Instala el paquete: `npm install @sentry/react`
-
----
-
-¿Necesitas ayuda? Revisa la documentación de cada servicio o pregunta en el repositorio.
