@@ -28,7 +28,9 @@ export const Footer = () => {
             <li><Link to="/contact">Contacto</Link></li>
             <li><Link to="/faq">Preguntas Frecuentes</Link></li>
             <li><Link to="/shipping">Envíos</Link></li>
-            <li><Link to="/admin" className={styles.adminLink}>🎛️ Admin</Link></li>
+            {import.meta.env.DEV && (
+              <li><Link to="/admin" className={styles.adminLink}>🎛️ Admin</Link></li>
+            )}
           </ul>
         </div>
 

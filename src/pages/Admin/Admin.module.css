@@ -1,3 +1,63 @@
+/* Login Container */
+.loginContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  padding: var(--spacing-xl);
+}
+
+.loginCard {
+  max-width: 500px;
+  width: 100%;
+}
+
+.lockIcon {
+  display: flex;
+  justify-content: center;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.loginDescription {
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.loginButton {
+  width: 100%;
+}
+
+.backButton {
+  width: 100%;
+}
+
+.error {
+  color: var(--color-error);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.devNote {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-info);
+  color: white;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+/* Admin Panel */
 .admin {
   min-height: 100vh;
   background-color: var(--color-background);
@@ -7,6 +67,33 @@
 .header {
   text-align: center;
   margin-bottom: var(--spacing-4xl);
+  position: relative;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.logoutButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.devBadge {
+  display: inline-block;
+  background-color: var(--color-warning);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--spacing-md);
 }
 
 .title {

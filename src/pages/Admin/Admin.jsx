@@ -1,10 +1,95 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card';
 import { Button } from '../../components/Button';
-import { ExternalLink } from 'lucide-react';
+import { Input } from '../../components/Input';
+import { ExternalLink, Lock } from 'lucide-react';
 import styles from './Admin.module.css';
 
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin2024'; // Cambiar en producción
+
 export const Admin = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const isDevelopment = import.meta.env.DEV;
+
+  useEffect(() => {
+    // En desarrollo, permitir acceso sin contraseña
+    if (isDevelopment) {
+      setIsAuthenticated(true);
+    } else {
+      // En producción, verificar si ya está autenticado en esta sesión
+      const isAuth = sessionStorage.getItem('admin_auth') === 'true';
+      setIsAuthenticated(isAuth);
+    }
+  }, [isDevelopment]);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('admin_auth', 'true');
+      setError('');
+    } else {
+      setError('Contraseña incorrecta');
+      setPassword('');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('admin_auth');
+    navigate('/');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className={styles.loginContainer}>
+        <Card className={styles.loginCard}>
+          <CardHeader>
+            <div className={styles.lockIcon}>
+              <Lock size={48} />
+            </div>
+            <CardTitle>🔐 Acceso Restringido</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className={styles.loginDescription}>
+              Esta página es solo para administradores. Ingresa la contraseña para continuar.
+            </p>
+            <form onSubmit={handleLogin} className={styles.loginForm}>
+              <Input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoFocus
+              />
+              {error && <p className={styles.error}>{error}</p>}
+              <Button type="submit" variant="primary" size="lg" className={styles.loginButton}>
+                Ingresar
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/')}
+                className={styles.backButton}
+              >
+                Volver al inicio
+              </Button>
+            </form>
+            {isDevelopment && (
+              <p className={styles.devNote}>
+                💡 Modo desarrollo: La contraseña por defecto es "admin2024"
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const backendLinks = [
     {
       title: '🗄️ Gestión de Productos',
@@ -93,10 +178,18 @@ export const Admin = () => {
   return (
     <div className={styles.admin}>
       <div className={styles.header}>
-        <h1 className={styles.title}>🎛️ Panel de Administración</h1>
+        <div className={styles.headerTop}>
+          <h1 className={styles.title}>🎛️ Panel de Administración</h1>
+          <Button variant="outline" size="sm" onClick={handleLogout} className={styles.logoutButton}>
+            Cerrar Sesión
+          </Button>
+        </div>
         <p className={styles.subtitle}>
           Accesos rápidos al backend, deployment y gestión del proyecto
         </p>
+        {isDevelopment && (
+          <div className={styles.devBadge}>🔧 Modo Desarrollo</div>
+        )}
       </div>
 
       {/* Backend Section */}
