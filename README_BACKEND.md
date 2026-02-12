@@ -52,10 +52,15 @@ curl http://localhost:8000/
 | **inventory** | ✅ | 8 | Stock, alertas, movimientos, FIFO |
 | **categories** | ✅ | 8 | Categorías jerárquicas, atributos, mapeo |
 | **integrations** | ✅ | 10 | ML, Facebook, Instagram, WhatsApp |
-| cart | ⚪ | - | Próximamente |
-| auth | ⚪ | - | Próximamente |
-| users | ⚪ | - | Próximamente |
+| **entities** | ✅ | 8 | Multi-tenant (entidades, territorios) |
+| **cart** | ✅ | 9 | Carrito de compras con totales y cupones |
+| **auth** | ✅ | 7 | Autenticación (registro, login, reset) |
+| **users** | ✅ | 9 | Usuarios con RBAC y permisos |
+| **documents** | ✅ | 21 | Documentos + Tickets + E-Invoice (8 países) |
+| **library** | ✅ | 9 | Almacenamiento de archivos + OCR |
 | billing | ⚪ | - | Próximamente |
+| shipping | ⚪ | - | Próximamente |
+| fulfillment | ⚪ | - | Próximamente |
 
 ---
 

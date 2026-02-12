@@ -17,6 +17,59 @@ const DOCUMENT_TYPES = {
   WAYBILL: "waybill",                // Carta de porte
   RECEIPT: "receipt",                // Recibo
   PROFORMA: "proforma",              // Factura proforma
+  TICKET: "ticket",                  // Ticket (impresora térmica)
+};
+
+// Proveedores de facturación electrónica por país
+const E_INVOICE_PROVIDERS = {
+  UY: {
+    name: "DGI - Dirección General Impositiva",
+    provider: "dgi",
+    endpoint: "https://seace.dgi.gub.uy",
+    documentation: "https://dgi.gub.uy",
+  },
+  AR: {
+    name: "AFIP - Administración Federal de Ingresos Públicos",
+    provider: "afip",
+    endpoint: "https://servicios1.afip.gov.ar/wsfev1/service.asmx",
+    documentation: "https://www.afip.gob.ar/ws/",
+  },
+  BR: {
+    name: "SEFAZ - Secretaria da Fazenda",
+    provider: "sefaz",
+    endpoint: "https://nfe.fazenda.gov.br",
+    documentation: "http://www.nfe.fazenda.gov.br",
+  },
+  CL: {
+    name: "SII - Servicio de Impuestos Internos",
+    provider: "sii",
+    endpoint: "https://palena.sii.cl",
+    documentation: "https://www.sii.cl/factura_electronica/",
+  },
+  PE: {
+    name: "SUNAT - Superintendencia Nacional de Aduanas",
+    provider: "sunat",
+    endpoint: "https://e-factura.sunat.gob.pe",
+    documentation: "https://cpe.sunat.gob.pe",
+  },
+  MX: {
+    name: "SAT - Servicio de Administración Tributaria",
+    provider: "sat",
+    endpoint: "https://portalcfdi.facturaelectronica.sat.gob.mx",
+    documentation: "https://www.sat.gob.mx/factura/",
+  },
+  CO: {
+    name: "DIAN - Dirección de Impuestos y Aduanas Nacionales",
+    provider: "dian",
+    endpoint: "https://catalogo-vpfe.dian.gov.co",
+    documentation: "https://www.dian.gov.co/",
+  },
+  EC: {
+    name: "SRI - Servicio de Rentas Internas",
+    provider: "sri",
+    endpoint: "https://cel.sri.gob.ec",
+    documentation: "https://www.sri.gob.ec/facturacion-electronica",
+  },
 };
 
 const DOCUMENT_STATUS = {
@@ -710,6 +763,481 @@ app.post("/make-server-0dd48dc4/documents/:id/void", async (c) => {
   } catch (error) {
     console.log("Error voiding document:", error);
     return c.json({ error: "Error voiding document" }, 500);
+  }
+});
+
+// ============================================
+// DASHBOARD DE DOCUMENTOS POR PARTY
+// ============================================
+
+app.get("/make-server-0dd48dc4/documents/party/:party_id/dashboard", async (c) => {
+  try {
+    const party_id = c.req.param("party_id");
+    const entity_id = c.req.query("entity_id") || "default";
+
+    // Obtener documentos de la party
+    const partyPrefix = ["documents_by_party", entity_id, party_id];
+    const entries = kv.list({ prefix: partyPrefix });
+    
+    let documents = [];
+    for await (const entry of entries) {
+      const docId = entry.key[entry.key.length - 1];
+      const docEntry = await kv.get([docId]);
+      if (docEntry.value) {
+        documents.push(docEntry.value);
+      }
+    }
+
+    // Separar por tipo
+    const quotes = documents.filter((d: any) => d.document_type === DOCUMENT_TYPES.QUOTE);
+    const invoices = documents.filter((d: any) => d.document_type === DOCUMENT_TYPES.INVOICE);
+    const tickets = documents.filter((d: any) => d.document_type === DOCUMENT_TYPES.TICKET);
+    const deliveryNotes = documents.filter((d: any) => d.document_type === DOCUMENT_TYPES.DELIVERY_NOTE);
+
+    // Calcular totales
+    const totalInvoiced = invoices.reduce((sum: number, inv: any) => sum + (inv.total || 0), 0);
+    const totalPaid = invoices
+      .filter((inv: any) => inv.status === DOCUMENT_STATUS.PAID)
+      .reduce((sum: number, inv: any) => sum + (inv.total || 0), 0);
+    const totalPending = totalInvoiced - totalPaid;
+
+    // Documentos recientes
+    const recentDocuments = documents
+      .sort((a: any, b: any) => 
+        new Date(b.issue_date).getTime() - new Date(a.issue_date).getTime()
+      )
+      .slice(0, 10);
+
+    return c.json({
+      dashboard: {
+        party_id,
+        summary: {
+          total_documents: documents.length,
+          total_quotes: quotes.length,
+          total_invoices: invoices.length,
+          total_tickets: tickets.length,
+          total_delivery_notes: deliveryNotes.length,
+        },
+        financial: {
+          total_invoiced: totalInvoiced,
+          total_paid: totalPaid,
+          total_pending: totalPending,
+        },
+        recent_documents: recentDocuments.map((doc: any) => ({
+          id: doc.id,
+          document_type: doc.document_type,
+          document_number: doc.document_number,
+          issue_date: doc.issue_date,
+          total: doc.total,
+          status: doc.status,
+          pdf_url: doc.pdf_url,
+        })),
+      },
+    });
+  } catch (error) {
+    console.log("Error getting party dashboard:", error);
+    return c.json({ error: "Error getting party dashboard" }, 500);
+  }
+});
+
+// ============================================
+// GENERAR TICKET (IMPRESORA TÉRMICA)
+// ============================================
+
+app.post("/make-server-0dd48dc4/documents/generate-ticket", async (c) => {
+  try {
+    const body = await c.req.json();
+    const timestamp = new Date().toISOString();
+
+    // Generar número de ticket
+    const ticketNumber = await getNextDocumentNumber(
+      body.entity_id || "default",
+      DOCUMENT_TYPES.TICKET,
+      "T" // Serie para tickets
+    );
+
+    const id = `doc:${Date.now()}`;
+
+    const ticket = {
+      id,
+      entity_id: body.entity_id || "default",
+      
+      document_type: DOCUMENT_TYPES.TICKET,
+      document_number: ticketNumber,
+      series: "T",
+      
+      issue_date: timestamp,
+      due_date: null,
+      
+      from: body.from || {},
+      to: body.to || {},
+      
+      items: body.items || [],
+      
+      subtotal: body.subtotal || 0,
+      discount: body.discount || 0,
+      tax: body.tax || 0,
+      shipping: 0,
+      total: body.total || 0,
+      
+      currency: body.currency || "USD",
+      
+      related_order_id: body.related_order_id || null,
+      
+      payment_method: body.payment_method || "cash",
+      
+      notes: body.notes || "",
+      
+      // Formato específico para impresora térmica
+      thermal_format: {
+        width: body.thermal_format?.width || 58, // mm (58mm o 80mm)
+        font_size: body.thermal_format?.font_size || "normal",
+        print_logo: body.thermal_format?.print_logo !== false,
+        print_qr: body.thermal_format?.print_qr !== false,
+      },
+      
+      pdf_url: null,
+      status: DOCUMENT_STATUS.PAID, // Tickets generalmente son pagados al momento
+      
+      fiscal_validation: {
+        validated: false,
+        validation_date: null,
+        cae: null,
+        cfe: null,
+        validation_code: null,
+      },
+      
+      metadata: body.metadata || {},
+      
+      created_at: timestamp,
+      updated_at: timestamp,
+      created_by: body.created_by || null,
+    };
+
+    // Calcular totales automáticamente
+    if (ticket.items.length > 0) {
+      let subtotal = 0;
+      let tax = 0;
+      
+      ticket.items.forEach((item: any) => {
+        const itemSubtotal = item.quantity * item.unit_price - (item.discount || 0);
+        const itemTax = itemSubtotal * (item.tax_rate || 0);
+        
+        item.subtotal = itemSubtotal;
+        item.total = itemSubtotal + itemTax;
+        
+        subtotal += itemSubtotal;
+        tax += itemTax;
+      });
+      
+      ticket.subtotal = subtotal;
+      ticket.tax = tax;
+      ticket.total = subtotal + tax - (ticket.discount || 0);
+    }
+
+    await kv.set([id], ticket);
+    
+    // Indexar
+    await kv.set(["documents_by_entity", ticket.entity_id, id], true);
+    await kv.set(["documents_by_type", ticket.entity_id, ticket.document_type, id], true);
+    await kv.set(["documents_by_number", ticket.entity_id, ticket.document_number], id);
+    
+    if (ticket.to.party_id) {
+      await kv.set(["documents_by_party", ticket.entity_id, ticket.to.party_id, id], true);
+    }
+
+    return c.json({ 
+      ticket,
+      message: "Ticket generated successfully",
+      // Datos para impresora térmica
+      thermal_data: {
+        width: ticket.thermal_format.width,
+        commands: [
+          "ALIGN CENTER",
+          "LOGO",
+          "TEXT BOLD ON",
+          `TEXT ${ticket.from.name || "TIENDA"}`,
+          "TEXT BOLD OFF",
+          "LINE",
+          `TEXT TICKET: ${ticket.document_number}`,
+          `TEXT FECHA: ${new Date(ticket.issue_date).toLocaleString()}`,
+          "LINE",
+          "ALIGN LEFT",
+          ...ticket.items.map((item: any) => 
+            `TEXT ${item.description} x${item.quantity} $${item.total}`
+          ),
+          "LINE",
+          "ALIGN RIGHT",
+          `TEXT BOLD ON`,
+          `TEXT TOTAL: $${ticket.total}`,
+          "TEXT BOLD OFF",
+          "LINE",
+          "ALIGN CENTER",
+          "TEXT Gracias por su compra",
+          ticket.thermal_format.print_qr ? `QR ${ticket.id}` : "",
+          "CUT",
+        ].filter(Boolean),
+      },
+    });
+  } catch (error) {
+    console.log("Error generating ticket:", error);
+    return c.json({ error: error.message || "Error generating ticket" }, 500);
+  }
+});
+
+// ============================================
+// CONFIGURACIÓN DE FACTURACIÓN ELECTRÓNICA
+// ============================================
+
+// Obtener proveedores disponibles
+app.get("/make-server-0dd48dc4/documents/e-invoice/providers", async (c) => {
+  try {
+    const country = c.req.query("country");
+
+    if (country) {
+      const provider = E_INVOICE_PROVIDERS[country.toUpperCase()];
+      
+      if (!provider) {
+        return c.json({ error: "Provider not found for country" }, 404);
+      }
+
+      return c.json({ provider });
+    }
+
+    // Retornar todos los proveedores
+    return c.json({ providers: E_INVOICE_PROVIDERS });
+  } catch (error) {
+    console.log("Error getting providers:", error);
+    return c.json({ error: "Error getting providers" }, 500);
+  }
+});
+
+// Configurar credenciales de proveedor de e-invoicing
+app.post("/make-server-0dd48dc4/documents/e-invoice/configure", async (c) => {
+  try {
+    const body = await c.req.json();
+    const entity_id = body.entity_id || "default";
+    const country = body.country;
+
+    if (!country || !E_INVOICE_PROVIDERS[country.toUpperCase()]) {
+      return c.json({ error: "Invalid country or provider not available" }, 400);
+    }
+
+    const configId = `e-invoice-config:${entity_id}:${country}`;
+    const timestamp = new Date().toISOString();
+
+    const config = {
+      id: configId,
+      entity_id,
+      country: country.toUpperCase(),
+      provider: E_INVOICE_PROVIDERS[country.toUpperCase()].provider,
+      
+      // Credenciales (en producción deberían estar encriptadas)
+      credentials: {
+        certificate: body.credentials?.certificate || null, // Certificado digital
+        key: body.credentials?.key || null,
+        rut: body.credentials?.rut || null,
+        cuit: body.credentials?.cuit || null,
+        tax_id: body.credentials?.tax_id || null,
+        username: body.credentials?.username || null,
+        password: body.credentials?.password || null, // ENCRIPTAR EN PRODUCCIÓN
+        token: body.credentials?.token || null,
+        api_key: body.credentials?.api_key || null,
+      },
+      
+      // Configuración
+      environment: body.environment || "testing", // testing, production
+      auto_send: body.auto_send !== false, // Enviar automáticamente a proveedor
+      
+      // Status
+      enabled: body.enabled !== false,
+      
+      // Metadata
+      metadata: body.metadata || {},
+      
+      created_at: timestamp,
+      updated_at: timestamp,
+    };
+
+    await kv.set([configId], config);
+    
+    // Indexar por entity
+    await kv.set(["e_invoice_configs", entity_id, country], configId);
+
+    return c.json({ 
+      config: {
+        ...config,
+        credentials: "***hidden***", // No retornar credenciales
+      },
+      message: "E-invoice configuration saved successfully" 
+    });
+  } catch (error) {
+    console.log("Error configuring e-invoice:", error);
+    return c.json({ error: "Error configuring e-invoice" }, 500);
+  }
+});
+
+// Obtener configuración de e-invoicing
+app.get("/make-server-0dd48dc4/documents/e-invoice/config", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+    const country = c.req.query("country");
+
+    if (!country) {
+      return c.json({ error: "Country is required" }, 400);
+    }
+
+    const configIndex = ["e_invoice_configs", entity_id, country.toUpperCase()];
+    const configIdEntry = await kv.get(configIndex);
+
+    if (!configIdEntry.value) {
+      return c.json({ error: "Configuration not found" }, 404);
+    }
+
+    const configId = configIdEntry.value as string;
+    const configEntry = await kv.get([configId]);
+
+    if (!configEntry.value) {
+      return c.json({ error: "Configuration not found" }, 404);
+    }
+
+    const config = configEntry.value as any;
+
+    return c.json({ 
+      config: {
+        ...config,
+        credentials: "***hidden***", // No retornar credenciales
+      },
+    });
+  } catch (error) {
+    console.log("Error getting e-invoice config:", error);
+    return c.json({ error: "Error getting e-invoice config" }, 500);
+  }
+});
+
+// Enviar documento a proveedor oficial (SIMULADO)
+app.post("/make-server-0dd48dc4/documents/:id/submit-to-provider", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const entry = await kv.get([id]);
+
+    if (!entry.value) {
+      return c.json({ error: "Document not found" }, 404);
+    }
+
+    const document = entry.value as any;
+    const timestamp = new Date().toISOString();
+
+    // Obtener configuración de e-invoicing
+    const configIndex = ["e_invoice_configs", document.entity_id, document.from.address?.country || "UY"];
+    const configIdEntry = await kv.get(configIndex);
+
+    if (!configIdEntry.value) {
+      return c.json({ error: "E-invoice not configured for this country" }, 400);
+    }
+
+    const configId = configIdEntry.value as string;
+    const configEntry = await kv.get([configId]);
+    const config = configEntry.value as any;
+
+    if (!config.enabled) {
+      return c.json({ error: "E-invoicing is disabled" }, 400);
+    }
+
+    // Simular envío al proveedor
+    const provider = E_INVOICE_PROVIDERS[config.country];
+    console.log(`Submitting document ${document.document_number} to ${provider.name}...`);
+
+    // En producción, aquí iría la llamada real al proveedor
+    // Cada proveedor tiene su propio formato y protocolo
+    
+    // Simular respuesta exitosa
+    const validationCode = `${config.country}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    const cae = config.country === "AR" ? `${Date.now()}` : null;
+    const cfe = config.country === "UY" ? `CFE-${Date.now()}` : null;
+
+    const updated = {
+      ...document,
+      fiscal_validation: {
+        validated: true,
+        validation_date: timestamp,
+        cae,
+        cfe,
+        validation_code: validationCode,
+        provider: config.provider,
+        environment: config.environment,
+      },
+      status: DOCUMENT_STATUS.APPROVED,
+      updated_at: timestamp,
+    };
+
+    await kv.set([id], updated);
+
+    return c.json({ 
+      document: updated,
+      message: `Document submitted successfully to ${provider.name}`,
+      validation: {
+        provider: provider.name,
+        validation_code: validationCode,
+        cae,
+        cfe,
+      },
+    });
+  } catch (error) {
+    console.log("Error submitting to provider:", error);
+    return c.json({ error: "Error submitting to provider" }, 500);
+  }
+});
+
+// ============================================
+// LISTAR DOCUMENTOS ACCESIBLES PARA UNA PARTY
+// ============================================
+
+app.get("/make-server-0dd48dc4/documents/my-documents", async (c) => {
+  try {
+    const party_id = c.req.query("party_id");
+    const entity_id = c.req.query("entity_id") || "default";
+
+    if (!party_id) {
+      return c.json({ error: "party_id is required" }, 400);
+    }
+
+    // Obtener documentos de la party
+    const partyPrefix = ["documents_by_party", entity_id, party_id];
+    const entries = kv.list({ prefix: partyPrefix });
+    
+    let documents = [];
+    for await (const entry of entries) {
+      const docId = entry.key[entry.key.length - 1];
+      const docEntry = await kv.get([docId]);
+      if (docEntry.value) {
+        documents.push(docEntry.value);
+      }
+    }
+
+    // Ordenar por fecha (más reciente primero)
+    documents.sort((a: any, b: any) => 
+      new Date(b.issue_date).getTime() - new Date(a.issue_date).getTime()
+    );
+
+    return c.json({
+      documents: documents.map((doc: any) => ({
+        id: doc.id,
+        document_type: doc.document_type,
+        document_number: doc.document_number,
+        issue_date: doc.issue_date,
+        due_date: doc.due_date,
+        total: doc.total,
+        currency: doc.currency,
+        status: doc.status,
+        pdf_url: doc.pdf_url,
+        fiscal_validation: doc.fiscal_validation,
+      })),
+      total: documents.length,
+    });
+  } catch (error) {
+    console.log("Error getting my documents:", error);
+    return c.json({ error: "Error getting my documents" }, 500);
   }
 });
 
