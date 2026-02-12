@@ -123,14 +123,20 @@
 ### **FASE 1: Core Crítico** (Próximos 5 módulos)
 
 ```
-6.  ⚪ cart.tsx               - Carrito (necesario para ecommerce)
-7.  ⚪ auth.tsx               - Autenticación (crítico)
-8.  ⚪ users.tsx              - Usuarios (crítico)
-9.  ⚪ billing.tsx            - Facturación (importante para revenue)
-10. ⚪ shipping.tsx           - Envíos (crítico para fulfillment)
+6.  ⚪ parties.tsx            - Personas + Organizaciones (ÚNICO módulo, no customers/suppliers separados)
+7.  ⚪ cart.tsx               - Carrito (necesario para ecommerce)
+8.  ⚪ auth.tsx               - Autenticación (crítico)
+9.  ⚪ users.tsx              - Usuarios (crítico)
+10. ⚪ billing.tsx            - Facturación (importante para revenue)
 ```
 
 **Tiempo estimado**: 1-2 semanas
+
+**⚠️ DECISIÓN ARQUITECTÓNICA:**
+- ✅ `parties.tsx` es la ÚNICA tabla para todas las entidades
+- ✅ NO se crean `customers.tsx` ni `suppliers.tsx` separados
+- ✅ Los roles (CUSTOMER, SUPPLIER, EMPLOYEE) son contextuales
+- ✅ Datos específicos en JSONB (`context_data`)
 
 ---
 
