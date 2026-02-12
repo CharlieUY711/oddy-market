@@ -1,0 +1,14 @@
+{
+  "name": "oddy-backend",
+  "version": "1.0.0",
+  "tasks": {
+    "start": "deno run --allow-all supabase/functions/server/index.tsx"
+  },
+  "deploy": {
+    "project": "oddy-backend",
+    "entrypoint": "supabase/functions/server/index.tsx",
+    "include": [
+      "supabase/functions/"
+    ]
+  }
+}
