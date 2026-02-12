@@ -92,25 +92,43 @@ Libre UY   Argentina      Brasil         USA       España
 
 ## 💰 MODELO DE NEGOCIO
 
-### SaaS Multi-Tenant
+### SaaS Multi-Tenant con Pricing Profesional
 
-#### Opción 1: Subscripción Mensual
+> 📊 **Ver modelo completo en:** `MODELO_PRICING_CHARLIE.md`
+
+#### TIER 1: Enterprise / Distribuidor Regional
 ```
-Starter:  $99/mes  → 1 territorio, 100 productos
-Business: $299/mes → 3 territorios, 1000 productos
-Enterprise: $999/mes → Ilimitado, white label completo
+Setup Fee:           $15,000 - $25,000 (one-time)
+Mensualidad Base:    $5,000 - $8,000/mes (2 territorios incluidos)
+Territorios Extra:   $1,500 - $2,500/mes c/u
+
+Ejemplo: Distribuidor con 5 territorios
+Total Mensual: $12,000/mes
+Total Año 1:   $164,000 (incluye setup)
+Total Año 2+:  $144,000/año
 ```
 
-#### Opción 2: Licencia por Territorio
+#### TIER 2: Growth / E-commerce Establecido
 ```
-$500/mes por país configurado
-Incluye todo el stack (ERP, CRM, Marketing, etc.)
+Setup Fee:           $5,000 - $10,000 (one-time)
+Mensualidad Base:    $2,500 - $4,000/mes (1 territorio incluido)
+Territorios Extra:   $1,000 - $1,500/mes c/u
 ```
 
-#### Opción 3: Revenue Share
+#### TIER 3: Starter / SMB
 ```
-3-5% de las ventas del marketplace
-+ Hosting y mantenimiento incluido
+Setup Fee:           $2,000 - $3,000 (one-time)
+Mensualidad Base:    $999 - $1,500/mes (1 territorio)
+Territorios Extra:   $500 - $800/mes c/u
+```
+
+#### Opción Alternativa: Revenue Share Híbrido
+```
+Setup:    $10,000 (one-time)
+Base:     $3,000/mes
+Revenue:  1.5-2% del GMV sobre $200k/mes
+
+Cliente paga base predecible + incentivo por crecimiento
 ```
 
 ---
@@ -325,11 +343,18 @@ Tienda que vende a múltiples países
 - **Crecimiento anual:** 22%
 - **Empresas potenciales:** 50,000+
 
-### Proyección:
+### Proyección (Escenario Conservador):
 ```
-Año 1: 10 clientes × $999/mes = $120k/año
-Año 2: 50 clientes × $999/mes = $600k/año
-Año 3: 200 clientes × $999/mes = $2.4M/año
+Año 1: 5 clientes × $6k MRR = $360k ARR + $100k setup fees = $460k
+Año 2: 15 clientes × $7k MRR = $1.26M ARR + $200k setup fees = $1.46M
+Año 3: 35 clientes × $8k MRR = $3.36M ARR + $400k setup fees = $3.76M
+```
+
+### Proyección (Escenario Optimista):
+```
+Año 1: 10 clientes × $7k MRR = $840k ARR + $150k setup fees = $990k
+Año 2: 30 clientes × $8k MRR = $2.88M ARR + $400k setup fees = $3.28M
+Año 3: 75 clientes × $9k MRR = $8.1M ARR + $900k setup fees = $9M
 ```
 
 ---
