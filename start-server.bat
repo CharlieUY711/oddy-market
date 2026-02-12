@@ -9,4 +9,4 @@ echo Presiona Ctrl+C para detener
 echo.
 
 cd supabase\functions
-deno run --allow-all --watch server/index.tsx
+C:\Users\cvara\.deno\bin\deno.exe run --allow-all --watch server/index.tsx
