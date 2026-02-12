@@ -56,10 +56,10 @@ curl http://localhost:8000/
 | **cart** | ✅ | 9 | Carrito de compras con totales y cupones |
 | **auth** | ✅ | 7 | Autenticación (registro, login, reset) |
 | **users** | ✅ | 9 | Usuarios con RBAC y permisos |
-| **documents** | ✅ | 27 | Documentos + Tickets + E-Invoice + Etiquetas |
+| **documents** | ✅ | 34 | Documentos + Tickets + E-Invoice + Etiquetas + Emotivas |
 | **library** | ✅ | 9 | Almacenamiento de archivos + OCR |
+| **shipping** | ✅ | 9 | Envíos + GPS + Google Maps + Tracking |
 | billing | ⚪ | - | Próximamente |
-| shipping | ⚪ | - | Próximamente |
 | fulfillment | ⚪ | - | Próximamente |
 
 ---
