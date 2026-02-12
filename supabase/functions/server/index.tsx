@@ -22,6 +22,7 @@ import posApp from "./pos.tsx";
 import customsApp from "./customs.tsx";
 import fulfillmentApp from "./fulfillment.tsx";
 import mailingApp from "./mailing.tsx";
+import marketingApp from "./marketing.tsx";
 
 const app = new Hono();
 
@@ -62,6 +63,7 @@ app.get("/", (c) => {
       "categories",
       "integrations",
       "mailing",
+      "marketing",
     ],
   });
 });
@@ -86,6 +88,7 @@ app.route("/", inventoryApp);
 app.route("/", categoriesApp);
 app.route("/", integrationsApp);
 app.route("/", mailingApp);
+app.route("/", marketingApp);
 
 // 404 handler
 app.notFound((c) => {
@@ -99,6 +102,6 @@ app.onError((err, c) => {
 });
 
 console.log("🚀 ODDY Market API Server starting...");
-console.log("📦 Loaded modules: system, entities, parties, products, orders, cart, auth, users, billing, pos, customs, fulfillment, documents, library, shipping, inventory, categories, integrations, mailing");
+console.log("📦 Loaded modules: system, entities, parties, products, orders, cart, auth, users, billing, pos, customs, fulfillment, documents, library, shipping, inventory, categories, integrations, mailing, marketing");
 
 Deno.serve(app.fetch);
