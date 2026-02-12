@@ -61,6 +61,20 @@
   color: var(--color-primary);
 }
 
+.adminLink {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
+  display: inline-block;
+}
+
+.adminLink:hover {
+  background-color: var(--color-secondary) !important;
+  color: white !important;
+}
+
 .bottom {
   max-width: 1280px;
   margin: 0 auto;
