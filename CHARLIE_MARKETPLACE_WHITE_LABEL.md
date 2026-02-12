@@ -92,9 +92,27 @@ Libre UY   Argentina      Brasil         USA       España
 
 ## 💰 MODELO DE NEGOCIO
 
-### SaaS Multi-Tenant con Pricing Profesional
+### Fulfillment as a Service (NO solo SaaS)
 
-> 📊 **Ver modelo completo en:** `MODELO_PRICING_CHARLIE.md`
+> 📊 **Ver modelos completos en:**
+> - `MODELO_PRICING_CHARLIE.md` (SaaS tradicional)
+> - `MODELO_FULFILLMENT_COMPLETO.md` (Fulfillment as a Service) ⭐ **RECOMENDADO**
+
+### ¿Qué Incluye?
+```
+✅ Software (SaaS)
+   - Plataforma multi-territorio
+   - ERP + CRM + Marketing
+
+✅ Gestión Operativa
+   - Generación de remitos
+   - Coordinación con depósitos
+
+✅ Fulfillment
+   - Coordinación de couriers
+   - Tracking de entregas
+   - Gestión de devoluciones
+```
 
 #### TIER 1: Enterprise / Distribuidor Regional
 ```
