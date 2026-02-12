@@ -144,7 +144,7 @@ export const Home = () => {
               variant="primary"
               size="lg"
               className={styles.secondHandButton}
-              onClick={() => navigate('/secondhand')}
+              onClick={() => navigate('/second-hand')}
             >
               Explorar Second Hand
               <ChevronRight className={styles.icon} />
