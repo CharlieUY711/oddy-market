@@ -26,6 +26,10 @@ import marketingApp from "./marketing.tsx";
 import automationApp from "./automation.tsx";
 import socialApp from "./social.tsx";
 import wheelApp from "./wheel.tsx";
+import crmApp from "./crm.tsx";
+import erpApp from "./erp.tsx";
+import departmentsApp from "./departments.tsx";
+import providerApp from "./provider.tsx";
 
 const app = new Hono();
 
@@ -70,6 +74,10 @@ app.get("/", (c) => {
       "automation",
       "social",
       "wheel",
+      "crm",
+      "erp",
+      "departments",
+      "provider",
     ],
   });
 });
@@ -98,6 +106,10 @@ app.route("/", marketingApp);
 app.route("/", automationApp);
 app.route("/", socialApp);
 app.route("/", wheelApp);
+app.route("/", crmApp);
+app.route("/", erpApp);
+app.route("/", departmentsApp);
+app.route("/", providerApp);
 
 // 404 handler
 app.notFound((c) => {
@@ -111,6 +123,6 @@ app.onError((err, c) => {
 });
 
 console.log("🚀 ODDY Market API Server starting...");
-console.log("📦 Loaded modules: system, entities, parties, products, orders, cart, auth, users, billing, pos, customs, fulfillment, documents, library, shipping, inventory, categories, integrations, mailing, marketing, automation, social, wheel");
+console.log("📦 Loaded modules: system, entities, parties, products, orders, cart, auth, users, billing, pos, customs, fulfillment, documents, library, shipping, inventory, categories, integrations, mailing, marketing, automation, social, wheel, crm, erp, departments, provider");
 
 Deno.serve(app.fetch);
