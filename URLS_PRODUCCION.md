@@ -7,17 +7,18 @@
 
 ## 🚀 URLs Disponibles
 
-### **Producción (Main Branch)**
+### **🎯 BACKEND API (PRODUCCIÓN) - USA ESTA**
+```
+https://oddy-market-62.oddy123.deno.net
+```
+**Uso:** API REST para tu frontend en producción
+**Status:** ✅ FUNCIONANDO - 18 módulos activos
+
+### **Frontend (Producción)**
 ```
 https://oddy-market.oddy123.deno.net
 ```
-**Uso:** Para frontend en producción
-
-### **Preview (Development)**
-```
-https://oddy-market-73aqwm3q7n9j.oddy123.deno.net
-```
-**Uso:** Para pruebas y desarrollo
+**Uso:** Sitio web React
 
 ---
 
