@@ -1,5 +1,10 @@
 // API Configuration
+import { productService } from '../services/productService';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+// Flag para usar datos reales de Supabase o datos mock
+const USE_REAL_DATA = true; // Cambiar a false para usar mock data
 
 // Helper function for API calls
 async function apiRequest(endpoint, options = {}) {
@@ -87,8 +92,21 @@ export const api = {
     return apiRequest('/orders');
   },
 
-  // Mock data for development
-  getMockProducts: () => {
+  // Mock data for development (o datos reales de Supabase)
+  getMockProducts: async () => {
+    if (USE_REAL_DATA) {
+      try {
+        console.log('📡 Fetching products from Supabase...');
+        const products = await productService.getAll();
+        console.log(`✅ ${products.length} products fetched from Supabase`);
+        return products;
+      } catch (error) {
+        console.warn('⚠️ Error fetching from Supabase, using mock data:', error);
+        // Fallback a mock data si falla Supabase
+      }
+    }
+    
+    // Mock data (fallback)
     return Promise.resolve([
       {
         id: 1,
