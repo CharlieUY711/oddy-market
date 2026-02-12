@@ -54,13 +54,13 @@ curl http://localhost:8000/
 | **cart** | ✅ | 9 | Carrito de compras con totales y cupones |
 | **auth** | ✅ | 7 | Autenticación (registro, login, reset) |
 | **users** | ✅ | 9 | Usuarios con RBAC y permisos |
+| **billing** | ✅ | 16 | Facturación multi-país + E-Invoice + Pagos + Reportes |
 | **documents** | ✅ | 34 | Documentos + Tickets + E-Invoice + Etiquetas + Emotivas |
 | **library** | ✅ | 9 | Almacenamiento de archivos + OCR |
 | **shipping** | ✅ | 9 | Envíos + GPS + Google Maps + Tracking |
 | **inventory** | ✅ | 8 | Stock, alertas, movimientos, FIFO |
 | **categories** | ✅ | 8 | Categorías jerárquicas, atributos, mapeo |
 | **integrations** | ✅ | 18 | ML, FB, IG, WA, Google, Couriers (FedEx, UPS, DHL, etc) |
-| billing | ⚪ | - | Próximamente |
 | fulfillment | ⚪ | - | Próximamente |
 
 ---
