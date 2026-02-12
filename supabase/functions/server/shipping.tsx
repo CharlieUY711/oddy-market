@@ -26,6 +26,7 @@ const SERVICE_TYPES = {
 
 // Couriers soportados
 const COURIERS = {
+  ODDY_LOGISTICA: "oddy_logistica",    // ODDY Logística (nuestra empresa)
   FEDEX: "fedex",
   UPS: "ups",
   DHL: "dhl",
@@ -56,6 +57,22 @@ app.post("/make-server-0dd48dc4/shipments", async (c) => {
       
       // Número de tracking
       tracking_number,
+      
+      // Códigos de barras y QR
+      codes: {
+        barcode: {
+          type: "code128",
+          data: tracking_number,
+          image_base64: generateBarcodeSimulated(tracking_number, "code128"),
+          svg: `<svg><!-- Barcode for ${tracking_number} --></svg>`,
+        },
+        qr: {
+          type: "qr",
+          data: `${body.base_url || "https://oddy.market"}/track/${tracking_number}`,
+          image_base64: generateBarcodeSimulated(tracking_number, "qr"),
+          svg: `<svg><!-- QR for tracking ${tracking_number} --></svg>`,
+        },
+      },
       
       // Orden relacionada
       order_id: body.order_id || null,
@@ -809,6 +826,11 @@ function getStatusDescription(status: string): string {
   };
   
   return descriptions[status] || "Estado desconocido";
+}
+
+function generateBarcodeSimulated(data: string, type: string): string {
+  // En producción, usar librería como bwip-js o similar
+  return `data:image/png;base64,SIMULATED_${type.toUpperCase()}_${data}`;
 }
 
 export default app;

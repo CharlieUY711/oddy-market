@@ -547,4 +547,384 @@ app.get("/make-server-0dd48dc4/integraciones/status", async (c) => {
   }
 });
 
+// ============================================
+// INTEGRACIÓN CON GOOGLE APIS
+// ============================================
+
+// Configurar Google Maps API
+app.post("/make-server-0dd48dc4/integrations/google/configure", async (c) => {
+  try {
+    const body = await c.req.json();
+    const entity_id = body.entity_id || "default";
+    const timestamp = new Date().toISOString();
+
+    const configId = `google-config:${entity_id}`;
+
+    const config = {
+      id: configId,
+      entity_id,
+      platform: "google",
+      
+      // APIs habilitadas
+      apis: {
+        maps: {
+          enabled: body.apis?.maps?.enabled !== false,
+          api_key: body.apis?.maps?.api_key || null,
+          services: {
+            directions: true,
+            geocoding: true,
+            places: true,
+            distance_matrix: true,
+          },
+        },
+        analytics: {
+          enabled: body.apis?.analytics?.enabled || false,
+          measurement_id: body.apis?.analytics?.measurement_id || null,
+        },
+        tag_manager: {
+          enabled: body.apis?.tag_manager?.enabled || false,
+          container_id: body.apis?.tag_manager?.container_id || null,
+        },
+        recaptcha: {
+          enabled: body.apis?.recaptcha?.enabled || false,
+          site_key: body.apis?.recaptcha?.site_key || null,
+          secret_key: body.apis?.recaptcha?.secret_key || null,
+        },
+      },
+      
+      // Configuración
+      environment: body.environment || "production",
+      
+      // Metadata
+      metadata: body.metadata || {},
+      
+      created_at: timestamp,
+      updated_at: timestamp,
+    };
+
+    await kv.set([configId], config);
+    await kv.set(["integrations", entity_id, "google"], configId);
+
+    return c.json({ 
+      config: {
+        ...config,
+        apis: {
+          maps: {
+            ...config.apis.maps,
+            api_key: config.apis.maps.api_key ? "***hidden***" : null,
+          },
+          recaptcha: {
+            ...config.apis.recaptcha,
+            secret_key: config.apis.recaptcha.secret_key ? "***hidden***" : null,
+          },
+          analytics: config.apis.analytics,
+          tag_manager: config.apis.tag_manager,
+        },
+      },
+      message: "Google APIs configured successfully" 
+    });
+  } catch (error) {
+    console.log("Error configuring Google APIs:", error);
+    return c.json({ error: "Error configuring Google APIs" }, 500);
+  }
+});
+
+// Obtener configuración de Google
+app.get("/make-server-0dd48dc4/integrations/google/config", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+    const configIdEntry = await kv.get(["integrations", entity_id, "google"]);
+
+    if (!configIdEntry.value) {
+      return c.json({ error: "Google integration not configured" }, 404);
+    }
+
+    const configId = configIdEntry.value as string;
+    const configEntry = await kv.get([configId]);
+
+    if (!configEntry.value) {
+      return c.json({ error: "Configuration not found" }, 404);
+    }
+
+    const config = configEntry.value as any;
+
+    return c.json({ 
+      config: {
+        ...config,
+        apis: {
+          maps: {
+            ...config.apis.maps,
+            api_key: config.apis.maps.api_key ? "***hidden***" : null,
+          },
+          recaptcha: {
+            ...config.apis.recaptcha,
+            secret_key: config.apis.recaptcha.secret_key ? "***hidden***" : null,
+          },
+          analytics: config.apis.analytics,
+          tag_manager: config.apis.tag_manager,
+        },
+      },
+    });
+  } catch (error) {
+    console.log("Error getting Google config:", error);
+    return c.json({ error: "Error getting Google config" }, 500);
+  }
+});
+
+// ============================================
+// INTEGRACIÓN CON COURIERS (APIs de Envíos)
+// ============================================
+
+// Configurar API de Courier
+app.post("/make-server-0dd48dc4/integrations/courier/configure", async (c) => {
+  try {
+    const body = await c.req.json();
+    const entity_id = body.entity_id || "default";
+    const courier = body.courier; // fedex, ups, dhl, etc.
+    const timestamp = new Date().toISOString();
+
+    if (!courier) {
+      return c.json({ error: "Courier is required" }, 400);
+    }
+
+    const configId = `courier-config:${entity_id}:${courier}`;
+
+    const config = {
+      id: configId,
+      entity_id,
+      platform: "courier",
+      courier,
+      
+      // Credenciales (según el courier)
+      credentials: {
+        // FedEx
+        fedex_account_number: body.credentials?.fedex_account_number || null,
+        fedex_meter_number: body.credentials?.fedex_meter_number || null,
+        fedex_key: body.credentials?.fedex_key || null,
+        fedex_password: body.credentials?.fedex_password || null,
+        
+        // UPS
+        ups_username: body.credentials?.ups_username || null,
+        ups_password: body.credentials?.ups_password || null,
+        ups_access_key: body.credentials?.ups_access_key || null,
+        
+        // DHL
+        dhl_site_id: body.credentials?.dhl_site_id || null,
+        dhl_password: body.credentials?.dhl_password || null,
+        dhl_account_number: body.credentials?.dhl_account_number || null,
+        
+        // Genérico
+        api_key: body.credentials?.api_key || null,
+        api_secret: body.credentials?.api_secret || null,
+        client_id: body.credentials?.client_id || null,
+        client_secret: body.credentials?.client_secret || null,
+      },
+      
+      // Configuración
+      environment: body.environment || "production", // sandbox, production
+      webhook_url: body.webhook_url || null,
+      
+      // Servicios habilitados
+      services: {
+        create_shipment: body.services?.create_shipment !== false,
+        track_shipment: body.services?.track_shipment !== false,
+        calculate_rate: body.services?.calculate_rate !== false,
+        print_label: body.services?.print_label !== false,
+        schedule_pickup: body.services?.schedule_pickup || false,
+      },
+      
+      // Estado
+      enabled: body.enabled !== false,
+      
+      // Metadata
+      metadata: body.metadata || {},
+      
+      created_at: timestamp,
+      updated_at: timestamp,
+    };
+
+    await kv.set([configId], config);
+    await kv.set(["integrations", entity_id, "courier", courier], configId);
+
+    return c.json({ 
+      config: {
+        ...config,
+        credentials: "***hidden***",
+      },
+      message: `${courier.toUpperCase()} courier configured successfully` 
+    });
+  } catch (error) {
+    console.log("Error configuring courier:", error);
+    return c.json({ error: "Error configuring courier" }, 500);
+  }
+});
+
+// Obtener configuración de Courier
+app.get("/make-server-0dd48dc4/integrations/courier/:courier/config", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+    const courier = c.req.param("courier");
+
+    const configIdEntry = await kv.get(["integrations", entity_id, "courier", courier]);
+
+    if (!configIdEntry.value) {
+      return c.json({ error: "Courier integration not configured" }, 404);
+    }
+
+    const configId = configIdEntry.value as string;
+    const configEntry = await kv.get([configId]);
+
+    if (!configEntry.value) {
+      return c.json({ error: "Configuration not found" }, 404);
+    }
+
+    const config = configEntry.value as any;
+
+    return c.json({ 
+      config: {
+        ...config,
+        credentials: "***hidden***",
+      },
+    });
+  } catch (error) {
+    console.log("Error getting courier config:", error);
+    return c.json({ error: "Error getting courier config" }, 500);
+  }
+});
+
+// Listar couriers configurados
+app.get("/make-server-0dd48dc4/integrations/couriers", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+
+    const prefix = ["integrations", entity_id, "courier"];
+    const entries = kv.list({ prefix });
+    
+    let couriers = [];
+    for await (const entry of entries) {
+      const courier = entry.key[entry.key.length - 1];
+      const configId = entry.value as string;
+      const configEntry = await kv.get([configId]);
+      
+      if (configEntry.value) {
+        const config = configEntry.value as any;
+        couriers.push({
+          courier: config.courier,
+          enabled: config.enabled,
+          environment: config.environment,
+          services: config.services,
+        });
+      }
+    }
+
+    return c.json({ couriers, total: couriers.length });
+  } catch (error) {
+    console.log("Error listing couriers:", error);
+    return c.json({ error: "Error listing couriers" }, 500);
+  }
+});
+
+// ============================================
+// LLAMAR A API DE COURIER (Ejemplo genérico)
+// ============================================
+
+// Crear envío en API del courier
+app.post("/make-server-0dd48dc4/integrations/courier/:courier/create-shipment", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+    const courier = c.req.param("courier");
+    const body = await c.req.json();
+
+    // Obtener configuración del courier
+    const configIdEntry = await kv.get(["integrations", entity_id, "courier", courier]);
+
+    if (!configIdEntry.value) {
+      return c.json({ error: "Courier not configured" }, 400);
+    }
+
+    const configId = configIdEntry.value as string;
+    const configEntry = await kv.get([configId]);
+    const config = configEntry.value as any;
+
+    if (!config.enabled) {
+      return c.json({ error: "Courier integration is disabled" }, 400);
+    }
+
+    // En producción, hacer llamada real a la API del courier
+    console.log(`[COURIER API] Creating shipment with ${courier}...`);
+    console.log(`Environment: ${config.environment}`);
+    console.log(`Shipment data:`, body);
+
+    // Simulado: Retornar respuesta del courier
+    const courierResponse = {
+      success: true,
+      courier,
+      tracking_number: `${courier.toUpperCase()}-${Date.now()}`,
+      label_url: `https://api.${courier}.com/labels/${Date.now()}.pdf`,
+      estimated_delivery_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+      cost: {
+        total: 25.50,
+        currency: "USD",
+      },
+    };
+
+    return c.json({ 
+      courier_response: courierResponse,
+      message: `Shipment created successfully with ${courier}` 
+    });
+  } catch (error) {
+    console.log("Error creating shipment with courier:", error);
+    return c.json({ error: "Error creating shipment with courier" }, 500);
+  }
+});
+
+// Tracking desde API del courier
+app.get("/make-server-0dd48dc4/integrations/courier/:courier/track/:tracking_number", async (c) => {
+  try {
+    const entity_id = c.req.query("entity_id") || "default";
+    const courier = c.req.param("courier");
+    const tracking_number = c.req.param("tracking_number");
+
+    // Obtener configuración del courier
+    const configIdEntry = await kv.get(["integrations", entity_id, "courier", courier]);
+
+    if (!configIdEntry.value) {
+      return c.json({ error: "Courier not configured" }, 400);
+    }
+
+    // En producción, hacer llamada real a la API del courier
+    console.log(`[COURIER API] Tracking ${tracking_number} with ${courier}...`);
+
+    // Simulado: Retornar tracking del courier
+    const trackingData = {
+      courier,
+      tracking_number,
+      status: "in_transit",
+      current_location: {
+        city: "Memphis, TN",
+        country: "US",
+        timestamp: new Date().toISOString(),
+      },
+      events: [
+        {
+          status: "picked_up",
+          location: "Los Angeles, CA",
+          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          status: "in_transit",
+          location: "Memphis, TN",
+          timestamp: new Date().toISOString(),
+        },
+      ],
+      estimated_delivery: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+
+    return c.json({ tracking: trackingData });
+  } catch (error) {
+    console.log("Error tracking with courier:", error);
+    return c.json({ error: "Error tracking with courier" }, 500);
+  }
+});
+
 export default app;

@@ -51,7 +51,7 @@ curl http://localhost:8000/
 | **orders** | ✅ | 10 | Pedidos con estados, tracking, facturación |
 | **inventory** | ✅ | 8 | Stock, alertas, movimientos, FIFO |
 | **categories** | ✅ | 8 | Categorías jerárquicas, atributos, mapeo |
-| **integrations** | ✅ | 10 | ML, Facebook, Instagram, WhatsApp |
+| **integrations** | ✅ | 18 | ML, FB, IG, WA, Google, Couriers (FedEx, UPS, DHL, etc) |
 | **entities** | ✅ | 8 | Multi-tenant (entidades, territorios) |
 | **cart** | ✅ | 9 | Carrito de compras con totales y cupones |
 | **auth** | ✅ | 7 | Autenticación (registro, login, reset) |
