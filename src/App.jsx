@@ -13,6 +13,7 @@ import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { Login } from './pages/Login';
+import { Test } from './pages/Test';
 import './styles/global.css';
 
 function App() {
@@ -32,8 +33,9 @@ function App() {
                     <Route path="/products/:id" element={<ProductDetail />} />
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/about" element={<div className="container"><h1>Nosotros</h1><p>Página en construcción</p></div>} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/test" element={<Test />} />
+                            <Route path="/about" element={<div className="container"><h1>Nosotros</h1><p>Página en construcción</p></div>} />
                   </Routes>
                 </main>
                 <Footer />

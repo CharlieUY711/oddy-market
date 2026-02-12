@@ -1,0 +1,125 @@
+.test {
+  min-height: 100vh;
+  padding: var(--spacing-3xl) var(--spacing-md);
+  background-color: var(--color-background);
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.statusCard {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
+  border: none;
+}
+
+.statusCard .status {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  padding: var(--spacing-md);
+}
+
+.tests {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.testItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--color-muted);
+  border-radius: var(--border-radius-md);
+  gap: var(--spacing-md);
+}
+
+.testName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-foreground);
+}
+
+.testResult {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.infoItem strong {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoItem code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-muted);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  word-break: break-all;
+  color: var(--color-foreground);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .testItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .testResult {
+    text-align: left;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
