@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-all --watch server/index.tsx"
+  },
+  "imports": {
+    "hono": "https://deno.land/x/hono@v3.11.7/mod.ts",
+    "hono/": "https://deno.land/x/hono@v3.11.7/"
+  }
+}

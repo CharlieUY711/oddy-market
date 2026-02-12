@@ -14,9 +14,51 @@
 
 ---
 
-## 🔧 PASO 1: Ejecutar Migraci
+## 🚀 PASO 0: Iniciar el Servidor
 
-ón SQL
+### **Windows:**
+
+Desde la raíz del proyecto, ejecuta:
+
+```bash
+start-server.bat
+```
+
+### **Mac/Linux:**
+
+```bash
+cd supabase/functions
+deno run --allow-all --watch server/index.tsx
+```
+
+**Deberías ver:**
+
+```
+🚀 ODDY Market API Server starting...
+📦 Loaded modules: parties, products, orders, inventory, categories, integrations
+Listening on http://localhost:8000/
+```
+
+**Verifica que funciona:**
+
+```bash
+curl http://localhost:8000/
+```
+
+Deberías ver:
+
+```json
+{
+  "status": "ok",
+  "message": "ODDY Market API Server",
+  "version": "1.0.0",
+  "modules": ["parties", "products", "orders", "inventory", "categories", "integrations"]
+}
+```
+
+---
+
+## 🔧 PASO 1: Ejecutar Migración SQL
 
 ### **Opción A: Supabase Dashboard (Recomendado)**
 
@@ -35,7 +77,7 @@ supabase db push
 
 ---
 
-## 🧪 PASO 2: Probar con cURL
+## 🧪 PASO 2: Crear tu Primera Party
 
 ### **1. Crear una Persona como Cliente**
 
@@ -145,7 +187,7 @@ curl "http://localhost:8000/make-server-0dd48dc4/parties/dashboard?entity_id=def
 
 ---
 
-## 🧪 PASO 3: Probar con Postman
+## 📮 PASO 3 (Opcional): Probar con Postman
 
 ### **Importar Colección**
 
