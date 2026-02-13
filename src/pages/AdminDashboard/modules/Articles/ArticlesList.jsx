@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Package, ArrowLeft, Home } from 'lucide-react';
 import styles from './Articles.module.css';
+import { TreeTable } from '../TreeTable';
 
 export const ArticlesList = () => {
   const navigate = useNavigate();
@@ -9,8 +10,9 @@ export const ArticlesList = () => {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('navigation'); // 'navigation' | 'tree'
   
-  // Navegación por niveles
+  // Navegación por niveles (solo para modo 'navigation')
   const [currentDepartment, setCurrentDepartment] = useState(null);
   const [currentCategory, setCurrentCategory] = useState(null);
   const [currentSubCategory, setCurrentSubCategory] = useState(null);
@@ -308,47 +310,89 @@ export const ArticlesList = () => {
     );
   }
 
+  // Construir datos para TreeTable
+  const buildTreeData = () => {
+    return departments.map(dept => ({
+      id: dept.id,
+      name: dept.name,
+      icon: dept.icon,
+      type: 'department',
+      children: dept.categories?.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        icon: cat.icon,
+        type: 'category',
+        children: cat.subcategories?.map((subcat, idx) => ({
+          id: `${cat.id}-${idx}`,
+          name: subcat,
+          icon: '📁',
+          type: 'subcategory',
+          children: articles
+            .filter(art => 
+              art.department === dept.name && 
+              art.category === cat.name && 
+              art.subCategory === subcat
+            )
+            .map(art => ({
+              id: art.id,
+              name: art.name,
+              sku: art.sku,
+              price: art.price,
+              stock: art.stock,
+              type: 'article',
+              article: art
+            }))
+        })) || []
+      })) || []
+    }));
+  };
+
   return (
     <div className={styles.articlesContainer}>
-      {/* Header con Breadcrumb */}
+      {/* Header */}
       <header className={styles.header}>
         <div>
-          <div className={styles.breadcrumbRow}>
-            {(currentDepartment || currentCategory || currentSubCategory) && (
-              <>
-                <button onClick={resetNavigation} className={styles.breadcrumbBtn}>
-                  <Home size={16} />
-                </button>
-                <button onClick={goBack} className={styles.breadcrumbBtn}>
-                  <ArrowLeft size={16} />
-                  Volver
-                </button>
-              </>
-            )}
-          </div>
+          {viewMode === 'navigation' && (
+            <div className={styles.breadcrumbRow}>
+              {(currentDepartment || currentCategory || currentSubCategory) && (
+                <>
+                  <button onClick={resetNavigation} className={styles.breadcrumbBtn}>
+                    <Home size={16} />
+                  </button>
+                  <button onClick={goBack} className={styles.breadcrumbBtn}>
+                    <ArrowLeft size={16} />
+                    Volver
+                  </button>
+                </>
+              )}
+            </div>
+          )}
           <h1 className={styles.title}>
-            📦 {getBreadcrumb() || 'Artículos'}
+            📦 {viewMode === 'navigation' ? (getBreadcrumb() || 'Artículos') : 'Artículos - Vista de Árbol'}
           </h1>
           <p className={styles.subtitle}>
-            {!currentDepartment && 'Seleccioná un departamento para comenzar'}
-            {currentDepartment && !currentCategory && 'Seleccioná una categoría'}
-            {currentCategory && !currentSubCategory && 'Seleccioná una subcategoría'}
-            {currentSubCategory && `${getFilteredArticles().length} artículos encontrados`}
+            {viewMode === 'navigation' && (
+              <>
+                {!currentDepartment && 'Seleccioná un departamento para comenzar'}
+                {currentDepartment && !currentCategory && 'Seleccioná una categoría'}
+                {currentCategory && !currentSubCategory && 'Seleccioná una subcategoría'}
+                {currentSubCategory && `${getFilteredArticles().length} artículos encontrados`}
+              </>
+            )}
+            {viewMode === 'tree' && 'Vista completa en estructura de árbol'}
           </p>
         </div>
-        {currentSubCategory && (
-          <button 
-            className={styles.btnPrimary}
-            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
-          >
-            <Plus size={20} />
-            Nuevo Artículo
-          </button>
-        )}
+        <button 
+          className={styles.btnPrimary}
+          onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+        >
+          <Plus size={20} />
+          Nuevo Artículo
+        </button>
       </header>
 
-      {/* Buscador */}
-      {currentSubCategory && (
+      {/* Toggle de Vista + Buscador */}
+      <div className={styles.filterRow}>
         <div className={styles.searchBox}>
           <Search size={20} />
           <input
@@ -359,10 +403,30 @@ export const ArticlesList = () => {
             className={styles.searchInput}
           />
         </div>
-      )}
+        
+        <div className={styles.viewToggle}>
+          <button
+            className={viewMode === 'navigation' ? styles.viewBtnActive : styles.viewBtn}
+            onClick={() => setViewMode('navigation')}
+            title="Vista de Navegación"
+          >
+            🎨 Navegación
+          </button>
+          <button
+            className={viewMode === 'tree' ? styles.viewBtnActive : styles.viewBtn}
+            onClick={() => setViewMode('tree')}
+            title="Vista de Árbol"
+          >
+            🌳 Árbol
+          </button>
+        </div>
+      </div>
 
-      {/* Nivel 1: Departamentos */}
-      {!currentDepartment && (
+      {/* MODO NAVEGACIÓN */}
+      {viewMode === 'navigation' && (
+        <>
+          {/* Nivel 1: Departamentos */}
+          {!currentDepartment && (
         <div className={styles.gridContainer}>
           {departments.filter(d => d.active).map((dept) => (
             <div 
@@ -506,6 +570,66 @@ export const ArticlesList = () => {
               </table>
             </div>
           )}
+        </div>
+        </>
+      )}
+
+      {/* MODO ÁRBOL */}
+      {viewMode === 'tree' && (
+        <div className={styles.treeViewContainer}>
+          <TreeTable 
+            data={buildTreeData()}
+            columns={[
+              { key: 'name', header: 'Nombre' },
+              { key: 'sku', header: 'SKU' },
+              { key: 'price', header: 'Precio' },
+              { key: 'stock', header: 'Stock' },
+              { key: 'actions', header: 'Acciones' }
+            ]}
+            renderRow={(item, key) => {
+              if (key === 'name') {
+                return (
+                  <span>
+                    {item.icon} {item.name}
+                  </span>
+                );
+              }
+              if (key === 'sku' && item.type === 'article') {
+                return <code>{item.sku}</code>;
+              }
+              if (key === 'price' && item.type === 'article') {
+                return <strong>${item.price}</strong>;
+              }
+              if (key === 'stock' && item.type === 'article') {
+                return (
+                  <span className={item.stock < 10 ? styles.lowStock : styles.inStock}>
+                    {item.stock} unidades
+                  </span>
+                );
+              }
+              if (key === 'actions' && item.type === 'article') {
+                return (
+                  <div className={styles.actions}>
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => navigate(`/admin-dashboard/modules/articles/${item.id}/edit`)}
+                      title="Editar"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      className={`${styles.actionBtn} ${styles.danger}`}
+                      onClick={() => handleDelete(item.id)}
+                      title="Eliminar"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
         </div>
       )}
     </div>
