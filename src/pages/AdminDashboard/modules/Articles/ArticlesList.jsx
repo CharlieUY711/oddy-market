@@ -349,53 +349,65 @@ export const ArticlesList = () => {
 
   return (
     <div className={styles.articlesContainer}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div>
-          {viewMode === 'navigation' && (
-            <div className={styles.breadcrumbRow}>
-              {(currentDepartment || currentCategory || currentSubCategory) && (
-                <>
-                  <button onClick={resetNavigation} className={styles.breadcrumbBtn}>
-                    <Home size={16} />
-                  </button>
-                  <button onClick={goBack} className={styles.breadcrumbBtn}>
-                    <ArrowLeft size={16} />
-                    Volver
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-          <h1 className={styles.title}>
-            📦 {viewMode === 'navigation' ? (getBreadcrumb() || 'Artículos') : 'Artículos - Vista de Árbol'}
+      {/* Barra de Encabezado Unificada */}
+      <header className={styles.unifiedHeader}>
+        {/* Título a la izquierda */}
+        <div className={styles.headerLeft}>
+          <h1 className={styles.headerTitle}>
+            📦 {viewMode === 'navigation' ? (getBreadcrumb() || 'Artículos') : 'Artículos'}
           </h1>
-          <p className={styles.subtitle}>
-            {viewMode === 'navigation' && (
-              <>
-                {!currentDepartment && 'Seleccioná un departamento para comenzar'}
-                {currentDepartment && !currentCategory && 'Seleccioná una categoría'}
-                {currentCategory && !currentSubCategory && 'Seleccioná una subcategoría'}
-                {currentSubCategory && `${getFilteredArticles().length} artículos encontrados`}
-              </>
-            )}
-            {viewMode === 'tree' && 'Vista completa en estructura de árbol'}
-          </p>
         </div>
-        {/* Mostrar botón siempre, excepto cuando hay empty state */}
-        {!(viewMode === 'navigation' && currentSubCategory && getFilteredArticles().length === 0) && (
-          <button 
-            className={styles.btnPrimary}
-            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
-          >
-            <Plus size={20} />
-            Crear Artículo
-          </button>
-        )}
+
+        {/* Selector de vista en el centro */}
+        <div className={styles.headerCenter}>
+          <div className={styles.viewToggle}>
+            <button
+              className={viewMode === 'navigation' ? styles.viewBtnActive : styles.viewBtn}
+              onClick={() => setViewMode('navigation')}
+            >
+              🎨 Navegación
+            </button>
+            <button
+              className={viewMode === 'tree' ? styles.viewBtnActive : styles.viewBtn}
+              onClick={() => setViewMode('tree')}
+            >
+              🌳 Árbol
+            </button>
+          </div>
+        </div>
+
+        {/* Botones a la derecha */}
+        <div className={styles.headerRight}>
+          {/* Botón Home - solo visible si no estamos en la vista inicial */}
+          {viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory) && (
+            <button onClick={resetNavigation} className={styles.btnGray} title="Inicio">
+              <Home size={16} />
+            </button>
+          )}
+          
+          {/* Botón Volver - solo visible si podemos volver */}
+          {viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory) && (
+            <button onClick={goBack} className={styles.btnGray}>
+              <ArrowLeft size={16} />
+              Volver
+            </button>
+          )}
+
+          {/* Botón Crear Artículo - siempre visible excepto en empty state */}
+          {!(viewMode === 'navigation' && currentSubCategory && getFilteredArticles().length === 0) && (
+            <button 
+              className={styles.btnCreate}
+              onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+            >
+              <Plus size={18} />
+              Crear Artículo
+            </button>
+          )}
+        </div>
       </header>
 
-      {/* Toggle de Vista + Buscador */}
-      <div className={styles.filterRow}>
+      {/* Barra de búsqueda */}
+      <div className={styles.searchBar}>
         <div className={styles.searchBox}>
           <Search size={20} />
           <input
@@ -405,23 +417,6 @@ export const ArticlesList = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
           />
-        </div>
-        
-        <div className={styles.viewToggle}>
-          <button
-            className={viewMode === 'navigation' ? styles.viewBtnActive : styles.viewBtn}
-            onClick={() => setViewMode('navigation')}
-            title="Vista de Navegación"
-          >
-            🎨 Navegación
-          </button>
-          <button
-            className={viewMode === 'tree' ? styles.viewBtnActive : styles.viewBtn}
-            onClick={() => setViewMode('tree')}
-            title="Vista de Árbol"
-          >
-            🌳 Árbol
-          </button>
         </div>
       </div>
 
