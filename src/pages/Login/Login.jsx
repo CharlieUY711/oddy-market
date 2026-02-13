@@ -31,7 +31,7 @@ export const Login = () => {
       const result = await login(formData.email, formData.password);
       if (result.success) {
         success('¡Bienvenido de nuevo!');
-        navigate('/');
+        navigate('/admin-dashboard'); // Redirigir directamente al Dashboard
       } else {
         error(result.error || 'Error al iniciar sesión');
       }
@@ -43,7 +43,7 @@ export const Login = () => {
       const result = await register(formData.email, formData.password, formData.name);
       if (result.success) {
         success('¡Cuenta creada exitosamente!');
-        navigate('/');
+        navigate('/admin-dashboard'); // Redirigir directamente al Dashboard
       } else {
         error(result.error || 'Error al crear la cuenta');
       }
