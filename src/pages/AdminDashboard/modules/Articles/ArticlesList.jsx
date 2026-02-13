@@ -303,31 +303,49 @@ export const ArticlesList = () => {
     setSelectedArticles(newSelected);
   };
 
-  // Construir breadcrumbs para el header
+  // Construir breadcrumbs para el header - TODOS SON HIPERVÍNCULOS
   const getBreadcrumbs = () => {
     const crumbs = [
-      { label: 'eCommerce', path: '/admin-dashboard' },
-      { label: 'Artículos', path: currentDepartment ? '/admin-dashboard/modules/articles' : null }
+      { 
+        label: 'eCommerce', 
+        path: '/admin-dashboard',
+        onClick: () => navigate('/admin-dashboard')
+      },
+      { 
+        label: 'Artículos', 
+        path: '/admin-dashboard/modules/articles',
+        onClick: () => {
+          resetNavigation();
+        }
+      }
     ];
     
     if (currentDepartment) {
       crumbs.push({ 
         label: currentDepartment.name, 
-        path: currentCategory ? null : null 
+        path: currentCategory ? '#' : null,
+        onClick: currentCategory ? () => {
+          setCurrentCategory(null);
+          setCurrentSubCategory(null);
+        } : null
       });
     }
     
     if (currentCategory) {
       crumbs.push({ 
         label: currentCategory.name, 
-        path: currentSubCategory ? null : null 
+        path: currentSubCategory ? '#' : null,
+        onClick: currentSubCategory ? () => {
+          setCurrentSubCategory(null);
+        } : null
       });
     }
     
     if (currentSubCategory) {
       crumbs.push({ 
         label: currentSubCategory, 
-        path: null 
+        path: null,
+        onClick: null
       });
     }
     

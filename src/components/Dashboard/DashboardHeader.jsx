@@ -20,10 +20,10 @@ const DashboardHeader = ({ title, breadcrumbs = [], className = '' }) => {
           <div className={styles.breadcrumbs}>
             {breadcrumbs.map((crumb, index) => (
               <React.Fragment key={index}>
-                {crumb.path ? (
+                {crumb.onClick ? (
                   <span 
                     className={styles.breadcrumbLink}
-                    onClick={() => navigate(crumb.path)}
+                    onClick={crumb.onClick}
                   >
                     {crumb.label}
                   </span>

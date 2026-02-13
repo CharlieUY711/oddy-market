@@ -42,8 +42,8 @@
 }
 
 .viewBtn {
-  width: 35px;
-  height: 35px;
+  width: 33px;
+  height: 33px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,8 +68,8 @@
 
 /* Botones de la barra de herramientas */
 .toolbarBtn {
-  height: 35px;
-  min-width: 35px;
+  height: 33px;
+  min-width: 33px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,7 +173,7 @@
   }
 
   .toolbarBtn {
-    min-width: 35px;
+    min-width: 33px;
     padding: 0 0.5rem;
   }
 }
