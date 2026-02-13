@@ -259,27 +259,73 @@ export const GraphicsDefinitionsList = () => {
             </div>
           ) : (
             <div className={styles.previewGrid}>
-              {previewItems.map((item) => (
-                <div key={item.id} className={styles.previewCard}>
-                  <button 
-                    className={styles.removeBtn}
-                    onClick={() => removePreviewItem(item.id)}
-                  >
-                    ✕
-                  </button>
+              {previewItems.map((item) => {
+                // Calcular dimensiones reales según el tipo
+                let width = '220px';
+                let height = 'auto';
+                let minHeight = '200px';
+
+                if (item.tipo === 'Tarjeta' && item.dimension.includes('380px')) {
+                  width = '380px';
+                  minHeight = '240px';
+                } else if (item.tipo === 'Tarjeta') {
+                  width = '220px';
+                  minHeight = '280px';
+                } else if (item.tipo === 'Barra') {
+                  width = '100%';
+                  height = item.dimension.includes('50px') ? '50px' : '45px';
+                  minHeight = 'auto';
+                } else if (item.tipo === 'Botón') {
+                  width = 'auto';
+                  minHeight = 'auto';
+                  if (item.dimension.includes('30px')) {
+                    height = '30px';
+                  } else if (item.dimension.includes('32px')) {
+                    height = '32px';
+                  } else if (item.dimension.includes('35px')) {
+                    height = '35px';
+                  }
+                } else if (item.tipo === 'Icono') {
+                  width = item.dimension.split('×')[0].trim();
+                  height = item.dimension.split('×')[1]?.trim() || width;
+                  minHeight = 'auto';
+                } else if (item.tipo === 'Imagen') {
+                  const dims = item.dimension.split('×');
+                  width = dims[0]?.trim() || '220px';
+                  height = dims[1]?.trim() || '140px';
+                  minHeight = 'auto';
+                }
+
+                return (
                   <div 
-                    className={styles.previewCardContent}
-                    style={{ backgroundColor: item.color }}
+                    key={item.id} 
+                    className={styles.previewCard}
+                    style={{ width, minHeight }}
                   >
-                    <div className={styles.previewCardIcon}>
-                      {item.emoji || '📦'}
+                    <button 
+                      className={styles.removeBtn}
+                      onClick={() => removePreviewItem(item.id)}
+                    >
+                      ✕
+                    </button>
+                    <div 
+                      className={styles.previewCardContent}
+                      style={{ 
+                        backgroundColor: item.color,
+                        height,
+                        minHeight: height === 'auto' ? minHeight : 'auto'
+                      }}
+                    >
+                      <div className={styles.previewCardIcon}>
+                        {item.emoji || '📦'}
+                      </div>
+                      <div className={styles.previewCardName}>{item.name}</div>
+                      <div className={styles.previewCardDimension}>{item.dimension}</div>
+                      <div className={styles.previewCardTipo}>{item.tipo}</div>
                     </div>
-                    <div className={styles.previewCardName}>{item.name}</div>
-                    <div className={styles.previewCardDimension}>{item.dimension}</div>
-                    <div className={styles.previewCardTipo}>{item.tipo}</div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </main>

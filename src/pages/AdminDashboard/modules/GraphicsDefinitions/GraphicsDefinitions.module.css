@@ -35,6 +35,9 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .contenedorItem {
@@ -80,18 +83,27 @@
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .contenedorTipo {
   font-size: 0.75rem;
   color: #6b7280;
   margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .contenedorDimension {
   font-size: 0.75rem;
   color: #ff6b35;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* VISTAS GUARDADAS */
@@ -100,6 +112,9 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .emptyMessage {
@@ -329,9 +344,10 @@
 }
 
 .previewGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
+  align-items: flex-start;
 }
 
 .previewCard {
@@ -341,6 +357,7 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
+  flex-shrink: 0;
 }
 
 .previewCard:hover {
@@ -379,7 +396,6 @@
 .previewCardContent {
   padding: 1.5rem;
   text-align: center;
-  min-height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -580,6 +596,29 @@
   gap: 0.75rem;
   padding: 1.5rem;
   border-top: 1px solid #e5e7eb;
+}
+
+/* SCROLLBAR PERSONALIZADO */
+.contenedoresList::-webkit-scrollbar,
+.savedViewsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.contenedoresList::-webkit-scrollbar-track,
+.savedViewsList::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 10px;
+}
+
+.contenedoresList::-webkit-scrollbar-thumb,
+.savedViewsList::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.contenedoresList::-webkit-scrollbar-thumb:hover,
+.savedViewsList::-webkit-scrollbar-thumb:hover {
+  background: #ff6b35;
 }
 
 .gridHeader {
