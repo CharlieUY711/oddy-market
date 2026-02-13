@@ -352,30 +352,33 @@ export const ArticlesList = () => {
       {/* HEADER FIJO - Igual para todos los módulos */}
       <header className={styles.moduleHeader}>
         <h1 className={styles.moduleTitle}>📦 Artículos</h1>
-        <button onClick={resetNavigation} className={styles.homeBtn} title="Inicio">
-          <Home size={18} />
-        </button>
+        <div className={styles.headerIcons}>
+          <button onClick={() => navigate('/admin-dashboard')} className={styles.iconBtn} title="Tienda">
+            🛍️
+          </button>
+          <button onClick={resetNavigation} className={styles.iconBtn} title="Inicio">
+            <Home size={18} />
+          </button>
+        </div>
       </header>
 
       {/* BARRA DE HERRAMIENTAS - Específica de cada módulo */}
       <div className={styles.toolbar}>
-        {/* Selector de vista (sutil) */}
-        <div className={styles.viewSelector}>
-          <button
-            className={viewMode === 'navigation' ? styles.viewIconActive : styles.viewIcon}
-            onClick={() => setViewMode('navigation')}
-            title="Vista de Navegación"
-          >
-            ⊞
-          </button>
-          <button
-            className={viewMode === 'tree' ? styles.viewIconActive : styles.viewIcon}
-            onClick={() => setViewMode('tree')}
-            title="Vista de Árbol"
-          >
-            ≡
-          </button>
-        </div>
+        {/* Selector de vista sin recuadro */}
+        <button
+          className={viewMode === 'navigation' ? styles.viewIconActive : styles.viewIcon}
+          onClick={() => setViewMode('navigation')}
+          title="Vista de Navegación"
+        >
+          ⊞
+        </button>
+        <button
+          className={viewMode === 'tree' ? styles.viewIconActive : styles.viewIcon}
+          onClick={() => setViewMode('tree')}
+          title="Vista de Árbol"
+        >
+          ≡
+        </button>
 
         <div className={styles.toolbarDivider}></div>
 
@@ -402,15 +405,15 @@ export const ArticlesList = () => {
           ⚙️ Acciones
         </button>
 
-        {/* Buscador en el centro */}
-        <div className={styles.toolbarSearchBox}>
+        {/* Buscador sin recuadro en el centro */}
+        <div className={styles.toolbarSearch}>
           <Search size={18} />
           <input
             type="text"
             placeholder="Buscar artículos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.toolbarSearchInput}
+            className={styles.searchInput}
           />
         </div>
 

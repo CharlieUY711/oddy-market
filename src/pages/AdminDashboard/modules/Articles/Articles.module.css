@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 0;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   border-bottom: 2px solid #f0f0f0;
 }
 
@@ -19,22 +19,28 @@
   margin: 0;
 }
 
-.homeBtn {
-  width: 36px;
-  height: 36px;
+.headerIcons {
+  display: flex;
+  gap: 8px;
+}
+
+.iconBtn {
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f5f5;
+  background: transparent;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   color: #616161;
+  font-size: 18px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.homeBtn:hover {
-  background: #e8e8e8;
+.iconBtn:hover {
+  background: #f5f5f5;
   border-color: #ff6b35;
   color: #ff6b35;
 }
@@ -44,30 +50,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 0;
+  padding: 8px 0;
   margin-bottom: 20px;
   flex-wrap: nowrap;
 }
 
-.viewSelector {
-  display: flex;
-  gap: 2px;
-  background: #f5f5f5;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 2px;
-}
-
+/* Selector de vista sin recuadro */
 .viewIcon,
 .viewIconActive {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: none;
-  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s;
@@ -75,14 +73,15 @@
 }
 
 .viewIcon:hover {
-  background: #e8e8e8;
+  background: #f5f5f5;
+  border-color: #d0d0d0;
   color: #424242;
 }
 
 .viewIconActive {
-  background: white;
+  background: #f5f5f5;
+  border-color: #ff6b35;
   color: #ff6b35;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .toolbarDivider {
@@ -98,7 +97,7 @@
   gap: 6px;
   height: 32px;
   padding: 0 14px;
-  background: white;
+  background: transparent;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 13px;
@@ -120,41 +119,32 @@
   cursor: not-allowed;
 }
 
-/* Buscador integrado en toolbar */
-.toolbarSearchBox {
+/* Buscador sin recuadro */
+.toolbarSearch {
   flex: 1;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 14px;
-  height: 32px;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  margin: 0 8px;
-  transition: all 0.2s;
+  padding: 0 12px;
+  margin: 0 12px;
 }
 
-.toolbarSearchBox:focus-within {
-  border-color: #ff6b35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-}
-
-.toolbarSearchBox svg {
+.toolbarSearch svg {
   color: #9e9e9e;
   flex-shrink: 0;
 }
 
-.toolbarSearchInput {
+.searchInput {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
   color: #212121;
   outline: none;
+  padding: 0;
 }
 
-.toolbarSearchInput::placeholder {
+.searchInput::placeholder {
   color: #9e9e9e;
 }
 
@@ -431,6 +421,7 @@
   margin-top: 24px;
 }
 
+/* Tarjetas para navegación (Departamentos, Categorías, SubCategorías) */
 .navCard {
   background: white;
   border-radius: 12px;
@@ -475,6 +466,63 @@
   margin: 0;
   font-size: 14px;
   color: #757575;
+}
+
+/* Grid de artículos - Mitad de tamaño */
+.articlesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.articleCard {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.articleCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(255, 107, 53, 0.15);
+}
+
+.articleCardImage {
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-color: #f5f5f5;
+}
+
+.articleCardContent {
+  padding: 12px;
+}
+
+.articleCardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.articleCardPrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff6b35;
+  margin: 0 0 4px 0;
+}
+
+.articleCardStock {
+  font-size: 12px;
+  color: #757575;
+  margin: 0;
 }
 
 /* Lista de artículos */
