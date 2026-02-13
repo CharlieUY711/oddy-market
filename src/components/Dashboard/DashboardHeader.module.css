@@ -1,0 +1,53 @@
+/* DashboardHeader - Estilos del encabezado estandarizado */
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.iconGroup {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.iconBtn:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  border-color: #9ca3af;
+}
+
+.iconBtn:active {
+  transform: scale(0.95);
+}

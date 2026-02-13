@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Eye, Package, Clock, CheckCircle, XCircle, TruckIcon } from 'lucide-react';
+import DashboardHeader from '../../../../components/Dashboard/DashboardHeader';
+import Toolbar from '../../../../components/Dashboard/Toolbar';
 import styles from './Orders.module.css';
 
 export const OrdersList = () => {
@@ -197,25 +199,25 @@ export const OrdersList = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>🛍️ Pedidos</h1>
-          <p className={styles.subtitle}>{filteredOrders.length} pedido{filteredOrders.length !== 1 ? 's' : ''}</p>
-        </div>
-      </header>
+      {/* HEADER ESTANDARIZADO */}
+      <DashboardHeader title="🛍️ Pedidos" />
+
+      {/* TOOLBAR ESTANDARIZADA */}
+      <Toolbar config={{
+        showViewToggle: false,
+        showSearch: true,
+        searchValue: searchTerm,
+        onSearchChange: setSearchTerm,
+        searchPlaceholder: 'Buscar por ID, email o tracking...',
+        actions: [],
+        showBack: false
+      }} />
+
+      <div className={styles.subtitle}>
+        {filteredOrders.length} pedido{filteredOrders.length !== 1 ? 's' : ''}
+      </div>
 
       <div className={styles.filters}>
-        <div className={styles.searchBox}>
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Buscar por ID, email o tracking..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
         <div className={styles.filterButtons}>
           {['all', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'].map(status => (
             <button

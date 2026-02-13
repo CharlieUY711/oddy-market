@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import DashboardHeader from '../../../components/Dashboard/DashboardHeader';
+import Toolbar from '../../../components/Dashboard/Toolbar';
 import styles from './SharedModule.module.css';
 
 /**
@@ -87,33 +89,29 @@ export const SharedModuleList = ({
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>{icon} {title}</h1>
-          <p className={styles.subtitle}>{filteredItems.length} elemento{filteredItems.length !== 1 ? 's' : ''}</p>
-        </div>
-        {createPath && (
-          <button 
-            className={styles.btnPrimary}
-            onClick={() => navigate(createPath)}
-          >
-            <Plus size={20} />
-            Crear Nuevo
-          </button>
-        )}
-      </header>
+      {/* HEADER ESTANDARIZADO */}
+      <DashboardHeader title={`${icon} ${title}`} />
 
-      <div className={styles.filters}>
-        <div className={styles.searchBox}>
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Buscar..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
+      {/* TOOLBAR ESTANDARIZADA */}
+      <Toolbar config={{
+        showViewToggle: false,
+        showSearch: true,
+        searchValue: searchTerm,
+        onSearchChange: setSearchTerm,
+        searchPlaceholder: 'Buscar...',
+        actions: createPath ? [
+          {
+            icon: Plus,
+            label: 'Nuevo',
+            onClick: () => navigate(createPath),
+            variant: 'primary'
+          }
+        ] : [],
+        showBack: false
+      }} />
+
+      <div className={styles.subtitle}>
+        {filteredItems.length} elemento{filteredItems.length !== 1 ? 's' : ''}
       </div>
 
       {filteredItems.length === 0 ? (

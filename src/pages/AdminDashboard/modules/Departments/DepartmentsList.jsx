@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, ChevronDown, ChevronRight, Check, X } from 'lucide-react';
+import DashboardHeader from '../../../../components/Dashboard/DashboardHeader';
+import Toolbar from '../../../../components/Dashboard/Toolbar';
 import styles from './Departments.module.css';
 
 export const DepartmentsList = () => {
@@ -301,19 +303,28 @@ export const DepartmentsList = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>🏢 Gestión de Departamentos</h1>
-          <p className={styles.subtitle}>Define la configuración que heredarán los artículos</p>
-        </div>
-        <button 
-          className={styles.btnPrimary}
-          onClick={() => navigate('/admin-dashboard/modules/departments/new')}
-        >
-          <Plus size={20} />
-          Nuevo Departamento
-        </button>
-      </header>
+      {/* HEADER ESTANDARIZADO */}
+      <DashboardHeader title="🏢 Gestión de Departamentos" />
+
+      {/* TOOLBAR ESTANDARIZADA */}
+      <Toolbar config={{
+        showViewToggle: true,
+        viewMode: viewMode === 'icons' ? 'navigation' : 'list',
+        onViewModeChange: (mode) => setViewMode(mode === 'navigation' ? 'icons' : 'list'),
+        showSearch: true,
+        searchValue: searchTerm,
+        onSearchChange: setSearchTerm,
+        searchPlaceholder: 'Buscar departamento...',
+        actions: [
+          {
+            icon: Plus,
+            label: 'Nuevo',
+            onClick: () => navigate('/admin-dashboard/modules/departments/new'),
+            variant: 'primary'
+          }
+        ],
+        showBack: false
+      }} />
 
       <div className={styles.infoBox}>
         <p><strong>📋 Información Importante:</strong></p>
@@ -322,36 +333,6 @@ export const DepartmentsList = () => {
           <li>Solo se pueden eliminar departamentos sin productos asociados</li>
           <li>Los cambios en departamentos afectan a todos los artículos dentro de él</li>
         </ul>
-      </div>
-
-      <div className={styles.filterRow}>
-        <div className={styles.searchBox}>
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Buscar departamento..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-        
-        <div className={styles.viewToggle}>
-          <button
-            className={viewMode === 'icons' ? styles.viewBtnActive : styles.viewBtn}
-            onClick={() => setViewMode('icons')}
-            title="Vista de Iconos"
-          >
-            🎨 Iconos
-          </button>
-          <button
-            className={viewMode === 'list' ? styles.viewBtnActive : styles.viewBtn}
-            onClick={() => setViewMode('list')}
-            title="Vista de Lista"
-          >
-            📋 Lista
-          </button>
-        </div>
       </div>
 
       {/* Vista de Iconos */}

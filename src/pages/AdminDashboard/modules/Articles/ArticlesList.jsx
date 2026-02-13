@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Edit, Trash2, Package, ArrowLeft, Home } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, ArrowLeft } from 'lucide-react';
+import DashboardHeader from '../../../../components/Dashboard/DashboardHeader';
+import Toolbar from '../../../../components/Dashboard/Toolbar';
 import styles from './Articles.module.css';
 import { TreeTable } from '../TreeTable';
 
@@ -349,82 +351,35 @@ export const ArticlesList = () => {
 
   return (
     <div className={styles.articlesContainer}>
-      {/* HEADER FIJO - Igual para todos los módulos */}
-      <header className={styles.moduleHeader}>
-        <h1 className={styles.moduleTitle}>📦 Artículos</h1>
-        <div className={styles.headerIcons}>
-          <button onClick={() => navigate('/admin-dashboard')} className={styles.iconBtn} title="Tienda">
-            🛍️
-          </button>
-          <button onClick={resetNavigation} className={styles.iconBtn} title="Inicio">
-            <Home size={18} />
-          </button>
-        </div>
-      </header>
+      {/* HEADER ESTANDARIZADO - Se define una sola vez y se reutiliza */}
+      <DashboardHeader title="📦 Artículos" />
 
-      {/* BARRA DE HERRAMIENTAS - Específica de cada módulo */}
-      <div className={styles.toolbar}>
-        {/* Selector de vista sin recuadro */}
-        <button
-          className={viewMode === 'navigation' ? styles.viewIconActive : styles.viewIcon}
-          onClick={() => setViewMode('navigation')}
-          title="Vista de Navegación"
-        >
-          ⊞
-        </button>
-        <button
-          className={viewMode === 'tree' ? styles.viewIconActive : styles.viewIcon}
-          onClick={() => setViewMode('tree')}
-          title="Vista de Árbol"
-        >
-          ≡
-        </button>
-
-        <div className={styles.toolbarDivider}></div>
-
-        {/* Botones de acción */}
-        {!(viewMode === 'navigation' && currentSubCategory && getFilteredArticles().length === 0) && (
-          <button 
-            className={styles.toolbarBtn}
-            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
-          >
-            <Plus size={16} />
-            Nuevo
-          </button>
-        )}
-
-        <button className={styles.toolbarBtn} disabled>
-          ✓ Seleccionar
-        </button>
-
-        <button className={styles.toolbarBtn} disabled>
-          ✏️ Editar
-        </button>
-
-        <button className={styles.toolbarBtn} disabled>
-          ⚙️ Acciones
-        </button>
-
-        {/* Buscador sin recuadro en el centro */}
-        <div className={styles.toolbarSearch}>
-          <Search size={18} />
-          <input
-            type="text"
-            placeholder="Buscar artículos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
-        {/* Volver - solo visible si podemos retroceder */}
-        {viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory) && (
-          <button onClick={goBack} className={styles.toolbarBtn}>
-            <ArrowLeft size={16} />
-            Volver
-          </button>
-        )}
-      </div>
+      {/* TOOLBAR ESTANDARIZADA - Configuración específica del módulo */}
+      <Toolbar config={{
+        showViewToggle: true,
+        viewMode: viewMode,
+        onViewModeChange: setViewMode,
+        showSearch: true,
+        searchValue: searchTerm,
+        onSearchChange: setSearchTerm,
+        searchPlaceholder: 'Buscar artículos...',
+        actions: [
+          {
+            icon: Plus,
+            label: 'Nuevo',
+            onClick: () => navigate('/admin-dashboard/modules/articles/new'),
+            variant: 'primary'
+          },
+          {
+            icon: Edit,
+            label: 'Editar',
+            onClick: () => {},
+            variant: 'secondary'
+          }
+        ],
+        showBack: viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory),
+        onBack: goBack
+      }} />
 
       {/* MODO NAVEGACIÓN */}
       {viewMode === 'navigation' && (
@@ -543,6 +498,14 @@ export const ArticlesList = () => {
                   </div>
                 </div>
               ))}
+              
+              {/* Tarjeta "Crear" al final cuando hay artículos */}
+              <div 
+                className={styles.emptyArticleCard}
+                onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+              >
+                <span className={styles.emptyCardText}>Crear</span>
+              </div>
             </div>
           )}
         </div>

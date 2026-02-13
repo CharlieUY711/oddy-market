@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Image, ShoppingBag, Truck } from 'lucide-react';
+import DashboardHeader from '../../../components/Dashboard/DashboardHeader';
 import styles from './Section.module.css';
 
 export const ECommerce = () => {
@@ -59,18 +60,8 @@ export const ECommerce = () => {
 
   return (
     <div className={styles.section}>
-      {/* HEADER ESTANDARIZADO */}
-      <header className={styles.moduleHeader}>
-        <h1 className={styles.moduleTitle}>eCommerce</h1>
-        <div className={styles.headerIcons}>
-          <button onClick={() => navigate('/')} className={styles.iconBtn} title="Tienda">
-            🛍️
-          </button>
-          <button onClick={() => navigate('/admin-dashboard')} className={styles.iconBtn} title="Dashboard">
-            📊
-          </button>
-        </div>
-      </header>
+      {/* HEADER ESTANDARIZADO - Se usa el componente global */}
+      <DashboardHeader title="eCommerce" />
       
       <p className={styles.subtitle}>Seleccioná un módulo para comenzar</p>
 
