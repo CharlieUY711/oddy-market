@@ -46,6 +46,7 @@ import {
   ERPModule,
   PurchaseModule
 } from './pages/AdminDashboard/modules/GenericModule';
+import { DataSeeder } from './pages/AdminDashboard/modules/DataSeeder';
 import './styles/global.css';
 
 function App() {
@@ -91,6 +92,9 @@ function App() {
                   <Route path="modules/documents" element={<DocumentsModule />} />
                   <Route path="modules/erp" element={<ERPModule />} />
                   <Route path="modules/purchase" element={<PurchaseModule />} />
+                  
+                  {/* Data Seeder - Inicializar datos de prueba */}
+                  <Route path="seed-data" element={<DataSeeder />} />
                 </Route>
 
                 {/* Frontend - Con Header/Footer */}

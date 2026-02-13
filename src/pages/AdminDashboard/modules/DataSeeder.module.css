@@ -1,0 +1,101 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #212121;
+  margin: 0 0 12px 0;
+}
+
+.description {
+  font-size: 14px;
+  color: #757575;
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+}
+
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 24px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: #e55a2b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.results {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.results h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 16px 0;
+}
+
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.result.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.result.error {
+  background: #ffebee;
+  color: #c62828;
+}

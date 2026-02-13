@@ -329,23 +329,22 @@ export const AdminDashboard = () => {
         <div className={styles.alertsSection}>
           <div className={styles.alertsHeader}>
             <AlertCircle size={20} color="#ff9800" />
-            <h3 className={styles.alertsTitle}>Atención Requerida (4)</h3>
+            <h3 className={styles.alertsTitle}>Inicializar Sistema</h3>
           </div>
-          <p className={styles.alertsSubtitle}>2FA para Administradores</p>
+          <p className={styles.alertsSubtitle}>¿Los módulos están vacíos? Crea datos de prueba</p>
           <div className={styles.alertsList}>
             <div className={styles.alertItem}>
-              <span className={styles.alertText}>Integración con Carriers</span>
-              <span className={styles.alertBadge} style={{ background: '#f44336' }}>CRÍTICO</span>
-            </div>
-            <div className={styles.alertItem}>
-              <span className={styles.alertText}>Google Shopping Feed</span>
-              <span className={styles.alertBadge} style={{ background: '#ff9800' }}>ALTO</span>
+              <span className={styles.alertText}>Artículos, Pedidos, CRM, Inventario</span>
+              <span className={styles.alertBadge} style={{ background: '#4caf50' }}>LISTO</span>
             </div>
           </div>
-          <button className={styles.alertsButton}>
-            Ver Auditoría Completa <ChevronRight size={16} />
+          <button 
+            className={styles.alertsButton}
+            onClick={() => navigate('/admin-dashboard/seed-data')}
+          >
+            🌱 Inicializar Datos de Prueba <ChevronRight size={16} />
           </button>
-          <p className={styles.alertsFooter}>Última actualización: Hoy a las 23:30</p>
+          <p className={styles.alertsFooter}>Ejecutar solo una vez para poblar el sistema</p>
         </div>
       </main>
     </div>
