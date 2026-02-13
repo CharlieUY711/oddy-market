@@ -12,6 +12,28 @@ export const GraphicsDefinitionsList = () => {
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [previewItem, setPreviewItem] = useState(null);
 
+  // VISTAS DEL SISTEMA
+  const systemViews = {
+    menuPrincipal: [
+      { id: 'dashboard', name: 'Dashboard', icon: '🏠', route: '/admin-dashboard', description: 'Vista principal del panel de administración' },
+      { id: 'ecommerce', name: 'eCommerce', icon: '🛒', route: '/admin-dashboard/sections/ecommerce', description: 'Gestión de tienda online' },
+      { id: 'marketing', name: 'Marketing', icon: '📢', route: '/admin-dashboard/sections/marketing', description: 'Campañas y promociones' },
+      { id: 'herramientas', name: 'Herramientas', icon: '🛠️', route: '/admin-dashboard/sections/herramientas', description: 'Utilidades del sistema' },
+      { id: 'gestion', name: 'Gestión', icon: '📊', route: '/admin-dashboard/sections/gestion', description: 'Gestión empresarial' },
+      { id: 'sistema', name: 'Sistema', icon: '⚙️', route: '/admin-dashboard/sections/sistema', description: 'Configuración del sistema' },
+    ],
+    ecommerce: [
+      { id: 'articulos', name: 'Artículos', icon: '📦', route: '/admin-dashboard/modules/articles', description: 'Gestión de productos' },
+      { id: 'departamentos', name: 'Departamentos', icon: '🏢', route: '/admin-dashboard/modules/departments', description: 'Categorías principales' },
+      { id: 'pedidos', name: 'Pedidos', icon: '📋', route: '/admin-dashboard/modules/orders', description: 'Órdenes de compra' },
+      { id: 'clientes', name: 'Clientes', icon: '👥', route: '/admin-dashboard/modules/customers', description: 'Base de clientes' },
+    ],
+    sistema: [
+      { id: 'usuarios', name: 'Usuarios', icon: '👤', route: '/admin-dashboard/modules/users', description: 'Gestión de usuarios' },
+      { id: 'definiciones-graficas', name: 'Definiciones Gráficas', icon: '🎨', route: '/admin-dashboard/modules/graphics-definitions', description: 'Elementos visuales del sistema' },
+    ],
+  };
+
   // GRID 1: Títulos Principales del Sistema
   const grid1Items = [
     { id: 'header', name: 'Encabezado (Header)', type: 'Componente', size: 'Min 50px alto', format: 'CSS', usage: 'DashboardHeader', image: 'https://via.placeholder.com/220x140/3b82f6/ffffff?text=Header+50px', color: '#3b82f6' },
@@ -44,12 +66,63 @@ export const GraphicsDefinitionsList = () => {
   ];
 
   const getCurrentItems = () => {
+    let items = [];
+    
     switch (activeGrid) {
-      case 'grid1': return grid1Items;
-      case 'grid2': return grid2Items;
-      case 'grid3': return grid3Items;
-      default: return [];
+      case 'grid1': 
+        items = grid1Items;
+        break;
+      case 'grid2': 
+        items = grid2Items;
+        break;
+      case 'grid3': 
+        items = grid3Items;
+        break;
+      case 'vistas-menu':
+        items = systemViews.menuPrincipal.map(view => ({
+          ...view,
+          type: 'Vista',
+          size: 'Full Page',
+          format: 'React Component',
+          usage: view.description,
+          image: `https://via.placeholder.com/220x140/3b82f6/ffffff?text=${encodeURIComponent(view.icon + ' ' + view.name)}`,
+          color: '#3b82f6'
+        }));
+        break;
+      case 'vistas-ecommerce':
+        items = systemViews.ecommerce.map(view => ({
+          ...view,
+          type: 'Módulo',
+          size: 'Full Page',
+          format: 'React Component',
+          usage: view.description,
+          image: `https://via.placeholder.com/220x140/10b981/ffffff?text=${encodeURIComponent(view.icon + ' ' + view.name)}`,
+          color: '#10b981'
+        }));
+        break;
+      case 'vistas-sistema':
+        items = systemViews.sistema.map(view => ({
+          ...view,
+          type: 'Módulo',
+          size: 'Full Page',
+          format: 'React Component',
+          usage: view.description,
+          image: `https://via.placeholder.com/220x140/6366f1/ffffff?text=${encodeURIComponent(view.icon + ' ' + view.name)}`,
+          color: '#6366f1'
+        }));
+        break;
+      default: 
+        items = [];
     }
+
+    if (searchTerm) {
+      return items.filter(item => 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.type.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    return items;
   };
 
   const toggleSelectionMode = () => {
@@ -90,6 +163,7 @@ export const GraphicsDefinitionsList = () => {
         <aside className={styles.sidebar}>
           <h3 className={styles.sidebarTitle}>Categorías</h3>
           <nav className={styles.sidebarNav}>
+            <h3 className={styles.sidebarSection}>📐 GRIDS</h3>
             <button
               className={`${styles.sidebarItem} ${activeGrid === 'grid1' ? styles.active : ''}`}
               onClick={() => setActiveGrid('grid1')}
@@ -108,6 +182,28 @@ export const GraphicsDefinitionsList = () => {
             >
               📦 Grid 3 - Artículos
             </button>
+
+            <div className={styles.divider}></div>
+
+            <h3 className={styles.sidebarSection}>🗂️ VISTAS</h3>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'vistas-menu' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('vistas-menu')}
+            >
+              🏠 Menú Principal
+            </button>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'vistas-ecommerce' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('vistas-ecommerce')}
+            >
+              🛒 Módulos eCommerce
+            </button>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'vistas-sistema' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('vistas-sistema')}
+            >
+              ⚙️ Módulos Sistema
+            </button>
           </nav>
         </aside>
 
@@ -118,6 +214,9 @@ export const GraphicsDefinitionsList = () => {
               {activeGrid === 'grid1' && 'Títulos y Componentes Principales'}
               {activeGrid === 'grid2' && 'Departamentos y Categorías'}
               {activeGrid === 'grid3' && 'Artículos y Productos'}
+              {activeGrid === 'vistas-menu' && 'Vistas del Menú Principal'}
+              {activeGrid === 'vistas-ecommerce' && 'Módulos de eCommerce'}
+              {activeGrid === 'vistas-sistema' && 'Módulos de Sistema'}
             </h2>
           </div>
 
@@ -166,14 +265,16 @@ export const GraphicsDefinitionsList = () => {
                   <p><strong>Tamaño:</strong> {previewItem.size}</p>
                   <p><strong>Formato:</strong> {previewItem.format}</p>
                   <p><strong>Uso:</strong> {previewItem.usage}</p>
+                  {previewItem.route && <p><strong>Ruta:</strong> <code style={{ fontSize: '0.75rem', backgroundColor: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>{previewItem.route}</code></p>}
                   {previewItem.emoji && <p><strong>Emoji:</strong> <span style={{ fontSize: '2rem' }}>{previewItem.emoji}</span></p>}
+                  {previewItem.icon && !previewItem.emoji && <p><strong>Icono:</strong> <span style={{ fontSize: '2rem' }}>{previewItem.icon}</span></p>}
                 </div>
                 <div className={styles.previewDemo}>
                   {previewItem.image ? (
                     <img src={previewItem.image} alt={previewItem.name} style={{ width: '100%', height: 'auto', borderRadius: '8px' }} />
                   ) : (
                     <div style={{ width: '220px', height: '140px', backgroundColor: previewItem.color, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
-                      {previewItem.emoji || previewItem.type}
+                      {previewItem.emoji || previewItem.icon || previewItem.type}
                     </div>
                   )}
                 </div>
