@@ -1,9 +1,16 @@
 // src/services/productService.js
-import { supabase } from '../utils/supabase';
 
 /**
- * Servicio para manejar operaciones con productos desde Supabase
+ * Servicio para manejar operaciones con productos desde el Backend API
  */
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_PREFIX = import.meta.env.VITE_API_PREFIX || '';
+
+// Helper para construir URL completa
+const getApiUrl = (endpoint) => {
+  return `${API_BASE_URL}${API_PREFIX}${endpoint}`;
+};
 
 export const productService = {
   /**
@@ -12,13 +19,17 @@ export const productService = {
    */
   async getAll() {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      console.log('🌐 Fetching products from backend API...');
+      const url = getApiUrl('/articles?entity_id=default');
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`✅ ${data.articles?.length || 0} products fetched from backend`);
+      return data.articles || [];
     } catch (error) {
       console.error('Error fetching products:', error);
       throw error;
@@ -32,14 +43,15 @@ export const productService = {
    */
   async getById(id) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data;
+      const url = getApiUrl(`/articles/${id}?entity_id=default`);
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.article || null;
     } catch (error) {
       console.error(`Error fetching product ${id}:`, error);
       throw error;
@@ -53,14 +65,15 @@ export const productService = {
    */
   async search(searchTerm) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      const url = getApiUrl(`/articles/search?q=${encodeURIComponent(searchTerm)}&entity_id=default`);
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.articles || [];
     } catch (error) {
       console.error('Error searching products:', error);
       throw error;
@@ -74,17 +87,12 @@ export const productService = {
    */
   async getByCategory(category) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('category', category)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      // Obtener todos y filtrar por categoría
+      const all = await this.getAll();
+      return all.filter(p => p.category === category || p.basic?.category === category);
     } catch (error) {
       console.error(`Error fetching products by category ${category}:`, error);
-      throw error;
+      return [];
     }
   },
 
@@ -94,17 +102,11 @@ export const productService = {
    */
   async getDiscounted() {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .gt('discount', 0)
-        .order('discount', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      const all = await this.getAll();
+      return all.filter(p => p.discount > 0 || (p.basic && p.basic.discount > 0));
     } catch (error) {
       console.error('Error fetching discounted products:', error);
-      throw error;
+      return [];
     }
   },
 
@@ -115,17 +117,13 @@ export const productService = {
    */
   async getFeatured(limit = 8) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('rating', { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-      return data || [];
+      const all = await this.getAll();
+      return all
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        .slice(0, limit);
     } catch (error) {
       console.error('Error fetching featured products:', error);
-      throw error;
+      return [];
     }
   },
 
@@ -136,14 +134,24 @@ export const productService = {
    */
   async create(product) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([product])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const url = getApiUrl('/articles');
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          entity_id: 'default',
+          ...product,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.article;
     } catch (error) {
       console.error('Error creating product:', error);
       throw error;
@@ -158,15 +166,21 @@ export const productService = {
    */
   async update(id, updates) {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const url = getApiUrl(`/articles/${id}`);
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.article;
     } catch (error) {
       console.error(`Error updating product ${id}:`, error);
       throw error;
@@ -180,12 +194,15 @@ export const productService = {
    */
   async delete(id) {
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      const url = getApiUrl(`/articles/${id}`);
+      const response = await fetch(url, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       return true;
     } catch (error) {
       console.error(`Error deleting product ${id}:`, error);

@@ -9,8 +9,8 @@ const getApiUrl = (endpoint) => {
   return `${API_BASE_URL}${API_PREFIX}${endpoint}`;
 };
 
-// Flag para usar datos reales de Supabase o datos mock
-const USE_REAL_DATA = true; // Cambiar a false para usar mock data
+// Flag para usar datos reales del backend o datos mock
+const USE_REAL_DATA = false; // Cambiar a true para intentar backend (aún en desarrollo)
 
 // Helper function for API calls
 async function apiRequest(endpoint, options = {}) {
@@ -99,21 +99,19 @@ export const api = {
     return apiRequest('/orders');
   },
 
-  // Mock data for development (o datos reales de Supabase)
+  // Get products from backend API (con fallback a mock data)
   getMockProducts: async () => {
-    if (USE_REAL_DATA) {
-      try {
-        console.log('📡 Fetching products from Supabase...');
-        const products = await productService.getAll();
-        console.log(`✅ ${products.length} products fetched from Supabase`);
-        return products;
-      } catch (error) {
-        console.warn('⚠️ Error fetching from Supabase, using mock data:', error);
-        // Fallback a mock data si falla Supabase
-      }
+    try {
+      console.log('📡 Fetching products from Backend API...');
+      const products = await productService.getAll();
+      console.log(`✅ ${products.length} products fetched from backend`);
+      return products;
+    } catch (error) {
+      console.warn('⚠️ Error fetching from backend, using mock data:', error);
+      // Fallback a mock data si falla el backend
     }
     
-    // Mock data (fallback)
+    // Mock data (fallback si el backend falla)
     return Promise.resolve([
       {
         id: 1,
