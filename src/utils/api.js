@@ -2,13 +2,19 @@
 import { productService } from '../services/productService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_PREFIX = import.meta.env.VITE_API_PREFIX || '';
+
+// Construir URL completa del API
+const getApiUrl = (endpoint) => {
+  return `${API_BASE_URL}${API_PREFIX}${endpoint}`;
+};
 
 // Flag para usar datos reales de Supabase o datos mock
 const USE_REAL_DATA = true; // Cambiar a false para usar mock data
 
 // Helper function for API calls
 async function apiRequest(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = getApiUrl(endpoint);
   
   const config = {
     headers: {
@@ -19,6 +25,7 @@ async function apiRequest(endpoint, options = {}) {
   };
 
   try {
+    console.log(`🌐 API Request: ${url}`);
     const response = await fetch(url, config);
     
     if (!response.ok) {
