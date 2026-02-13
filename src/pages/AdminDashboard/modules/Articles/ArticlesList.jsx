@@ -402,6 +402,18 @@ export const ArticlesList = () => {
           ⚙️ Acciones
         </button>
 
+        {/* Buscador en el centro */}
+        <div className={styles.toolbarSearchBox}>
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder="Buscar artículos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.toolbarSearchInput}
+          />
+        </div>
+
         {/* Volver - solo visible si podemos retroceder */}
         {viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory) && (
           <button onClick={goBack} className={styles.toolbarBtn}>
@@ -409,20 +421,6 @@ export const ArticlesList = () => {
             Volver
           </button>
         )}
-      </div>
-
-      {/* Barra de búsqueda */}
-      <div className={styles.searchBar}>
-        <div className={styles.searchBox}>
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Buscar artículos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
       </div>
 
       {/* MODO NAVEGACIÓN */}
