@@ -360,9 +360,6 @@ export const DepartmentsList = () => {
           {filteredDepartments.map((dept) => (
             <div key={dept.id} className={styles.deptCard}>
               <div className={styles.deptCardImage} style={{backgroundImage: `url(${dept.image})`}}>
-                <div className={styles.deptCardOverlay}>
-                  <span className={styles.deptCardIcon}>{dept.icon}</span>
-                </div>
                 <div className={styles.deptCardBadge}>
                   <span className={dept.active ? styles.activeBadge : styles.inactiveBadge}>
                     {dept.active ? '✓ Visible' : '✗ Oculto'}
@@ -370,6 +367,7 @@ export const DepartmentsList = () => {
                 </div>
               </div>
               <div className={styles.deptCardContent}>
+                <span className={styles.deptCardIcon}>{dept.icon}</span>
                 <h3>{dept.name}</h3>
                 <p>{dept.categories?.length || 0} categorías</p>
                 <div className={styles.deptCardTags}>

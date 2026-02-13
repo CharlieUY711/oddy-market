@@ -434,12 +434,9 @@ export const ArticlesList = () => {
               className={styles.navCard}
               onClick={() => setCurrentDepartment(dept)}
             >
-              <div className={styles.navCardImage} style={{backgroundImage: `url(${dept.image})`}}>
-                <div className={styles.navCardOverlay}>
-                  <span className={styles.navCardIcon}>{dept.icon}</span>
-                </div>
-              </div>
+              <div className={styles.navCardImage} style={{backgroundImage: `url(${dept.image})`}}></div>
               <div className={styles.navCardContent}>
+                <span className={styles.navCardIcon}>{dept.icon}</span>
                 <h3>{dept.name}</h3>
                 <p>{dept.categories?.length || 0} categorías</p>
               </div>
@@ -457,12 +454,9 @@ export const ArticlesList = () => {
               className={styles.navCard}
               onClick={() => setCurrentCategory(cat)}
             >
-              <div className={styles.navCardImage} style={{backgroundImage: `url(${cat.image})`}}>
-                <div className={styles.navCardOverlay}>
-                  <span className={styles.navCardIcon}>{cat.icon}</span>
-                </div>
-              </div>
+              <div className={styles.navCardImage} style={{backgroundImage: `url(${cat.image})`}}></div>
               <div className={styles.navCardContent}>
+                <span className={styles.navCardIcon}>{cat.icon}</span>
                 <h3>{cat.name}</h3>
                 <p>{cat.subcategories?.length || 0} subcategorías</p>
               </div>
@@ -480,12 +474,9 @@ export const ArticlesList = () => {
               className={styles.navCard}
               onClick={() => setCurrentSubCategory(subcat)}
             >
-              <div className={styles.navCardImage} style={{backgroundImage: `url(${currentCategory.image})`}}>
-                <div className={styles.navCardOverlay}>
-                  <span className={styles.navCardIcon}>📁</span>
-                </div>
-              </div>
+              <div className={styles.navCardImage} style={{backgroundImage: `url(${currentCategory.image})`}}></div>
               <div className={styles.navCardContent}>
+                <span className={styles.navCardIcon}>📁</span>
                 <h3>{subcat}</h3>
                 <p>Ver artículos →</p>
               </div>
