@@ -30,6 +30,22 @@ import { ArticlesList, ArticleForm } from './pages/AdminDashboard/modules/Articl
 import { OrdersList } from './pages/AdminDashboard/modules/Orders';
 import { InventoryList } from './pages/AdminDashboard/modules/Inventory';
 import { CRMList } from './pages/AdminDashboard/modules/CRM';
+import { 
+  LibraryModule,
+  ShippingModule,
+  MailingModule,
+  SocialModule,
+  WheelModule,
+  CouponsModule,
+  BillingModule,
+  UsersModule,
+  AuditModule,
+  AnalyticsModule,
+  IntegrationsModule,
+  DocumentsModule,
+  ERPModule,
+  PurchaseModule
+} from './pages/AdminDashboard/modules/GenericModule';
 import './styles/global.css';
 
 function App() {
@@ -61,6 +77,20 @@ function App() {
                   <Route path="modules/orders" element={<OrdersList />} />
                   <Route path="modules/inventory" element={<InventoryList />} />
                   <Route path="modules/crm" element={<CRMList />} />
+                  <Route path="modules/library" element={<LibraryModule />} />
+                  <Route path="modules/shipping" element={<ShippingModule />} />
+                  <Route path="modules/mailing" element={<MailingModule />} />
+                  <Route path="modules/social" element={<SocialModule />} />
+                  <Route path="modules/wheel" element={<WheelModule />} />
+                  <Route path="modules/coupons" element={<CouponsModule />} />
+                  <Route path="modules/billing" element={<BillingModule />} />
+                  <Route path="modules/users" element={<UsersModule />} />
+                  <Route path="modules/audit" element={<AuditModule />} />
+                  <Route path="modules/analytics" element={<AnalyticsModule />} />
+                  <Route path="modules/integrations" element={<IntegrationsModule />} />
+                  <Route path="modules/documents" element={<DocumentsModule />} />
+                  <Route path="modules/erp" element={<ERPModule />} />
+                  <Route path="modules/purchase" element={<PurchaseModule />} />
                 </Route>
 
                 {/* Frontend - Con Header/Footer */}
