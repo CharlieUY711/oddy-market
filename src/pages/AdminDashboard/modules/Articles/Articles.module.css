@@ -1,16 +1,10 @@
 .articlesContainer {
   padding: 0;
-  background-color: #f9fafb;
   min-height: 100vh;
-}
-
-.articlesContainer > *:not(.loading) {
-  background-color: white;
 }
 
 .articlesContainer > .gridContainer,
 .articlesContainer > .articlesList {
-  background-color: #f9fafb;
   padding: 1.5rem 2rem;
 }
 
@@ -485,7 +479,7 @@
 /* Grid de artículos - Mitad de tamaño */
 .articlesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, 220px);
   gap: 16px;
   margin-top: 20px;
   grid-auto-rows: 1fr;
@@ -501,8 +495,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  max-width: 280px; /* Limita el ancho máximo incluso si está sola */
-  justify-self: start; /* Se alinea al inicio, no se expande */
+  width: 220px;
 }
 
 .articleCard:hover {
