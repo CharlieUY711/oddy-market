@@ -274,6 +274,46 @@
   color: #ff9800;
 }
 
+/* Herencia de departamento */
+.inheritanceAlert {
+  background: #e8f5e9;
+  border: 1px solid #4caf50;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #2e7d32;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.inheritanceAlert strong {
+  color: #1b5e20;
+}
+
+.currencyBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: #e3f2fd;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #856404;
+}
+
 .articleActions {
   display: flex;
   gap: 8px;
