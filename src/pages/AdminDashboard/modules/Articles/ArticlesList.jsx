@@ -9,8 +9,11 @@ import {
   Eye,
   Package,
   Tag,
-  AlertCircle
+  AlertCircle,
+  Grid,
+  List
 } from 'lucide-react';
+import { TreeTable } from '../TreeTable';
 import styles from './Articles.module.css';
 
 export const ArticlesList = () => {
@@ -19,6 +22,7 @@ export const ArticlesList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState('all'); // all, basic, intermediate, advanced
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'tree'
 
   const API_BASE = import.meta.env.VITE_API_URL + (import.meta.env.VITE_API_PREFIX || '');
 
@@ -261,6 +265,141 @@ export const ArticlesList = () => {
     return matchesSearch && matchesLevel;
   });
 
+  // Convertir artículos a estructura de árbol
+  const buildTreeData = () => {
+    const tree = [];
+    const departments = new Map();
+    const categories = new Map();
+    const subcategories = new Map();
+
+    // Agrupar artículos por departamento → categoría → subcategoría
+    filteredArticles.forEach(article => {
+      const dept = article.basic?.department || 'Sin Departamento';
+      const cat = article.basic?.category_id || 'Sin Categoría';
+      const subcat = article.basic?.subcategory || null;
+
+      // Crear departamento
+      if (!departments.has(dept)) {
+        departments.set(dept, {
+          id: `dept-${dept}`,
+          name: dept,
+          icon: '🏢',
+          type: 'department',
+          children: []
+        });
+      }
+
+      // Crear categoría
+      const catKey = `${dept}|${cat}`;
+      if (!categories.has(catKey)) {
+        categories.set(catKey, {
+          id: `cat-${catKey}`,
+          name: cat,
+          icon: '📂',
+          type: 'category',
+          parent: dept,
+          children: []
+        });
+      }
+
+      // Si hay subcategoría
+      if (subcat) {
+        const subcatKey = `${dept}|${cat}|${subcat}`;
+        if (!subcategories.has(subcatKey)) {
+          subcategories.set(subcatKey, {
+            id: `subcat-${subcatKey}`,
+            name: subcat,
+            icon: '📁',
+            type: 'subcategory',
+            parent: catKey,
+            children: []
+          });
+        }
+        subcategories.get(subcatKey).children.push({
+          ...article,
+          type: 'article',
+          name: article.basic?.name
+        });
+      } else {
+        categories.get(catKey).children.push({
+          ...article,
+          type: 'article',
+          name: article.basic?.name
+        });
+      }
+    });
+
+    // Construir árbol
+    subcategories.forEach((subcat) => {
+      const category = categories.get(subcat.parent);
+      if (category) {
+        category.children.push(subcat);
+      }
+    });
+
+    categories.forEach((cat) => {
+      const department = departments.get(cat.parent);
+      if (department) {
+        department.children.push(cat);
+      }
+    });
+
+    departments.forEach((dept) => {
+      tree.push(dept);
+    });
+
+    return tree;
+  };
+
+  const treeColumns = [
+    {
+      label: 'Nombre',
+      field: 'name',
+      render: (node) => node.name || node.basic?.name
+    },
+    {
+      label: 'SKU',
+      field: 'sku',
+      render: (node) => node.type === 'article' ? node.basic?.sku : '-'
+    },
+    {
+      label: 'Precio',
+      field: 'price',
+      render: (node) => node.type === 'article' ? formatCurrency(node.basic?.price) : '-'
+    },
+    {
+      label: 'Stock',
+      field: 'stock',
+      render: (node) => {
+        if (node.type !== 'article') return '-';
+        const status = getStockStatus(node.basic?.stock);
+        return (
+          <span style={{ color: status.color, fontWeight: 600 }}>
+            {node.basic?.stock || 0}
+          </span>
+        );
+      }
+    },
+    {
+      label: 'Estado',
+      field: 'status',
+      render: (node) => {
+        if (node.type !== 'article') return '-';
+        const statusMap = {
+          active: { label: 'Activo', color: '#4caf50' },
+          inactive: { label: 'Inactivo', color: '#9e9e9e' },
+          draft: { label: 'Borrador', color: '#ff9800' }
+        };
+        const status = statusMap[node.basic?.status] || statusMap.active;
+        return (
+          <span style={{ color: status.color, fontWeight: 600 }}>
+            {status.label}
+          </span>
+        );
+      }
+    }
+  ];
+
   const getStockStatus = (stock) => {
     if (!stock || stock === 0) return { label: 'Sin Stock', color: '#f44336' };
     if (stock < 10) return { label: 'Stock Bajo', color: '#ff9800' };
@@ -315,7 +454,8 @@ export const ArticlesList = () => {
           />
         </div>
 
-        <div className={styles.filterButtons}>
+        <div className={styles.filterRow}>
+          <div className={styles.filterButtons}>
           <button 
             className={`${styles.filterBtn} ${filterLevel === 'all' ? styles.active : ''}`}
             onClick={() => setFilterLevel('all')}
@@ -340,10 +480,28 @@ export const ArticlesList = () => {
           >
             Avanzados
           </button>
+          </div>
+
+          <div className={styles.viewToggle}>
+            <button
+              className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.active : ''}`}
+              onClick={() => setViewMode('grid')}
+              title="Vista de Iconos"
+            >
+              <Grid size={20} />
+            </button>
+            <button
+              className={`${styles.viewBtn} ${viewMode === 'tree' ? styles.active : ''}`}
+              onClick={() => setViewMode('tree')}
+              title="Vista de Lista (Árbol)"
+            >
+              <List size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Articles Grid */}
+      {/* Articles View */}
       {filteredArticles.length === 0 ? (
         <div className={styles.emptyState}>
           <Package size={64} color="#bdbdbd" />
@@ -357,6 +515,26 @@ export const ArticlesList = () => {
             Crear Artículo
           </button>
         </div>
+      ) : viewMode === 'tree' ? (
+        <TreeTable
+          data={buildTreeData()}
+          columns={treeColumns}
+          onRowClick={(node) => {
+            if (node.type === 'article') {
+              navigate(`/admin-dashboard/modules/articles/${node.id}`);
+            }
+          }}
+          onEdit={(node) => {
+            if (node.type === 'article') {
+              navigate(`/admin-dashboard/modules/articles/${node.id}/edit`);
+            }
+          }}
+          onDelete={(node) => {
+            if (node.type === 'article') {
+              handleDelete(node.id);
+            }
+          }}
+        />
       ) : (
         <div className={styles.articlesGrid}>
           {filteredArticles.map((article) => {

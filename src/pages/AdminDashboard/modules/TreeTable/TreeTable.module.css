@@ -1,0 +1,165 @@
+.tableContainer {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.header {
+  background: #fafafa;
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #757575;
+  text-transform: uppercase;
+  border-bottom: 2px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.row {
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.2s;
+}
+
+.row.leaf:hover {
+  background: #f9f9f9;
+  cursor: pointer;
+}
+
+.row.branch {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.row.level0 {
+  background: #e3f2fd;
+}
+
+.row.level0 .nodeLabel {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.row.level1 {
+  background: #f1f8e9;
+}
+
+.row.level2 {
+  background: #fff3e0;
+}
+
+.row.level3 {
+  background: white;
+}
+
+.cell {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #424242;
+  vertical-align: middle;
+}
+
+.cellContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expandButton {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.expandButton:hover {
+  background: #f5f5f5;
+  border-color: #ff6b35;
+}
+
+.leafIcon {
+  width: 24px;
+  color: #bdbdbd;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nodeIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.nodeLabel {
+  flex: 1;
+}
+
+.actionsCell {
+  padding: 12px 16px;
+  text-align: right;
+  width: 120px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.actionBtn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.actionBtn:hover {
+  background: #f5f5f5;
+  border-color: #ff6b35;
+  transform: translateY(-1px);
+}
+
+.actionBtn.danger:hover {
+  background: #ffebee;
+  border-color: #f44336;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tableContainer {
+    overflow-x: auto;
+  }
+
+  .cell {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .header {
+    padding: 12px;
+    font-size: 12px;
+  }
+}
