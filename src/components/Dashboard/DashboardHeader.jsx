@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaStore } from 'react-icons/fa';
+import { Home, Store } from 'lucide-react';
 import styles from './DashboardHeader.module.css';
 
 /**
@@ -21,14 +21,14 @@ const DashboardHeader = ({ title, className = '' }) => {
           onClick={() => navigate('/')}
           title="Ir a la Tienda"
         >
-          <FaStore />
+          <Store size={16} />
         </button>
         <button
           className={styles.iconBtn}
-          onClick={() => navigate('/admin')}
+          onClick={() => navigate('/admin-dashboard')}
           title="Ir al Home"
         >
-          <FaHome />
+          <Home size={16} />
         </button>
       </div>
     </header>

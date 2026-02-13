@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaPlus, FaEdit, FaTasks, FaArrowLeft, FaList, FaSitemap, FaSearch } from 'react-icons/fa';
+import { Plus, Edit, ListChecks, ArrowLeft, List, Network, Search } from 'lucide-react';
 import styles from './Toolbar.module.css';
 
 /**
@@ -44,14 +44,14 @@ const Toolbar = ({ config = {} }) => {
               onClick={() => onViewModeChange?.('navigation')}
               title="Vista Navegación"
             >
-              <FaList />
+              <List size={14} />
             </button>
             <button
               className={`${styles.viewBtn} ${viewMode === 'tree' ? styles.active : ''}`}
               onClick={() => onViewModeChange?.('tree')}
               title="Vista Árbol"
             >
-              <FaSitemap />
+              <Network size={14} />
             </button>
           </div>
         )}
@@ -74,7 +74,7 @@ const Toolbar = ({ config = {} }) => {
       {showSearch && (
         <div className={styles.centerGroup}>
           <div className={styles.searchBox}>
-            <FaSearch className={styles.searchIcon} />
+            <Search size={14} className={styles.searchIcon} />
             <input
               type="text"
               className={styles.searchInput}
@@ -94,7 +94,7 @@ const Toolbar = ({ config = {} }) => {
             onClick={onBack}
             title="Volver"
           >
-            <FaArrowLeft />
+            <ArrowLeft size={14} />
           </button>
         )}
       </div>
