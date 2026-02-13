@@ -25,6 +25,11 @@ import { Herramientas } from './pages/AdminDashboard/sections/Herramientas';
 import { Gestion } from './pages/AdminDashboard/sections/Gestion';
 import { Sistema } from './pages/AdminDashboard/sections/Sistema';
 import { ProtectedRoute } from './components/ProtectedRoute';
+// Módulos
+import { ArticlesList, ArticleForm } from './pages/AdminDashboard/modules/Articles';
+import { OrdersList } from './pages/AdminDashboard/modules/Orders';
+import { InventoryList } from './pages/AdminDashboard/modules/Inventory';
+import { CRMList } from './pages/AdminDashboard/modules/CRM';
 import './styles/global.css';
 
 function App() {
@@ -48,6 +53,14 @@ function App() {
                   <Route path="herramientas" element={<Herramientas />} />
                   <Route path="gestion" element={<Gestion />} />
                   <Route path="sistema" element={<Sistema />} />
+                  
+                  {/* Módulos Funcionales */}
+                  <Route path="modules/articles" element={<ArticlesList />} />
+                  <Route path="modules/articles/new" element={<ArticleForm />} />
+                  <Route path="modules/articles/:id/edit" element={<ArticleForm />} />
+                  <Route path="modules/orders" element={<OrdersList />} />
+                  <Route path="modules/inventory" element={<InventoryList />} />
+                  <Route path="modules/crm" element={<CRMList />} />
                 </Route>
 
                 {/* Frontend - Con Header/Footer */}

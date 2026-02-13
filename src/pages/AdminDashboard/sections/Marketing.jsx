@@ -16,6 +16,24 @@ import styles from './Section.module.css';
 export const Marketing = () => {
   const navigate = useNavigate();
 
+  const handleModuleClick = (module) => {
+    const routes = {
+      crm: '/admin-dashboard/modules/crm',
+      mailing: '/admin-dashboard/modules/mailing',
+      social: '/admin-dashboard/modules/social',
+      wheel: '/admin-dashboard/modules/wheel',
+      ads: '/admin-dashboard/modules/ads',
+      coupons: '/admin-dashboard/modules/coupons',
+      fidelization: '/admin-dashboard/modules/loyalty',
+      popups: '/admin-dashboard/modules/popups',
+      abtest: '/admin-dashboard/modules/abtest',
+      campaigns: '/admin-dashboard/modules/campaigns'
+    };
+    if (routes[module.id]) {
+      navigate(routes[module.id]);
+    }
+  };
+
   const modules = [
     {
       id: 'crm',
@@ -123,7 +141,11 @@ export const Marketing = () => {
 
       <div className={styles.moduleGrid}>
         {modules.map((module) => (
-          <div key={module.id} className={styles.moduleCard}>
+          <div 
+            key={module.id} 
+            className={styles.moduleCard}
+            onClick={() => handleModuleClick(module)}
+          >
             <div className={styles.moduleIcon} style={{ background: module.color }}>
               <div style={{ color: module.iconColor }}>{module.icon}</div>
             </div>

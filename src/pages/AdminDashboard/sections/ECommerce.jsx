@@ -46,9 +46,15 @@ export const ECommerce = () => {
   ];
 
   const handleModuleClick = (module) => {
-    // Aquí podrías navegar a una vista detallada del módulo
-    console.log('Navigating to module:', module.id);
-    // navigate(`/admin-dashboard/ecommerce/${module.id}`);
+    const routes = {
+      articles: '/admin-dashboard/modules/articles',
+      library: '/admin-dashboard/modules/library',
+      orders: '/admin-dashboard/modules/orders',
+      shipping: '/admin-dashboard/modules/shipping'
+    };
+    if (routes[module.id]) {
+      navigate(routes[module.id]);
+    }
   };
 
   return (

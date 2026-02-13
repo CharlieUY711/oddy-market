@@ -13,6 +13,20 @@ import styles from './Section.module.css';
 export const Gestion = () => {
   const navigate = useNavigate();
 
+  const handleModuleClick = (module) => {
+    const routes = {
+      erp: '/admin-dashboard/modules/erp',
+      inventory: '/admin-dashboard/modules/inventory',
+      billing: '/admin-dashboard/modules/billing',
+      purchase: '/admin-dashboard/modules/purchase',
+      secondhand: '/admin-dashboard/modules/secondhand',
+      users: '/admin-dashboard/modules/users'
+    };
+    if (routes[module.id]) {
+      navigate(routes[module.id]);
+    }
+  };
+
   const modules = [
     {
       id: 'erp',
@@ -84,7 +98,11 @@ export const Gestion = () => {
 
       <div className={styles.moduleGrid}>
         {modules.map((module) => (
-          <div key={module.id} className={styles.moduleCard}>
+          <div 
+            key={module.id} 
+            className={styles.moduleCard}
+            onClick={() => handleModuleClick(module)}
+          >
             <div className={styles.moduleIcon} style={{ background: module.color }}>
               <div style={{ color: module.iconColor }}>{module.icon}</div>
             </div>
