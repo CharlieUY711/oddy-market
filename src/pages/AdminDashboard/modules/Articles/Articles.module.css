@@ -476,6 +476,7 @@
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 16px;
   margin-top: 20px;
+  grid-auto-rows: 1fr;
 }
 
 .articleCard {
@@ -486,6 +487,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .articleCard:hover {
@@ -502,6 +505,9 @@
 
 .articleCardContent {
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .articleCardTitle {
@@ -531,6 +537,7 @@
   display: flex;
   gap: 6px;
   justify-content: center;
+  margin-top: auto;
 }
 
 .cardActionBtn {
@@ -603,12 +610,11 @@
   background: white;
   border: 2px dashed #e0e0e0;
   border-radius: 8px;
-  height: 240px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   cursor: pointer;
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .emptyArticleCard:hover {
@@ -618,10 +624,28 @@
   box-shadow: 0 8px 16px rgba(255, 107, 53, 0.15);
 }
 
+/* Mismo layout que articleCard: imagen + contenido */
+.emptyArticleCard::before {
+  content: '';
+  display: block;
+  height: 140px;
+  background-color: #f5f5f5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='5' x2='12' y2='19'%3E%3C/line%3E%3Cline x1='5' y1='12' x2='19' y2='12'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 48px;
+}
+
 .emptyCardText {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #ff6b35;
+  text-align: center;
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Lista de artículos */
