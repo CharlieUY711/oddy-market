@@ -565,6 +565,7 @@ export const ArticlesList = () => {
             </div>
           )}
         </div>
+      )}
         </>
       )}
 
