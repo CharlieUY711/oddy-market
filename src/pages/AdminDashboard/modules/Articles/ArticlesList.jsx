@@ -382,13 +382,16 @@ export const ArticlesList = () => {
             {viewMode === 'tree' && 'Vista completa en estructura de árbol'}
           </p>
         </div>
-        <button 
-          className={styles.btnPrimary}
-          onClick={() => navigate('/admin-dashboard/modules/articles/new')}
-        >
-          <Plus size={20} />
-          Nuevo Artículo
-        </button>
+        {/* Mostrar botón siempre, excepto cuando hay empty state */}
+        {!(viewMode === 'navigation' && currentSubCategory && getFilteredArticles().length === 0) && (
+          <button 
+            className={styles.btnPrimary}
+            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+          >
+            <Plus size={20} />
+            Crear Artículo
+          </button>
+        )}
       </header>
 
       {/* Toggle de Vista + Buscador */}
@@ -494,7 +497,7 @@ export const ArticlesList = () => {
               <h3>No hay artículos en esta categoría</h3>
               <p>Creá el primer artículo para comenzar</p>
               <button 
-                className={styles.btnPrimary}
+                className={styles.btnPrimaryLarge}
                 onClick={() => navigate('/admin-dashboard/modules/articles/new')}
               >
                 <Plus size={20} />
