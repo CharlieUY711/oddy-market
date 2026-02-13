@@ -16,6 +16,7 @@ import { Login } from './pages/Login';
 import { Test } from './pages/Test';
 import { SecondHand } from './pages/SecondHand';
 import { Admin } from './pages/Admin';
+import { Profile } from './pages/Profile';
 import './styles/global.css';
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                             <Route path="/login" element={<Login />} />
+                            <Route path="/profile" element={<Profile />} />
                             <Route path="/test" element={<Test />} />
                             <Route path="/second-hand" element={<SecondHand />} />
                             <Route path="/admin" element={<Admin />} />
