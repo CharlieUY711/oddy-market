@@ -3,7 +3,8 @@ import { Plus, Edit, ListChecks, ArrowLeft, List, Network, Search, CheckSquare, 
 import styles from './Toolbar.module.css';
 
 /**
- * Toolbar - Barra de herramientas estandarizada para módulos del dashboard
+ * Toolbar - Barra de herramientas ESTANDARIZADA para TODOS los módulos del dashboard
+ * TODOS LOS MÓDULOS TIENEN LOS MISMOS 4 BOTONES: Nuevo, Editar, Seleccionar, Acciones
  * 
  * Props:
  * @param {Object} config - Configuración de la barra de herramientas
@@ -14,12 +15,12 @@ import styles from './Toolbar.module.css';
  * @param {string} config.searchValue - Valor actual del buscador
  * @param {function} config.onSearchChange - Callback cuando cambia la búsqueda
  * @param {string} config.searchPlaceholder - Placeholder del buscador
- * @param {boolean} config.showSelectionMode - Mostrar botón de selección
+ * @param {function} config.onNew - Callback del botón Nuevo
+ * @param {function} config.onEdit - Callback del botón Editar
+ * @param {function} config.onActions - Callback del botón Acciones
  * @param {boolean} config.isSelectionMode - Si está en modo selección
  * @param {function} config.onToggleSelection - Callback para activar/desactivar modo selección
  * @param {number} config.selectedCount - Cantidad de elementos seleccionados
- * @param {Array} config.actions - Array de acciones personalizadas
- *   Cada acción: { icon: Component, label: string, onClick: function, variant: 'primary'|'secondary' }
  * @param {boolean} config.showBack - Mostrar botón de volver
  * @param {function} config.onBack - Callback del botón volver
  */
@@ -32,11 +33,12 @@ const Toolbar = ({ config = {} }) => {
     searchValue = '',
     onSearchChange,
     searchPlaceholder = 'Buscar...',
-    showSelectionMode = false,
+    onNew,
+    onEdit,
+    onActions,
     isSelectionMode = false,
     onToggleSelection,
     selectedCount = 0,
-    actions = [],
     showBack = false,
     onBack,
   } = config;
@@ -64,21 +66,35 @@ const Toolbar = ({ config = {} }) => {
           </div>
         )}
 
-        {/* Acciones principales */}
-        {actions.map((action, index) => (
+        {/* BOTONES ESTÁNDAR - IGUALES PARA TODOS LOS MÓDULOS */}
+        
+        {/* Botón Nuevo (siempre naranja/primario) */}
+        {onNew && (
           <button
-            key={index}
-            className={`${styles.toolbarBtn} ${action.variant === 'primary' ? styles.primaryBtn : ''}`}
-            onClick={action.onClick}
-            title={action.label}
+            className={`${styles.toolbarBtn} ${styles.primaryBtn}`}
+            onClick={onNew}
+            title="Crear nuevo"
           >
-            {action.icon && <action.icon size={14} />}
-            <span>{action.label}</span>
+            <Plus size={14} />
+            <span>Nuevo</span>
           </button>
-        ))}
+        )}
+
+        {/* Botón Editar */}
+        {onEdit && (
+          <button
+            className={styles.toolbarBtn}
+            onClick={onEdit}
+            title="Editar"
+            disabled={!isSelectionMode || selectedCount === 0}
+          >
+            <Edit size={14} />
+            <span>Editar</span>
+          </button>
+        )}
 
         {/* Botón Seleccionar */}
-        {showSelectionMode && (
+        {onToggleSelection && (
           <button
             className={`${styles.toolbarBtn} ${isSelectionMode ? styles.selectActive : ''}`}
             onClick={onToggleSelection}
@@ -89,12 +105,13 @@ const Toolbar = ({ config = {} }) => {
           </button>
         )}
 
-        {/* Botón Acciones - solo visible en modo selección */}
-        {isSelectionMode && selectedCount > 0 && (
+        {/* Botón Acciones */}
+        {onActions && (
           <button
             className={styles.toolbarBtn}
-            onClick={() => {}}
+            onClick={onActions}
             title="Acciones por lote"
+            disabled={!isSelectionMode || selectedCount === 0}
           >
             <Settings size={14} />
             <span>Acciones</span>

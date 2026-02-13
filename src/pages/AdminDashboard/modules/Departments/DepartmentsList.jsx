@@ -306,7 +306,7 @@ export const DepartmentsList = () => {
       {/* HEADER ESTANDARIZADO */}
       <DashboardHeader title="🏢 Gestión de Departamentos" />
 
-      {/* TOOLBAR ESTANDARIZADA */}
+      {/* TOOLBAR ESTANDARIZADA - TODOS LOS MÓDULOS TIENEN LOS MISMOS BOTONES */}
       <Toolbar config={{
         showViewToggle: true,
         viewMode: viewMode === 'icons' ? 'navigation' : 'list',
@@ -315,14 +315,13 @@ export const DepartmentsList = () => {
         searchValue: searchTerm,
         onSearchChange: setSearchTerm,
         searchPlaceholder: 'Buscar departamento...',
-        actions: [
-          {
-            icon: Plus,
-            label: 'Nuevo',
-            onClick: () => navigate('/admin-dashboard/modules/departments/new'),
-            variant: 'primary'
-          }
-        ],
+        // 4 BOTONES ESTÁNDAR
+        onNew: () => navigate('/admin-dashboard/modules/departments/new'),
+        onEdit: () => {},
+        onToggleSelection: () => {},
+        onActions: () => {},
+        isSelectionMode: false,
+        selectedCount: 0,
         showBack: false
       }} />
 

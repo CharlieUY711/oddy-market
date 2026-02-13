@@ -92,21 +92,20 @@ export const SharedModuleList = ({
       {/* HEADER ESTANDARIZADO */}
       <DashboardHeader title={`${icon} ${title}`} />
 
-      {/* TOOLBAR ESTANDARIZADA */}
+      {/* TOOLBAR ESTANDARIZADA - TODOS LOS MÓDULOS TIENEN LOS MISMOS BOTONES */}
       <Toolbar config={{
         showViewToggle: false,
         showSearch: true,
         searchValue: searchTerm,
         onSearchChange: setSearchTerm,
         searchPlaceholder: 'Buscar...',
-        actions: createPath ? [
-          {
-            icon: Plus,
-            label: 'Nuevo',
-            onClick: () => navigate(createPath),
-            variant: 'primary'
-          }
-        ] : [],
+        // 4 BOTONES ESTÁNDAR
+        onNew: createPath ? () => navigate(createPath) : null,
+        onEdit: () => {},
+        onToggleSelection: () => {},
+        onActions: () => {},
+        isSelectionMode: false,
+        selectedCount: 0,
         showBack: false
       }} />
 

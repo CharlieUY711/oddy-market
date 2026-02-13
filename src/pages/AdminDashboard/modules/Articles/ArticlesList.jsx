@@ -401,7 +401,7 @@ export const ArticlesList = () => {
         breadcrumbs={getBreadcrumbs()}
       />
 
-      {/* TOOLBAR ESTANDARIZADA - Configuración específica del módulo */}
+      {/* TOOLBAR ESTANDARIZADA - TODOS LOS MÓDULOS TIENEN LOS MISMOS BOTONES */}
       <Toolbar config={{
         showViewToggle: true,
         viewMode: viewMode,
@@ -410,18 +410,21 @@ export const ArticlesList = () => {
         searchValue: searchTerm,
         onSearchChange: setSearchTerm,
         searchPlaceholder: 'Buscar artículos...',
-        showSelectionMode: currentSubCategory && getFilteredArticles().length > 0,
-        isSelectionMode: isSelectionMode,
-        onToggleSelection: toggleSelectionMode,
-        selectedCount: selectedArticles.size,
-        actions: [
-          {
-            icon: Plus,
-            label: 'Nuevo',
-            onClick: () => navigate('/admin-dashboard/modules/articles/new'),
-            variant: 'primary'
+        // 4 BOTONES ESTÁNDAR
+        onNew: () => navigate('/admin-dashboard/modules/articles/new'),
+        onEdit: () => {
+          if (selectedArticles.size === 1) {
+            const articleId = Array.from(selectedArticles)[0];
+            navigate(`/admin-dashboard/modules/articles/${articleId}/edit`);
           }
-        ],
+        },
+        onToggleSelection: toggleSelectionMode,
+        onActions: () => {
+          // TODO: Implementar menú de acciones (eliminar, duplicar, mover, etc.)
+          console.log('Acciones para:', selectedArticles);
+        },
+        isSelectionMode: isSelectionMode,
+        selectedCount: selectedArticles.size,
         showBack: viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory),
         onBack: goBack
       }} />

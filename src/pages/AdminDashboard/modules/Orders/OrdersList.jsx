@@ -202,14 +202,20 @@ export const OrdersList = () => {
       {/* HEADER ESTANDARIZADO */}
       <DashboardHeader title="🛍️ Pedidos" />
 
-      {/* TOOLBAR ESTANDARIZADA */}
+      {/* TOOLBAR ESTANDARIZADA - TODOS LOS MÓDULOS TIENEN LOS MISMOS BOTONES */}
       <Toolbar config={{
         showViewToggle: false,
         showSearch: true,
         searchValue: searchTerm,
         onSearchChange: setSearchTerm,
         searchPlaceholder: 'Buscar por ID, email o tracking...',
-        actions: [],
+        // 4 BOTONES ESTÁNDAR
+        onNew: null, // Orders no se crean manualmente
+        onEdit: () => {},
+        onToggleSelection: () => {},
+        onActions: () => {},
+        isSelectionMode: false,
+        selectedCount: 0,
         showBack: false
       }} />
 
