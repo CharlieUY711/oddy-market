@@ -30,6 +30,7 @@ import { ArticlesList, ArticleForm } from './pages/AdminDashboard/modules/Articl
 import { OrdersList } from './pages/AdminDashboard/modules/Orders';
 import { InventoryList } from './pages/AdminDashboard/modules/Inventory';
 import { CRMList } from './pages/AdminDashboard/modules/CRM';
+import { DepartmentsList } from './pages/AdminDashboard/modules/Departments';
 import { 
   LibraryModule,
   ShippingModule,
@@ -92,6 +93,7 @@ function App() {
                   <Route path="modules/documents" element={<DocumentsModule />} />
                   <Route path="modules/erp" element={<ERPModule />} />
                   <Route path="modules/purchase" element={<PurchaseModule />} />
+                  <Route path="modules/departments" element={<DepartmentsList />} />
                   
                   {/* Data Seeder - Inicializar datos de prueba */}
                   <Route path="seed-data" element={<DataSeeder />} />
