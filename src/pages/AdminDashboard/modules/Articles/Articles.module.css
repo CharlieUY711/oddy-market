@@ -501,6 +501,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  max-width: 280px; /* Limita el ancho máximo incluso si está sola */
+  justify-self: start; /* Se alinea al inicio, no se expande */
 }
 
 .articleCard:hover {
