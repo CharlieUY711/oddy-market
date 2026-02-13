@@ -66,7 +66,9 @@ export const ArticlesList = () => {
         stock: 15,
         description: 'Notebook profesional Intel i7, 16GB RAM, 512GB SSD',
         images: ['https://via.placeholder.com/300x200?text=Notebook'],
-        category_id: 'cat-tech',
+        department: 'Tecnología',
+        category_id: 'Computadoras',
+        subcategory: 'Notebooks',
         status: 'active'
       },
       intermediate: {
@@ -93,7 +95,9 @@ export const ArticlesList = () => {
         stock: 45,
         description: 'Mouse ergonómico inalámbrico para profesionales',
         images: [],
-        category_id: 'cat-peripherals',
+        department: 'Tecnología',
+        category_id: 'Periféricos',
+        subcategory: 'Mouse',
         status: 'active'
       },
       intermediate: {
@@ -115,7 +119,9 @@ export const ArticlesList = () => {
         stock: 8,
         description: 'Teclado mecánico gaming con iluminación RGB personalizable',
         images: [],
-        category_id: 'cat-peripherals',
+        department: 'Tecnología',
+        category_id: 'Periféricos',
+        subcategory: 'Teclados',
         status: 'active'
       },
       intermediate: {
@@ -137,7 +143,9 @@ export const ArticlesList = () => {
         stock: 5,
         description: 'Monitor profesional 27 pulgadas resolución 4K UHD',
         images: [],
-        category_id: 'cat-monitors',
+        department: 'Tecnología',
+        category_id: 'Monitores',
+        subcategory: '4K',
         status: 'active'
       },
       intermediate: {
@@ -159,7 +167,9 @@ export const ArticlesList = () => {
         stock: 22,
         description: 'Webcam HD 1080p para videoconferencias profesionales',
         images: [],
-        category_id: 'cat-peripherals',
+        department: 'Tecnología',
+        category_id: 'Periféricos',
+        subcategory: 'Webcams',
         status: 'active'
       },
       intermediate: {
@@ -181,7 +191,9 @@ export const ArticlesList = () => {
         stock: 12,
         description: 'Auriculares inalámbricos con cancelación de ruido activa',
         images: [],
-        category_id: 'cat-audio',
+        department: 'Electrónica',
+        category_id: 'Audio',
+        subcategory: 'Auriculares',
         status: 'active'
       },
       intermediate: {
@@ -203,7 +215,9 @@ export const ArticlesList = () => {
         stock: 28,
         description: 'Disco SSD NVMe M.2 de alta velocidad 1TB',
         images: [],
-        category_id: 'cat-storage',
+        department: 'Tecnología',
+        category_id: 'Almacenamiento',
+        subcategory: 'SSD',
         status: 'active'
       },
       intermediate: {
@@ -225,7 +239,9 @@ export const ArticlesList = () => {
         stock: 3,
         description: 'Silla ergonómica para gaming con soporte lumbar ajustable',
         images: [],
-        category_id: 'cat-furniture',
+        department: 'Muebles',
+        category_id: 'Oficina',
+        subcategory: 'Sillas Gaming',
         status: 'active'
       },
       intermediate: {
