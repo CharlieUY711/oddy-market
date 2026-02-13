@@ -506,63 +506,47 @@ export const ArticlesList = () => {
               </button>
             </div>
           ) : (
-            <div className={styles.tableContainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Imagen</th>
-                    <th>Nombre</th>
-                    <th>SKU</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getFilteredArticles().map((article) => (
-                    <tr key={article.id}>
-                      <td>
-                        <div 
-                          className={styles.articleImage} 
-                          style={{backgroundImage: `url(${article.image})`}}
-                        />
-                      </td>
-                      <td><strong>{article.name}</strong></td>
-                      <td><code>{article.sku}</code></td>
-                      <td><strong>${article.price}</strong></td>
-                      <td>
-                        <span className={article.stock < 10 ? styles.lowStock : styles.inStock}>
-                          {article.stock} unidades
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`${styles.statusBadge} ${styles[article.status]}`}>
-                          {article.status === 'active' ? 'Activo' : 'Inactivo'}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={styles.actions}>
-                          <button
-                            className={styles.actionBtn}
-                            onClick={() => navigate(`/admin-dashboard/modules/articles/${article.id}/edit`)}
-                            title="Editar"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            className={`${styles.actionBtn} ${styles.danger}`}
-                            onClick={() => handleDelete(article.id)}
-                            title="Eliminar"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className={styles.articlesGrid}>
+              {getFilteredArticles().map((article) => (
+                <div key={article.id} className={styles.articleCard}>
+                  <div 
+                    className={styles.articleCardImage} 
+                    style={{backgroundImage: `url(${article.image})`}}
+                    onClick={() => navigate(`/admin-dashboard/modules/articles/${article.id}/edit`)}
+                  />
+                  <div className={styles.articleCardContent}>
+                    <h4 className={styles.articleCardTitle}>{article.name}</h4>
+                    <p className={styles.articleCardPrice}>${article.price}</p>
+                    <p className={styles.articleCardStock}>
+                      <span className={article.stock < 10 ? styles.lowStock : styles.inStock}>
+                        {article.stock} en stock
+                      </span>
+                    </p>
+                    <div className={styles.articleCardActions}>
+                      <button
+                        className={styles.cardActionBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/admin-dashboard/modules/articles/${article.id}/edit`);
+                        }}
+                        title="Editar"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        className={`${styles.cardActionBtn} ${styles.danger}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(article.id);
+                        }}
+                        title="Eliminar"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
