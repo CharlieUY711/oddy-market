@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Package, ArrowLeft } from 'lucide-react';
 import DashboardHeader from '../../../../components/Dashboard/DashboardHeader';
 import Toolbar from '../../../../components/Dashboard/Toolbar';
+import CreateCard from '../../../../components/Dashboard/CreateCard';
 import styles from './Articles.module.css';
 import { TreeTable } from '../TreeTable';
 
@@ -497,12 +498,10 @@ export const ArticlesList = () => {
         <div className={styles.articlesList}>
           {getFilteredArticles().length === 0 ? (
             <div className={styles.articlesGrid}>
-              <div 
-                className={styles.emptyArticleCard}
+              <CreateCard 
+                label="Crear"
                 onClick={() => navigate('/admin-dashboard/modules/articles/new')}
-              >
-                <span className={styles.emptyCardText}>Crear</span>
-              </div>
+              />
             </div>
           ) : (
             <div className={styles.articlesGrid}>
@@ -571,12 +570,10 @@ export const ArticlesList = () => {
               ))}
               
               {/* Tarjeta "Crear" al final cuando hay artículos */}
-              <div 
-                className={styles.emptyArticleCard}
+              <CreateCard 
+                label="Crear"
                 onClick={() => navigate('/admin-dashboard/modules/articles/new')}
-              >
-                <span className={styles.emptyCardText}>Crear</span>
-              </div>
+              />
             </div>
           )}
         </div>
