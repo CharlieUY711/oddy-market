@@ -20,6 +20,8 @@ export const ArticleForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     intermediate: false,
@@ -37,6 +39,7 @@ export const ArticleForm = () => {
       stock: 0,
       description: '',
       images: [],
+      department_id: '',
       category_id: '',
       status: 'active'
     },
@@ -72,10 +75,61 @@ export const ArticleForm = () => {
   });
 
   useEffect(() => {
+    loadDepartments();
     if (isEdit) {
       loadArticle();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (formData.basic.department_id && departments.length > 0) {
+      const dept = departments.find(d => d.id === formData.basic.department_id);
+      setSelectedDepartment(dept || null);
+    }
+  }, [formData.basic.department_id, departments]);
+
+  const loadDepartments = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/departments?entity_id=default`);
+      const data = await response.json();
+      
+      let deptsData = Array.isArray(data) ? data : [];
+      
+      if (deptsData.length === 0) {
+        // Mock departments si el backend está vacío
+        deptsData = [
+          {
+            id: 'dept-1',
+            name: 'Alimentos',
+            icon: '🍕',
+            config: {
+              requires_expiry: true,
+              requires_batch: true,
+              requires_elaboration_date: true,
+              currency: 'local',
+              tax_rate: 21
+            }
+          },
+          {
+            id: 'dept-2',
+            name: 'Tecnología',
+            icon: '💻',
+            config: {
+              requires_expiry: false,
+              requires_batch: false,
+              requires_elaboration_date: false,
+              currency: 'usd',
+              tax_rate: 21
+            }
+          }
+        ];
+      }
+      
+      setDepartments(deptsData);
+    } catch (error) {
+      console.error('Error loading departments:', error);
+    }
+  };
 
   const loadArticle = async () => {
     try {
@@ -262,7 +316,36 @@ export const ArticleForm = () => {
 
           {expandedSections.basic && (
             <div className={styles.sectionContent}>
+              {/* Alert de herencia del departamento */}
+              {selectedDepartment && (
+                <div className={styles.inheritanceAlert}>
+                  <strong>{selectedDepartment.icon} {selectedDepartment.name}</strong> →
+                  Moneda: <span className={styles.badge}>
+                    {selectedDepartment.config?.currency === 'usd' ? '💵 USD' : '💱 Local'}
+                  </span> |
+                  IVA: <span className={styles.badge}>{selectedDepartment.config?.tax_rate}%</span> |
+                  Vencimiento: {selectedDepartment.config?.requires_expiry ? '✅' : '❌'} |
+                  Lote: {selectedDepartment.config?.requires_batch ? '✅' : '❌'}
+                </div>
+              )}
+
               <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label>Departamento *</label>
+                  <select
+                    value={formData.basic.department_id}
+                    onChange={(e) => updateBasic('department_id', e.target.value)}
+                    required
+                  >
+                    <option value="">Seleccionar departamento...</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.icon} {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className={styles.formGroup}>
                   <label>Nombre *</label>
                   <input
@@ -296,7 +379,15 @@ export const ArticleForm = () => {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>Precio *</label>
+                  <label>
+                    Precio * 
+                    {selectedDepartment?.config?.currency === 'usd' && (
+                      <span className={styles.currencyBadge}>💵 USD</span>
+                    )}
+                    {selectedDepartment?.config?.currency === 'local' && (
+                      <span className={styles.currencyBadge}>💱 Local</span>
+                    )}
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -369,46 +460,67 @@ export const ArticleForm = () => {
 
           {expandedSections.intermediate && (
             <div className={styles.sectionContent}>
-              {/* Trazabilidad */}
-              <h4>📦 Trazabilidad</h4>
-              <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label>Lote/Batch</label>
-                  <input
-                    type="text"
-                    value={formData.intermediate.traceability.batch}
-                    onChange={(e) => updateTraceability('batch', e.target.value)}
-                    placeholder="Ej: LOTE-2024-001"
-                  />
-                </div>
+              {/* Trazabilidad - Solo si el departamento lo requiere */}
+              {(selectedDepartment?.config?.requires_batch || 
+                selectedDepartment?.config?.requires_elaboration_date || 
+                selectedDepartment?.config?.requires_expiry) && (
+                <>
+                  <h4>📦 Trazabilidad</h4>
+                  <div className={styles.formGrid}>
+                    {selectedDepartment?.config?.requires_batch && (
+                      <div className={styles.formGroup}>
+                        <label>Lote/Batch {selectedDepartment.config.requires_batch && '*'}</label>
+                        <input
+                          type="text"
+                          value={formData.intermediate.traceability.batch}
+                          onChange={(e) => updateTraceability('batch', e.target.value)}
+                          placeholder="Ej: LOTE-2024-001"
+                          required={selectedDepartment.config.requires_batch}
+                        />
+                      </div>
+                    )}
 
-                <div className={styles.formGroup}>
-                  <label>Fecha Elaboración</label>
-                  <input
-                    type="date"
-                    value={formData.intermediate.traceability.elaboration_date}
-                    onChange={(e) => updateTraceability('elaboration_date', e.target.value)}
-                  />
-                </div>
+                    {selectedDepartment?.config?.requires_elaboration_date && (
+                      <div className={styles.formGroup}>
+                        <label>Fecha Elaboración {selectedDepartment.config.requires_elaboration_date && '*'}</label>
+                        <input
+                          type="date"
+                          value={formData.intermediate.traceability.elaboration_date}
+                          onChange={(e) => updateTraceability('elaboration_date', e.target.value)}
+                          required={selectedDepartment.config.requires_elaboration_date}
+                        />
+                      </div>
+                    )}
 
-                <div className={styles.formGroup}>
-                  <label>Fecha Compra</label>
-                  <input
-                    type="date"
-                    value={formData.intermediate.traceability.purchase_date}
-                    onChange={(e) => updateTraceability('purchase_date', e.target.value)}
-                  />
-                </div>
+                    <div className={styles.formGroup}>
+                      <label>Fecha Compra</label>
+                      <input
+                        type="date"
+                        value={formData.intermediate.traceability.purchase_date}
+                        onChange={(e) => updateTraceability('purchase_date', e.target.value)}
+                      />
+                    </div>
 
-                <div className={styles.formGroup}>
-                  <label>Fecha Vencimiento</label>
-                  <input
-                    type="date"
-                    value={formData.intermediate.traceability.expiry_date}
-                    onChange={(e) => updateTraceability('expiry_date', e.target.value)}
-                  />
+                    {selectedDepartment?.config?.requires_expiry && (
+                      <div className={styles.formGroup}>
+                        <label>Fecha Vencimiento {selectedDepartment.config.requires_expiry && '*'}</label>
+                        <input
+                          type="date"
+                          value={formData.intermediate.traceability.expiry_date}
+                          onChange={(e) => updateTraceability('expiry_date', e.target.value)}
+                          required={selectedDepartment.config.requires_expiry}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {!selectedDepartment && (
+                <div className={styles.warning}>
+                  ⚠️ Seleccioná un departamento primero para ver los campos de trazabilidad disponibles
                 </div>
-              </div>
+              )}
 
               {/* Variantes */}
               <div className={styles.variantsSection}>
