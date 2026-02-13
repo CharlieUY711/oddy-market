@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardHeader from '../../../../components/Dashboard/DashboardHeader';
-import Toolbar from '../../../../components/Dashboard/Toolbar';
 import styles from './GraphicsDefinitions.module.css';
 
 export const GraphicsDefinitionsList = () => {
