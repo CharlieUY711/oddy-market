@@ -31,6 +31,7 @@ import { OrdersList } from './pages/AdminDashboard/modules/Orders';
 import { InventoryList } from './pages/AdminDashboard/modules/Inventory';
 import { CRMList } from './pages/AdminDashboard/modules/CRM';
 import { DepartmentsList } from './pages/AdminDashboard/modules/Departments';
+import { GraphicsDefinitionsList, GraphicsPreview } from './pages/AdminDashboard/modules/GraphicsDefinitions';
 import { 
   LibraryModule,
   ShippingModule,
@@ -94,6 +95,8 @@ function App() {
                   <Route path="modules/erp" element={<ERPModule />} />
                   <Route path="modules/purchase" element={<PurchaseModule />} />
                   <Route path="modules/departments" element={<DepartmentsList />} />
+                  <Route path="modules/graphics" element={<GraphicsDefinitionsList />} />
+                  <Route path="modules/graphics/preview/:gridId" element={<GraphicsPreview />} />
                   
                   {/* Data Seeder - Inicializar datos de prueba */}
                   <Route path="seed-data" element={<DataSeeder />} />

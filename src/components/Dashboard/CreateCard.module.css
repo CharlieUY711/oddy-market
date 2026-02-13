@@ -11,7 +11,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 220px; /* MISMO ancho fijo que articleCard */
+  max-width: 280px; /* MISMO ancho máximo que articleCard */
+  justify-self: start; /* Se alinea al inicio, no se expande */
   /* Importante: sin altura fija, se adapta al grid */
 }
 

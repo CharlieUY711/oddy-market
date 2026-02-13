@@ -7,7 +7,8 @@ import {
   Clock, 
   Plug, 
   Key, 
-  Eye 
+  Eye,
+  Palette
 } from 'lucide-react';
 import styles from './Section.module.css';
 
@@ -15,6 +16,15 @@ export const Sistema = () => {
   const navigate = useNavigate();
 
   const modules = [
+    {
+      id: 'graphics',
+      title: 'Definiciones Gráficas',
+      description: 'Logos, banners, fondos y elementos visuales',
+      icon: <Palette size={32} />,
+      color: '#fce4ec',
+      iconColor: '#e91e63',
+      endpoint: '/graphics'
+    },
     {
       id: 'audit',
       title: 'Auditoría del Sistema',
@@ -94,7 +104,25 @@ export const Sistema = () => {
 
       <div className={styles.moduleGrid}>
         {modules.map((module) => (
-          <div key={module.id} className={styles.moduleCard}>
+          <div 
+            key={module.id} 
+            className={styles.moduleCard}
+            onClick={() => {
+              const routes = {
+                graphics: '/admin-dashboard/modules/graphics',
+                audit: '/admin-dashboard/modules/audit',
+                departments: '/admin-dashboard/modules/departments',
+                analytics: '/admin-dashboard/modules/analytics',
+                logs: '/admin-dashboard/modules/audit',
+                integrations: '/admin-dashboard/modules/integrations',
+                apis: '/admin-dashboard/modules/apis',
+                views: '/admin-dashboard/modules/views'
+              };
+              if (routes[module.id]) {
+                navigate(routes[module.id]);
+              }
+            }}
+          >
             <div className={styles.moduleIcon} style={{ background: module.color }}>
               <div style={{ color: module.iconColor }}>{module.icon}</div>
             </div>
