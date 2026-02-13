@@ -1,14 +1,17 @@
 /* CreateCard - Tarjeta reutilizable para crear/agregar elementos */
+/* DEBE tener EXACTAMENTE el mismo tamaño y estructura que articleCard */
 
 .createCard {
   background: white;
   border: 2px dashed #e0e0e0;
   border-radius: 8px;
-  display: flex;
-  flex-direction: column;
+  overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
-  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Importante: sin altura fija, se adapta al grid */
 }
 
 .createCard:hover {
@@ -18,7 +21,7 @@
   box-shadow: 0 8px 16px rgba(255, 107, 53, 0.15);
 }
 
-/* Área de imagen con ícono + */
+/* Área de imagen - MISMA altura que articleCardImage (140px) */
 .createCard::before {
   content: '';
   display: block;
@@ -29,6 +32,7 @@
   background-position: center;
   background-size: 48px;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .createCard:hover::before {
@@ -36,6 +40,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%23ff6b35' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='5' x2='12' y2='19'%3E%3C/line%3E%3Cline x1='5' y1='12' x2='19' y2='12'%3E%3C/line%3E%3C/svg%3E");
 }
 
+/* Contenido - MISMO padding y flex que articleCardContent */
 .createCardText {
   font-size: 18px;
   font-weight: 600;
@@ -44,6 +49,7 @@
   padding: 12px;
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
