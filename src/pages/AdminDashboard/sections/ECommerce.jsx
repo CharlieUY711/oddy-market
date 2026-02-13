@@ -61,7 +61,12 @@ export const ECommerce = () => {
   return (
     <div className={styles.section}>
       {/* HEADER ESTANDARIZADO - Se usa el componente global */}
-      <DashboardHeader title="eCommerce" />
+      <DashboardHeader 
+        title="eCommerce" 
+        breadcrumbs={[
+          { label: 'eCommerce', path: null }
+        ]}
+      />
       
       <p className={styles.subtitle}>Seleccioná un módulo para comenzar</p>
 

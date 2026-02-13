@@ -7,14 +7,39 @@ import styles from './DashboardHeader.module.css';
  * DashboardHeader - Encabezado estandarizado para todas las vistas del dashboard
  * 
  * @param {string} title - El título que se mostrará en el encabezado
+ * @param {array} breadcrumbs - Array de objetos {label, path} para la ruta de navegación
  * @param {string} className - Clases CSS adicionales (opcional)
  */
-const DashboardHeader = ({ title, className = '' }) => {
+const DashboardHeader = ({ title, breadcrumbs = [], className = '' }) => {
   const navigate = useNavigate();
 
   return (
     <header className={`${styles.dashboardHeader} ${className}`}>
-      <h2 className={styles.title}>{title}</h2>
+      <div className={styles.titleSection}>
+        {breadcrumbs.length > 0 ? (
+          <div className={styles.breadcrumbs}>
+            {breadcrumbs.map((crumb, index) => (
+              <React.Fragment key={index}>
+                {crumb.path ? (
+                  <span 
+                    className={styles.breadcrumbLink}
+                    onClick={() => navigate(crumb.path)}
+                  >
+                    {crumb.label}
+                  </span>
+                ) : (
+                  <span className={styles.breadcrumbCurrent}>{crumb.label}</span>
+                )}
+                {index < breadcrumbs.length - 1 && (
+                  <span className={styles.breadcrumbSeparator}>-</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        ) : (
+          <h2 className={styles.title}>{title}</h2>
+        )}
+      </div>
       <div className={styles.iconGroup}>
         <button
           className={styles.iconBtn}

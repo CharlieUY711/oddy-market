@@ -1,5 +1,17 @@
 .articlesContainer {
   padding: 0;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.articlesContainer > *:not(.loading) {
+  background-color: white;
+}
+
+.articlesContainer > .gridContainer,
+.articlesContainer > .articlesList {
+  background-color: #f9fafb;
+  padding: 1.5rem 2rem;
 }
 
 /* HEADER FIJO - Igual para todos los módulos */

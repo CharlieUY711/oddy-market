@@ -302,13 +302,35 @@ export const ArticlesList = () => {
     setSelectedArticles(newSelected);
   };
 
-  // Construir breadcrumb
-  const getBreadcrumb = () => {
-    const parts = [];
-    if (currentDepartment) parts.push(currentDepartment.name);
-    if (currentCategory) parts.push(currentCategory.name);
-    if (currentSubCategory) parts.push(currentSubCategory);
-    return parts.join(' - ');
+  // Construir breadcrumbs para el header
+  const getBreadcrumbs = () => {
+    const crumbs = [
+      { label: 'eCommerce', path: '/admin-dashboard' },
+      { label: 'Artículos', path: currentDepartment ? '/admin-dashboard/modules/articles' : null }
+    ];
+    
+    if (currentDepartment) {
+      crumbs.push({ 
+        label: currentDepartment.name, 
+        path: currentCategory ? null : null 
+      });
+    }
+    
+    if (currentCategory) {
+      crumbs.push({ 
+        label: currentCategory.name, 
+        path: currentSubCategory ? null : null 
+      });
+    }
+    
+    if (currentSubCategory) {
+      crumbs.push({ 
+        label: currentSubCategory, 
+        path: null 
+      });
+    }
+    
+    return crumbs;
   };
 
   // Filtrar artículos según navegación
@@ -374,7 +396,10 @@ export const ArticlesList = () => {
   return (
     <div className={styles.articlesContainer}>
       {/* HEADER ESTANDARIZADO - Se define una sola vez y se reutiliza */}
-      <DashboardHeader title="📦 Artículos" />
+      <DashboardHeader 
+        title="📦 Artículos" 
+        breadcrumbs={getBreadcrumbs()}
+      />
 
       {/* TOOLBAR ESTANDARIZADA - Configuración específica del módulo */}
       <Toolbar config={{
