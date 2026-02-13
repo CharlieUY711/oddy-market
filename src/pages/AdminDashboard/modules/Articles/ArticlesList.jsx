@@ -450,6 +450,12 @@ export const ArticlesList = () => {
               </div>
             </div>
           ))}
+          
+          {/* Tarjeta "Agregar Artículo" en vista de Departamentos */}
+          <CreateCard 
+            label="Crear"
+            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+          />
         </div>
       )}
 
@@ -470,6 +476,12 @@ export const ArticlesList = () => {
               </div>
             </div>
           ))}
+          
+          {/* Tarjeta "Agregar Artículo" en vista de Categorías */}
+          <CreateCard 
+            label="Crear"
+            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+          />
         </div>
       )}
 
@@ -490,6 +502,12 @@ export const ArticlesList = () => {
               </div>
             </div>
           ))}
+          
+          {/* Tarjeta "Agregar Artículo" en vista de SubCategorías */}
+          <CreateCard 
+            label="Crear"
+            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+          />
         </div>
       )}
 
