@@ -9,6 +9,7 @@ export const DepartmentsList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedDepts, setExpandedDepts] = useState(new Set());
+  const [viewMode, setViewMode] = useState('icons'); // 'icons' | 'list'
 
   const API_BASE = import.meta.env.VITE_API_URL + (import.meta.env.VITE_API_PREFIX || '');
 
@@ -42,6 +43,7 @@ export const DepartmentsList = () => {
       id: 'dept-1',
       name: 'Alimentos',
       icon: '🍕',
+      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400',
       active: true,
       config: {
         requires_expiry: true,
@@ -52,8 +54,8 @@ export const DepartmentsList = () => {
         tax_rate: 21
       },
       categories: [
-        { id: 'cat-1-1', name: 'Frescos', subcategories: ['Frutas', 'Verduras', 'Carnes'] },
-        { id: 'cat-1-2', name: 'Envasados', subcategories: ['Conservas', 'Snacks'] }
+        { id: 'cat-1-1', name: 'Frescos', icon: '🥗', image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400', subcategories: ['Frutas', 'Verduras', 'Carnes'] },
+        { id: 'cat-1-2', name: 'Envasados', icon: '🥫', image: 'https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?w=400', subcategories: ['Conservas', 'Snacks'] }
       ]
     },
     {
@@ -322,19 +324,87 @@ export const DepartmentsList = () => {
         </ul>
       </div>
 
-      <div className={styles.searchBox}>
-        <Search size={20} />
-        <input
-          type="text"
-          placeholder="Buscar departamento..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className={styles.searchInput}
-        />
+      <div className={styles.filterRow}>
+        <div className={styles.searchBox}>
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="Buscar departamento..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+        
+        <div className={styles.viewToggle}>
+          <button
+            className={viewMode === 'icons' ? styles.viewBtnActive : styles.viewBtn}
+            onClick={() => setViewMode('icons')}
+            title="Vista de Iconos"
+          >
+            🎨 Iconos
+          </button>
+          <button
+            className={viewMode === 'list' ? styles.viewBtnActive : styles.viewBtn}
+            onClick={() => setViewMode('list')}
+            title="Vista de Lista"
+          >
+            📋 Lista
+          </button>
+        </div>
       </div>
 
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
+      {/* Vista de Iconos */}
+      {viewMode === 'icons' && (
+        <div className={styles.gridContainer}>
+          {filteredDepartments.map((dept) => (
+            <div key={dept.id} className={styles.deptCard}>
+              <div className={styles.deptCardImage} style={{backgroundImage: `url(${dept.image})`}}>
+                <div className={styles.deptCardOverlay}>
+                  <span className={styles.deptCardIcon}>{dept.icon}</span>
+                </div>
+                <div className={styles.deptCardBadge}>
+                  <span className={dept.active ? styles.activeBadge : styles.inactiveBadge}>
+                    {dept.active ? '✓ Visible' : '✗ Oculto'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.deptCardContent}>
+                <h3>{dept.name}</h3>
+                <p>{dept.categories?.length || 0} categorías</p>
+                <div className={styles.deptCardTags}>
+                  <span className={styles.tag}>
+                    {dept.config?.currency === 'usd' ? '💵 USD' : '💱 Local'}
+                  </span>
+                  <span className={styles.tag}>
+                    IVA {dept.config?.tax_rate}%
+                  </span>
+                </div>
+                <div className={styles.deptCardActions}>
+                  <button
+                    className={styles.btnEdit}
+                    onClick={() => navigate(`/admin-dashboard/modules/departments/${dept.id}/edit`)}
+                  >
+                    <Edit size={16} />
+                    Editar
+                  </button>
+                  <button
+                    className={styles.btnDelete}
+                    onClick={() => handleDelete(dept.id)}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Vista de Lista */}
+      {viewMode === 'list' && (
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
           <thead>
             <tr>
               <th>Visible</th>
@@ -440,6 +510,7 @@ export const DepartmentsList = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Config Summary */}
       <div className={styles.configSummary}>

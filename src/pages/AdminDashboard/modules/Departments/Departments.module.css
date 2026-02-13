@@ -68,14 +68,22 @@
   margin: 4px 0;
 }
 
+.filterRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
 .searchBox {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
   background: white;
   border-radius: 8px;
-  margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -90,6 +98,41 @@
   font-size: 14px;
   color: #212121;
   outline: none;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 4px;
+  background: white;
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.viewBtn,
+.viewBtnActive {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewBtn {
+  color: #757575;
+}
+
+.viewBtn:hover {
+  background: #f5f5f5;
+  color: #424242;
+}
+
+.viewBtnActive {
+  background: #ff6b35;
+  color: white;
 }
 
 /* Table */
@@ -360,6 +403,154 @@
   100% { transform: rotate(360deg); }
 }
 
+/* Vista de Iconos */
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.deptCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.deptCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.15);
+}
+
+.deptCardImage {
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.deptCardOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deptCardIcon {
+  font-size: 64px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.deptCardBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.activeBadge,
+.inactiveBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.activeBadge {
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+}
+
+.inactiveBadge {
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+}
+
+.deptCardContent {
+  padding: 20px;
+}
+
+.deptCardContent h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212121;
+}
+
+.deptCardContent p {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #757575;
+}
+
+.deptCardTags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tag {
+  padding: 4px 10px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #424242;
+}
+
+.deptCardActions {
+  display: flex;
+  gap: 8px;
+}
+
+.btnEdit {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnEdit:hover {
+  background: #e55a2b;
+  transform: translateY(-1px);
+}
+
+.btnDelete {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  color: #f44336;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnDelete:hover {
+  background: #ffebee;
+  border-color: #f44336;
+}
+
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -367,7 +558,12 @@
     gap: 16px;
   }
 
-  .configGrid {
+  .filterRow {
+    flex-direction: column;
+  }
+
+  .configGrid,
+  .gridContainer {
     grid-template-columns: 1fr;
   }
 
