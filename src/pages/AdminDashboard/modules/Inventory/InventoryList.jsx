@@ -4,6 +4,75 @@ import { AlertTriangle, TrendingDown, TrendingUp } from 'lucide-react';
 import styles from './Inventory.module.css';
 
 export const InventoryList = () => {
+  const getMockInventory = () => [
+    {
+      id: 'inv-mock-1',
+      entity_id: 'default',
+      product_id: 'art-001',
+      product_name: 'Notebook Lenovo ThinkPad X1',
+      current_stock: 15,
+      min_stock: 5,
+      max_stock: 50,
+      warehouse: 'Almacén Principal',
+      last_movement: { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), type: 'entrada', quantity: 10 }
+    },
+    {
+      id: 'inv-mock-2',
+      entity_id: 'default',
+      product_id: 'art-002',
+      product_name: 'Mouse Logitech MX Master 3',
+      current_stock: 45,
+      min_stock: 20,
+      max_stock: 100,
+      warehouse: 'Almacén Principal',
+      last_movement: { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), type: 'salida', quantity: 5 }
+    },
+    {
+      id: 'inv-mock-3',
+      entity_id: 'default',
+      product_id: 'art-003',
+      product_name: 'Teclado Mecánico RGB Corsair',
+      current_stock: 8,
+      min_stock: 10,
+      max_stock: 40,
+      warehouse: 'Almacén Principal',
+      last_movement: { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), type: 'salida', quantity: 2 }
+    },
+    {
+      id: 'inv-mock-4',
+      entity_id: 'default',
+      product_id: 'art-004',
+      product_name: 'Monitor Samsung 27" 4K UHD',
+      current_stock: 5,
+      min_stock: 3,
+      max_stock: 20,
+      warehouse: 'Almacén Principal',
+      last_movement: { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), type: 'salida', quantity: 1 }
+    },
+    {
+      id: 'inv-mock-5',
+      entity_id: 'default',
+      product_id: 'art-005',
+      product_name: 'Webcam Logitech C920 HD Pro',
+      current_stock: 22,
+      min_stock: 15,
+      max_stock: 60,
+      warehouse: 'Almacén Principal',
+      last_movement: { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), type: 'entrada', quantity: 20 }
+    },
+    {
+      id: 'inv-mock-6',
+      entity_id: 'default',
+      product_id: 'art-006',
+      product_name: 'Auriculares Sony WH-1000XM5',
+      current_stock: 3,
+      min_stock: 8,
+      max_stock: 30,
+      warehouse: 'Almacén Principal',
+      last_movement: { date: new Date().toISOString(), type: 'salida', quantity: 5 }
+    }
+  ];
+
   const renderCard = (item) => {
     const stockLevel = item.current_stock / (item.min_stock || 1);
     const getStockStatus = () => {
@@ -55,6 +124,7 @@ export const InventoryList = () => {
       icon="📦"
       renderCard={renderCard}
       viewMode="cards"
+      mockData={getMockInventory()}
     />
   );
 };

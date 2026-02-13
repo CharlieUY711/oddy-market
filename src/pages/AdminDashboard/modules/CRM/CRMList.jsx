@@ -4,6 +4,75 @@ import { User, Mail, Phone, Calendar } from 'lucide-react';
 import styles from './CRM.module.css';
 
 export const CRMList = () => {
+  const getMockCRM = () => [
+    {
+      id: 'crm-mock-1',
+      entity_id: 'default',
+      name: 'Ana Martínez',
+      email: 'ana.martinez@empresa.com',
+      phone: '+598 99 123 456',
+      stage: 'lead',
+      deal_value: 75000,
+      source: 'website',
+      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'crm-mock-2',
+      entity_id: 'default',
+      name: 'Roberto Silva',
+      email: 'roberto.silva@tech.com',
+      phone: '+598 99 234 567',
+      stage: 'qualified',
+      deal_value: 120000,
+      source: 'referral',
+      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'crm-mock-3',
+      entity_id: 'default',
+      name: 'Laura Fernández',
+      email: 'laura.fernandez@startup.uy',
+      phone: '+598 99 345 678',
+      stage: 'proposal',
+      deal_value: 250000,
+      source: 'linkedin',
+      created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'crm-mock-4',
+      entity_id: 'default',
+      name: 'Diego Costa',
+      email: 'diego.costa@corp.com',
+      phone: '+598 99 456 789',
+      stage: 'won',
+      deal_value: 180000,
+      source: 'event',
+      created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'crm-mock-5',
+      entity_id: 'default',
+      name: 'Sofía Ramírez',
+      email: 'sofia.ramirez@innovate.uy',
+      phone: '+598 99 567 890',
+      stage: 'negotiation',
+      deal_value: 95000,
+      source: 'cold_call',
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'crm-mock-6',
+      entity_id: 'default',
+      name: 'Pablo Méndez',
+      email: 'pablo.mendez@solutions.com',
+      phone: '+598 99 678 901',
+      stage: 'lost',
+      deal_value: 60000,
+      source: 'email',
+      created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
+
   const renderCard = (item) => {
     const getStageColor = (stage) => {
       const colors = {
@@ -71,6 +140,7 @@ export const CRMList = () => {
       icon="👥"
       renderCard={renderCard}
       viewMode="cards"
+      mockData={getMockCRM()}
     />
   );
 };

@@ -19,7 +19,8 @@ export const SharedModuleList = ({
   renderCard,
   createPath,
   columns = [],
-  viewMode = 'cards' // 'cards' | 'table'
+  viewMode = 'cards', // 'cards' | 'table'
+  mockData = [] // Datos mock para fallback
 }) => {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -37,10 +38,19 @@ export const SharedModuleList = ({
       setLoading(true);
       const response = await fetch(`${API_BASE}${endpoint}?entity_id=default`);
       const data = await response.json();
-      setItems(Array.isArray(data) ? data : []);
+      
+      let itemsData = Array.isArray(data) ? data : [];
+      
+      // Si no hay datos del backend, usar datos mock
+      if (itemsData.length === 0 && mockData.length > 0) {
+        itemsData = mockData;
+      }
+      
+      setItems(itemsData);
     } catch (error) {
       console.error('Error loading items:', error);
-      setItems([]);
+      // En caso de error, usar datos mock si están disponibles
+      setItems(mockData.length > 0 ? mockData : []);
     } finally {
       setLoading(false);
     }

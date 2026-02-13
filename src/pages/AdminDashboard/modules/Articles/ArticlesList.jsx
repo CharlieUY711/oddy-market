@@ -31,14 +31,207 @@ export const ArticlesList = () => {
       setLoading(true);
       const response = await fetch(`${API_BASE}/articles?entity_id=default`);
       const data = await response.json();
-      setArticles(Array.isArray(data) ? data : []);
+      
+      let articlesData = Array.isArray(data) ? data : [];
+      
+      // Si no hay datos del backend, usar datos mock
+      if (articlesData.length === 0) {
+        articlesData = getMockArticles();
+      }
+      
+      setArticles(articlesData);
     } catch (error) {
       console.error('Error loading articles:', error);
-      setArticles([]);
+      // En caso de error, usar datos mock
+      setArticles(getMockArticles());
     } finally {
       setLoading(false);
     }
   };
+
+  const getMockArticles = () => [
+    {
+      id: 'mock-1',
+      entity_id: 'default',
+      basic: {
+        name: 'Notebook Lenovo ThinkPad X1',
+        sku: 'NB-LEN-001',
+        barcode: '7798001234567',
+        price: 45000,
+        cost: 38000,
+        stock: 15,
+        description: 'Notebook profesional Intel i7, 16GB RAM, 512GB SSD',
+        images: ['https://via.placeholder.com/300x200?text=Notebook'],
+        category_id: 'cat-tech',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {
+          batch: 'LOTE-2024-001',
+          purchase_date: '2024-02-01',
+          supplier_id: 'SUP-001',
+          expiry_date: '2025-12-31'
+        },
+        mercadolibre: { sync_enabled: true }
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'mock-2',
+      entity_id: 'default',
+      basic: {
+        name: 'Mouse Logitech MX Master 3',
+        sku: 'MOU-LOG-001',
+        barcode: '7798001234568',
+        price: 8500,
+        cost: 6800,
+        stock: 45,
+        description: 'Mouse ergonómico inalámbrico para profesionales',
+        images: [],
+        category_id: 'cat-peripherals',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {},
+        mercadolibre: { sync_enabled: false }
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'mock-3',
+      entity_id: 'default',
+      basic: {
+        name: 'Teclado Mecánico RGB Corsair',
+        sku: 'KEY-RGB-001',
+        barcode: '7798001234569',
+        price: 12000,
+        cost: 9500,
+        stock: 8,
+        description: 'Teclado mecánico gaming con iluminación RGB personalizable',
+        images: [],
+        category_id: 'cat-peripherals',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {},
+        mercadolibre: { sync_enabled: true }
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'mock-4',
+      entity_id: 'default',
+      basic: {
+        name: 'Monitor Samsung 27" 4K UHD',
+        sku: 'MON-SAM-001',
+        barcode: '7798001234570',
+        price: 32000,
+        cost: 26000,
+        stock: 5,
+        description: 'Monitor profesional 27 pulgadas resolución 4K UHD',
+        images: [],
+        category_id: 'cat-monitors',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {},
+        mercadolibre: { sync_enabled: false }
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'mock-5',
+      entity_id: 'default',
+      basic: {
+        name: 'Webcam Logitech C920 HD Pro',
+        sku: 'WEB-LOG-001',
+        barcode: '7798001234571',
+        price: 6500,
+        cost: 5200,
+        stock: 22,
+        description: 'Webcam HD 1080p para videoconferencias profesionales',
+        images: [],
+        category_id: 'cat-peripherals',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {},
+        mercadolibre: { sync_enabled: false }
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'mock-6',
+      entity_id: 'default',
+      basic: {
+        name: 'Auriculares Sony WH-1000XM5',
+        sku: 'AUD-SON-001',
+        barcode: '7798001234572',
+        price: 18500,
+        cost: 15200,
+        stock: 12,
+        description: 'Auriculares inalámbricos con cancelación de ruido activa',
+        images: [],
+        category_id: 'cat-audio',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {},
+        mercadolibre: { sync_enabled: true }
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'mock-7',
+      entity_id: 'default',
+      basic: {
+        name: 'SSD Samsung 970 EVO Plus 1TB',
+        sku: 'SSD-SAM-001',
+        barcode: '7798001234573',
+        price: 9800,
+        cost: 8200,
+        stock: 28,
+        description: 'Disco SSD NVMe M.2 de alta velocidad 1TB',
+        images: [],
+        category_id: 'cat-storage',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {},
+        mercadolibre: { sync_enabled: false }
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'mock-8',
+      entity_id: 'default',
+      basic: {
+        name: 'Silla Gamer RGB Racer Pro',
+        sku: 'SIL-GAM-001',
+        barcode: '7798001234574',
+        price: 24500,
+        cost: 19800,
+        stock: 3,
+        description: 'Silla ergonómica para gaming con soporte lumbar ajustable',
+        images: [],
+        category_id: 'cat-furniture',
+        status: 'active'
+      },
+      intermediate: {
+        variants: [],
+        traceability: {},
+        mercadolibre: { sync_enabled: true }
+      },
+      createdAt: new Date().toISOString()
+    }
+  ];
 
   const handleDelete = async (id) => {
     if (!confirm('¿Estás seguro de eliminar este artículo?')) return;
