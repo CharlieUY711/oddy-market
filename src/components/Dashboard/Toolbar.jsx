@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Edit, ListChecks, ArrowLeft, List, Network, Search } from 'lucide-react';
+import { Plus, Edit, ListChecks, ArrowLeft, List, Network, Search, CheckSquare, Settings } from 'lucide-react';
 import styles from './Toolbar.module.css';
 
 /**
@@ -14,6 +14,10 @@ import styles from './Toolbar.module.css';
  * @param {string} config.searchValue - Valor actual del buscador
  * @param {function} config.onSearchChange - Callback cuando cambia la búsqueda
  * @param {string} config.searchPlaceholder - Placeholder del buscador
+ * @param {boolean} config.showSelectionMode - Mostrar botón de selección
+ * @param {boolean} config.isSelectionMode - Si está en modo selección
+ * @param {function} config.onToggleSelection - Callback para activar/desactivar modo selección
+ * @param {number} config.selectedCount - Cantidad de elementos seleccionados
  * @param {Array} config.actions - Array de acciones personalizadas
  *   Cada acción: { icon: Component, label: string, onClick: function, variant: 'primary'|'secondary' }
  * @param {boolean} config.showBack - Mostrar botón de volver
@@ -28,6 +32,10 @@ const Toolbar = ({ config = {} }) => {
     searchValue = '',
     onSearchChange,
     searchPlaceholder = 'Buscar...',
+    showSelectionMode = false,
+    isSelectionMode = false,
+    onToggleSelection,
+    selectedCount = 0,
     actions = [],
     showBack = false,
     onBack,
@@ -64,10 +72,34 @@ const Toolbar = ({ config = {} }) => {
             onClick={action.onClick}
             title={action.label}
           >
-            {action.icon && <action.icon />}
+            {action.icon && <action.icon size={14} />}
             <span>{action.label}</span>
           </button>
         ))}
+
+        {/* Botón Seleccionar */}
+        {showSelectionMode && (
+          <button
+            className={`${styles.toolbarBtn} ${isSelectionMode ? styles.selectActive : ''}`}
+            onClick={onToggleSelection}
+            title={isSelectionMode ? 'Cancelar selección' : 'Seleccionar'}
+          >
+            <CheckSquare size={14} />
+            <span>{isSelectionMode ? `Seleccionados (${selectedCount})` : 'Seleccionar'}</span>
+          </button>
+        )}
+
+        {/* Botón Acciones - solo visible en modo selección */}
+        {isSelectionMode && selectedCount > 0 && (
+          <button
+            className={styles.toolbarBtn}
+            onClick={() => {}}
+            title="Acciones por lote"
+          >
+            <Settings size={14} />
+            <span>Acciones</span>
+          </button>
+        )}
       </div>
 
       {/* Grupo central: Buscador */}

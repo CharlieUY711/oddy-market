@@ -19,6 +19,10 @@ export const ArticlesList = () => {
   const [currentCategory, setCurrentCategory] = useState(null);
   const [currentSubCategory, setCurrentSubCategory] = useState(null);
 
+  // Modo selección
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedArticles, setSelectedArticles] = useState(new Set());
+
   const API_BASE = import.meta.env.VITE_API_URL + (import.meta.env.VITE_API_PREFIX || '');
 
   useEffect(() => {
@@ -280,6 +284,24 @@ export const ArticlesList = () => {
     setCurrentSubCategory(null);
   };
 
+  // Modo selección
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    if (isSelectionMode) {
+      setSelectedArticles(new Set()); // Limpiar selección al salir del modo
+    }
+  };
+
+  const toggleArticleSelection = (articleId) => {
+    const newSelected = new Set(selectedArticles);
+    if (newSelected.has(articleId)) {
+      newSelected.delete(articleId);
+    } else {
+      newSelected.add(articleId);
+    }
+    setSelectedArticles(newSelected);
+  };
+
   // Construir breadcrumb
   const getBreadcrumb = () => {
     const parts = [];
@@ -363,18 +385,16 @@ export const ArticlesList = () => {
         searchValue: searchTerm,
         onSearchChange: setSearchTerm,
         searchPlaceholder: 'Buscar artículos...',
+        showSelectionMode: currentSubCategory && getFilteredArticles().length > 0,
+        isSelectionMode: isSelectionMode,
+        onToggleSelection: toggleSelectionMode,
+        selectedCount: selectedArticles.size,
         actions: [
           {
             icon: Plus,
             label: 'Nuevo',
             onClick: () => navigate('/admin-dashboard/modules/articles/new'),
             variant: 'primary'
-          },
-          {
-            icon: Edit,
-            label: 'Editar',
-            onClick: () => {},
-            variant: 'secondary'
           }
         ],
         showBack: viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory),
@@ -459,11 +479,32 @@ export const ArticlesList = () => {
           ) : (
             <div className={styles.articlesGrid}>
               {getFilteredArticles().map((article) => (
-                <div key={article.id} className={styles.articleCard}>
+                <div 
+                  key={article.id} 
+                  className={`${styles.articleCard} ${isSelectionMode ? styles.selectable : ''} ${selectedArticles.has(article.id) ? styles.selected : ''}`}
+                  onClick={() => {
+                    if (isSelectionMode) {
+                      toggleArticleSelection(article.id);
+                    }
+                  }}
+                >
+                  {/* Checkbox circular en modo selección */}
+                  {isSelectionMode && (
+                    <div className={styles.selectionCheckbox}>
+                      <div className={`${styles.checkbox} ${selectedArticles.has(article.id) ? styles.checked : ''}`}>
+                        {selectedArticles.has(article.id) && <span>✓</span>}
+                      </div>
+                    </div>
+                  )}
+                  
                   <div 
                     className={styles.articleCardImage} 
                     style={{backgroundImage: `url(${article.image})`}}
-                    onClick={() => navigate(`/admin-dashboard/modules/articles/${article.id}/edit`)}
+                    onClick={(e) => {
+                      if (!isSelectionMode) {
+                        navigate(`/admin-dashboard/modules/articles/${article.id}/edit`);
+                      }
+                    }}
                   />
                   <div className={styles.articleCardContent}>
                     <h4 className={styles.articleCardTitle}>{article.name}</h4>
@@ -473,28 +514,30 @@ export const ArticlesList = () => {
                         {article.stock} en stock
                       </span>
                     </p>
-                    <div className={styles.articleCardActions}>
-                      <button
-                        className={styles.cardActionBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/admin-dashboard/modules/articles/${article.id}/edit`);
-                        }}
-                        title="Editar"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        className={`${styles.cardActionBtn} ${styles.danger}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(article.id);
-                        }}
-                        title="Eliminar"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+                    {!isSelectionMode && (
+                      <div className={styles.articleCardActions}>
+                        <button
+                          className={styles.cardActionBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin-dashboard/modules/articles/${article.id}/edit`);
+                          }}
+                          title="Editar"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          className={`${styles.cardActionBtn} ${styles.danger}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(article.id);
+                          }}
+                          title="Eliminar"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

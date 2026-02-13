@@ -5,8 +5,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: transparent;
   height: 60px;
   position: sticky;
   top: 0;
@@ -28,14 +27,14 @@
 }
 
 .iconBtn {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: transparent;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 8px;
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s;
@@ -43,9 +42,8 @@
 }
 
 .iconBtn:hover {
-  background-color: #f3f4f6;
+  background-color: #e5e7eb;
   color: #1f2937;
-  border-color: #9ca3af;
 }
 
 .iconBtn:active {
