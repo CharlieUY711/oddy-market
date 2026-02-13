@@ -58,11 +58,50 @@ export const GraphicsDefinitionsList = () => {
 
   // GRID 3: Artículos (Tarjetas de Productos)
   const grid3Items = [
-    { id: 'article-card', name: 'Tarjeta Artículo', type: 'Card', size: '220px ancho', format: 'CSS', usage: 'Productos finales', image: 'https://via.placeholder.com/220x140/ffffff/1f2937?text=Tarjeta+Articulo', color: '#ffffff' },
-    { id: 'article-image', name: 'Imagen Artículo', type: 'Image', size: '140px alto', format: 'JPG/PNG', usage: 'Foto de producto', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop', color: '#f3f4f6' },
-    { id: 'create-card', name: 'Tarjeta Crear', type: 'Card', size: '220px ancho', format: 'CSS', usage: 'Agregar artículo', image: 'https://via.placeholder.com/220x140/ffffff/ff6b35?text=+Crear', color: '#ffffff' },
-    { id: 'article-price', name: 'Precio Artículo', type: 'Text', size: '16px', format: 'Number', usage: 'Precio en naranja', image: 'https://via.placeholder.com/220x140/ff6b35/ffffff?text=$+1.999', color: '#ff6b35' },
-    { id: 'article-stock', name: 'Stock Artículo', type: 'Text', size: '12px', format: 'Number', usage: 'Cantidad disponible', image: 'https://via.placeholder.com/220x140/10b981/ffffff?text=Stock:+150', color: '#10b981' },
+    { id: 'article-card', name: 'Tarjeta Artículo', type: 'Card', size: '220px ancho', format: 'CSS', usage: 'Productos finales', image: 'https://via.placeholder.com/220x140/ffffff/1f2937?text=Tarjeta+Articulo', color: '#ffffff', dimension: '220px x flexible' },
+    { id: 'article-image', name: 'Imagen Artículo', type: 'Image', size: '140px alto', format: 'JPG/PNG', usage: 'Foto de producto', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop', color: '#f3f4f6', dimension: '220px x 140px' },
+    { id: 'create-card', name: 'Tarjeta Crear', type: 'Card', size: '220px ancho', format: 'CSS', usage: 'Agregar artículo', image: 'https://via.placeholder.com/220x140/ffffff/ff6b35?text=+Crear', color: '#ffffff', dimension: '220px x flexible' },
+    { id: 'article-price', name: 'Precio Artículo', type: 'Text', size: '16px', format: 'Number', usage: 'Precio en naranja', image: 'https://via.placeholder.com/220x140/ff6b35/ffffff?text=$+1.999', color: '#ff6b35', dimension: '16px font' },
+    { id: 'article-stock', name: 'Stock Artículo', type: 'Text', size: '12px', format: 'Number', usage: 'Cantidad disponible', image: 'https://via.placeholder.com/220x140/10b981/ffffff?text=Stock:+150', color: '#10b981', dimension: '12px font' },
+  ];
+
+  // GRID 4: Módulos eCommerce (4 tarjetas)
+  const grid4Items = [
+    { id: 'module-card', name: 'Tarjeta Módulo eCommerce', type: 'Card', size: '380px mínimo', format: 'CSS', usage: 'Artículos, Biblioteca, Pedidos, Envíos', image: 'https://via.placeholder.com/380x200/fff3e0/ff9800?text=Modulo+eCommerce', color: '#fff3e0', dimension: 'minmax(380px, 1fr)' },
+    { id: 'module-icon', name: 'Icono Módulo', type: 'Icon', size: '72px x 72px', format: 'SVG', usage: 'Icono del módulo', image: 'https://via.placeholder.com/220x140/ff9800/ffffff?text=Icon+72px', color: '#ff9800', dimension: '72px x 72px' },
+    { id: 'module-articulos', name: 'Módulo Artículos', type: 'Módulo', size: '380px+', format: 'Card', usage: 'Gestión de catálogo', image: 'https://via.placeholder.com/380x200/fff3e0/ff9800?text=📦+Articulos', color: '#fff3e0', dimension: '380px mínimo' },
+    { id: 'module-pedidos', name: 'Módulo Pedidos', type: 'Módulo', size: '380px+', format: 'Card', usage: 'Órdenes de compra', image: 'https://via.placeholder.com/380x200/e3f2fd/2196f3?text=🛒+Pedidos', color: '#e3f2fd', dimension: '380px mínimo' },
+  ];
+
+  // GRID 5: Grid de Artículos (5 elementos en vista de lista)
+  const grid5Items = [
+    { id: 'articles-grid', name: 'Grid Artículos Completo', type: 'Layout', size: 'repeat(auto-fill, 220px)', format: 'CSS Grid', usage: 'Vista de artículos en grid', image: 'https://via.placeholder.com/220x140/f9fafb/1f2937?text=Grid+Articles', color: '#f9fafb', dimension: 'repeat(auto-fill, minmax(180px, 1fr))' },
+    { id: 'article-full', name: 'Artículo Completo 1', type: 'Product', size: '220px', format: 'Card', usage: 'Audífonos Pro', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop', color: '#ffffff', dimension: '220px x flexible' },
+    { id: 'article-full-2', name: 'Artículo Completo 2', type: 'Product', size: '220px', format: 'Card', usage: 'Mouse Gaming', image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop', color: '#ffffff', dimension: '220px x flexible' },
+    { id: 'article-full-3', name: 'Artículo Completo 3', type: 'Product', size: '220px', format: 'Card', usage: 'Teclado Mecánico', image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=300&fit=crop', color: '#ffffff', dimension: '220px x flexible' },
+    { id: 'article-full-4', name: 'Artículo Completo 4', type: 'Product', size: '220px', format: 'Card', usage: 'Webcam HD', image: 'https://images.unsplash.com/photo-1574920162747-bf79f102c696?w=400&h=300&fit=crop', color: '#ffffff', dimension: '220px x flexible' },
+    { id: 'article-create', name: 'Tarjeta Crear (Final)', type: 'Card', size: '220px', format: 'CSS', usage: 'Botón para crear nuevo', image: 'https://via.placeholder.com/220x140/ffffff/ff6b35?text=+Crear', color: '#ffffff', dimension: '220px x flexible' },
+  ];
+
+  // ICONOS PEQUEÑOS
+  const iconosItems = [
+    { id: 'icon-home', name: 'Icono Home (Casita)', type: 'Icon', size: '30px x 30px', format: 'SVG/Emoji', usage: 'Volver al inicio', image: 'https://via.placeholder.com/220x140/ffffff/1f2937?text=🏠+Home', color: '#ffffff', emoji: '🏠', dimension: '30px x 30px' },
+    { id: 'icon-store', name: 'Icono Store (Tienda)', type: 'Icon', size: '30px x 30px', format: 'SVG/Emoji', usage: 'Ir a la tienda', image: 'https://via.placeholder.com/220x140/ffffff/1f2937?text=🛍️+Store', color: '#ffffff', emoji: '🛍️', dimension: '30px x 30px' },
+    { id: 'icon-search', name: 'Icono Buscar', type: 'Icon', size: '20px x 20px', format: 'SVG', usage: 'Buscador', image: 'https://via.placeholder.com/220x140/ffffff/6b7280?text=🔍+Search', color: '#ffffff', emoji: '🔍', dimension: '20px x 20px' },
+  ];
+
+  // BOTONES (3 TAMAÑOS)
+  const botonesItems = [
+    { id: 'btn-grande', name: 'Botón Grande', type: 'Button', size: '35px alto', format: 'CSS', usage: 'Botones principales (obsoleto)', image: 'https://via.placeholder.com/220x70/3b82f6/ffffff?text=Boton+35px', color: '#3b82f6', dimension: '35px alto x 8px radius' },
+    { id: 'btn-mediano', name: 'Botón Mediano', type: 'Button', size: '32px alto', format: 'CSS', usage: 'Botones secundarios', image: 'https://via.placeholder.com/220x64/10b981/ffffff?text=Boton+32px', color: '#10b981', dimension: '32px alto x 8px radius' },
+    { id: 'btn-pequeno', name: 'Botón Pequeño (Estándar)', type: 'Button', size: '30px alto', format: 'CSS', usage: 'Botones de header y toolbar', image: 'https://via.placeholder.com/220x60/ff6b35/ffffff?text=Boton+30px', color: '#ff6b35', dimension: '30px alto x 8px radius' },
+  ];
+
+  // BARRAS DEL SISTEMA
+  const barrasItems = [
+    { id: 'header-bar', name: 'Barra de Encabezado', type: 'Component', size: 'Min 50px alto', format: 'CSS', usage: 'DashboardHeader con breadcrumbs', image: 'https://via.placeholder.com/600x100/ffffff/1f2937?text=Header+50px', color: '#ffffff', dimension: 'Min 50px alto, full width' },
+    { id: 'toolbar-bar', name: 'Barra de Menú (Toolbar)', type: 'Component', size: 'Min 45px alto', format: 'CSS', usage: 'Nuevo, Editar, Seleccionar, Acciones', image: 'https://via.placeholder.com/600x90/f3f4f6/6b7280?text=Toolbar+45px', color: '#f3f4f6', dimension: 'Min 45px alto, full width' },
+    { id: 'search-bar', name: 'Barra de Búsqueda', type: 'Input', size: 'Centrada', format: 'CSS', usage: 'Buscador transparente sin borde', image: 'https://via.placeholder.com/400x80/ffffff/9ca3af?text=Search+Bar', color: '#ffffff', dimension: 'Flexible, centrado' },
   ];
 
   const getCurrentItems = () => {
@@ -77,6 +116,21 @@ export const GraphicsDefinitionsList = () => {
         break;
       case 'grid3': 
         items = grid3Items;
+        break;
+      case 'grid4': 
+        items = grid4Items;
+        break;
+      case 'grid5': 
+        items = grid5Items;
+        break;
+      case 'iconos': 
+        items = iconosItems;
+        break;
+      case 'botones': 
+        items = botonesItems;
+        break;
+      case 'barras': 
+        items = barrasItems;
         break;
       case 'vistas-menu':
         items = systemViews.menuPrincipal.map(view => ({
@@ -168,7 +222,7 @@ export const GraphicsDefinitionsList = () => {
               className={`${styles.sidebarItem} ${activeGrid === 'grid1' ? styles.active : ''}`}
               onClick={() => setActiveGrid('grid1')}
             >
-              📝 Grid 1 - Títulos y Componentes
+              📝 Grid 1 - Títulos
             </button>
             <button
               className={`${styles.sidebarItem} ${activeGrid === 'grid2' ? styles.active : ''}`}
@@ -180,7 +234,41 @@ export const GraphicsDefinitionsList = () => {
               className={`${styles.sidebarItem} ${activeGrid === 'grid3' ? styles.active : ''}`}
               onClick={() => setActiveGrid('grid3')}
             >
-              📦 Grid 3 - Artículos
+              📦 Grid 3 - Elementos Artículo
+            </button>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'grid4' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('grid4')}
+            >
+              🛒 Grid 4 - Módulos eCommerce (4x)
+            </button>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'grid5' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('grid5')}
+            >
+              🎯 Grid 5 - Artículos Completos (5x)
+            </button>
+
+            <div className={styles.divider}></div>
+
+            <h3 className={styles.sidebarSection}>🎨 ELEMENTOS</h3>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'iconos' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('iconos')}
+            >
+              🏠 Iconos Pequeños
+            </button>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'botones' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('botones')}
+            >
+              🔘 Botones (3 Tamaños)
+            </button>
+            <button
+              className={`${styles.sidebarItem} ${activeGrid === 'barras' ? styles.active : ''}`}
+              onClick={() => setActiveGrid('barras')}
+            >
+              ▬ Barras del Sistema
             </button>
 
             <div className={styles.divider}></div>
@@ -211,9 +299,14 @@ export const GraphicsDefinitionsList = () => {
         <main className={styles.mainContent}>
           <div className={styles.gridHeader}>
             <h2 className={styles.gridTitle}>
-              {activeGrid === 'grid1' && 'Títulos y Componentes Principales'}
-              {activeGrid === 'grid2' && 'Departamentos y Categorías'}
-              {activeGrid === 'grid3' && 'Artículos y Productos'}
+              {activeGrid === 'grid1' && 'Grid 1 - Títulos y Componentes Principales'}
+              {activeGrid === 'grid2' && 'Grid 2 - Departamentos y Categorías'}
+              {activeGrid === 'grid3' && 'Grid 3 - Elementos de Artículo'}
+              {activeGrid === 'grid4' && 'Grid 4 - Módulos eCommerce (4 tarjetas de 380px)'}
+              {activeGrid === 'grid5' && 'Grid 5 - Artículos Completos (5 productos en grid de 220px)'}
+              {activeGrid === 'iconos' && 'Iconos Pequeños del Sistema'}
+              {activeGrid === 'botones' && 'Botones - 3 Tamaños Estándar'}
+              {activeGrid === 'barras' && 'Barras del Sistema (Header y Toolbar)'}
               {activeGrid === 'vistas-menu' && 'Vistas del Menú Principal'}
               {activeGrid === 'vistas-ecommerce' && 'Módulos de eCommerce'}
               {activeGrid === 'vistas-sistema' && 'Módulos de Sistema'}
@@ -263,6 +356,7 @@ export const GraphicsDefinitionsList = () => {
                 <div className={styles.previewInfo}>
                   <p><strong>Tipo:</strong> {previewItem.type}</p>
                   <p><strong>Tamaño:</strong> {previewItem.size}</p>
+                  {previewItem.dimension && <p><strong>Dimensión:</strong> <code style={{ fontSize: '0.75rem', backgroundColor: '#fef3c7', padding: '4px 8px', borderRadius: '4px', color: '#b45309', fontWeight: '600' }}>{previewItem.dimension}</code></p>}
                   <p><strong>Formato:</strong> {previewItem.format}</p>
                   <p><strong>Uso:</strong> {previewItem.usage}</p>
                   {previewItem.route && <p><strong>Ruta:</strong> <code style={{ fontSize: '0.75rem', backgroundColor: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>{previewItem.route}</code></p>}
