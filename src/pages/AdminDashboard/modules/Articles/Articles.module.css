@@ -2,86 +2,121 @@
   padding: 0;
 }
 
-/* Barra de Encabezado Unificada */
-.unifiedHeader {
+/* HEADER FIJO - Igual para todos los módulos */
+.moduleHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
   padding: 16px 0;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   border-bottom: 2px solid #f0f0f0;
 }
 
-.headerLeft {
-  flex: 0 0 auto;
-}
-
-.headerTitle {
+.moduleTitle {
   font-size: 24px;
   font-weight: 700;
   color: #212121;
   margin: 0;
-  white-space: nowrap;
 }
 
-.headerCenter {
-  flex: 1 1 auto;
+.homeBtn {
+  width: 36px;
+  height: 36px;
   display: flex;
+  align-items: center;
   justify-content: center;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  color: #616161;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.headerRight {
-  flex: 0 0 auto;
+.homeBtn:hover {
+  background: #e8e8e8;
+  border-color: #ff6b35;
+  color: #ff6b35;
+}
+
+/* BARRA DE HERRAMIENTAS */
+.toolbar {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 12px 0;
+  margin-bottom: 20px;
 }
 
-/* Botones del Header */
-.btnGray {
+.viewSelector {
+  display: flex;
+  gap: 2px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.viewIcon,
+.viewIconActive {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 25px;
-  padding: 0 12px;
-  background: #e0e0e0;
-  color: #616161;
+  justify-content: center;
+  background: transparent;
   border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
+  border-radius: 3px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
+  color: #757575;
 }
 
-.btnGray:hover {
-  background: #d0d0d0;
+.viewIcon:hover {
+  background: #e8e8e8;
   color: #424242;
 }
 
-.btnCreate {
+.viewIconActive {
+  background: white;
+  color: #ff6b35;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 24px;
+  background: #e0e0e0;
+  margin: 0 4px;
+}
+
+.toolbarBtn {
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 25px;
-  padding: 0 16px;
-  background: #ff6b35;
-  color: white;
-  border: none;
+  height: 32px;
+  padding: 0 14px;
+  background: white;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
+  color: #424242;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
 
-.btnCreate:hover {
-  background: #e55a2b;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+.toolbarBtn:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #ff6b35;
+  color: #ff6b35;
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btnPrimaryLarge {
@@ -152,46 +187,7 @@
   flex: 1;
 }
 
-.viewToggle {
-  display: flex;
-  gap: 2px;
-  background: #f5f5f5;
-  padding: 3px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.viewBtn,
-.viewBtnActive {
-  height: 25px;
-  padding: 0 16px;
-  border: none;
-  background: transparent;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.viewBtn {
-  color: #757575;
-}
-
-.viewBtn:hover {
-  background: #e8e8e8;
-  color: #424242;
-}
-
-.viewBtnActive {
-  background: #ff6b35;
-  color: white;
-  box-shadow: 0 1px 3px rgba(255, 107, 53, 0.3);
-}
+/* Estilos antiguos ya no se usan - reemplazados por toolbar */
 
 .viewBtn.active {
   background: white;
@@ -514,20 +510,23 @@
 }
 
 @media (max-width: 768px) {
-  .unifiedHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .moduleHeader {
+    padding: 12px 0;
   }
 
-  .headerCenter {
-    width: 100%;
-    justify-content: flex-start;
+  .moduleTitle {
+    font-size: 20px;
   }
 
-  .headerRight {
-    width: 100%;
-    justify-content: flex-end;
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .toolbarBtn {
+    font-size: 12px;
+    padding: 0 10px;
+    height: 30px;
   }
 
   .gridContainer {

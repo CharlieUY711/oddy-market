@@ -349,62 +349,67 @@ export const ArticlesList = () => {
 
   return (
     <div className={styles.articlesContainer}>
-      {/* Barra de Encabezado Unificada */}
-      <header className={styles.unifiedHeader}>
-        {/* Título a la izquierda */}
-        <div className={styles.headerLeft}>
-          <h1 className={styles.headerTitle}>
-            📦 {viewMode === 'navigation' ? (getBreadcrumb() || 'Artículos') : 'Artículos'}
-          </h1>
-        </div>
-
-        {/* Selector de vista en el centro */}
-        <div className={styles.headerCenter}>
-          <div className={styles.viewToggle}>
-            <button
-              className={viewMode === 'navigation' ? styles.viewBtnActive : styles.viewBtn}
-              onClick={() => setViewMode('navigation')}
-            >
-              🎨 Navegación
-            </button>
-            <button
-              className={viewMode === 'tree' ? styles.viewBtnActive : styles.viewBtn}
-              onClick={() => setViewMode('tree')}
-            >
-              🌳 Árbol
-            </button>
-          </div>
-        </div>
-
-        {/* Botones a la derecha */}
-        <div className={styles.headerRight}>
-          {/* Botón Home - solo visible si no estamos en la vista inicial */}
-          {viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory) && (
-            <button onClick={resetNavigation} className={styles.btnGray} title="Inicio">
-              <Home size={16} />
-            </button>
-          )}
-          
-          {/* Botón Volver - solo visible si podemos volver */}
-          {viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory) && (
-            <button onClick={goBack} className={styles.btnGray}>
-              <ArrowLeft size={16} />
-              Volver
-            </button>
-          )}
-
-          {/* Botón Crear Artículo - siempre visible excepto en empty state */}
-          {!(viewMode === 'navigation' && currentSubCategory && getFilteredArticles().length === 0) && (
-            <button 
-              className={styles.btnCreate}
-              onClick={() => navigate('/admin-dashboard/modules/articles/new')}
-            >
-              <Plus size={18} />
-              Crear Artículo
-            </button>
-          )}
-        </div>
+      {/* HEADER FIJO - Igual para todos los módulos */}
+      <header className={styles.moduleHeader}>
+        <h1 className={styles.moduleTitle}>📦 Artículos</h1>
+        <button onClick={resetNavigation} className={styles.homeBtn} title="Inicio">
+          <Home size={18} />
+        </button>
       </header>
+
+      {/* BARRA DE HERRAMIENTAS - Específica de cada módulo */}
+      <div className={styles.toolbar}>
+        {/* Selector de vista (sutil) */}
+        <div className={styles.viewSelector}>
+          <button
+            className={viewMode === 'navigation' ? styles.viewIconActive : styles.viewIcon}
+            onClick={() => setViewMode('navigation')}
+            title="Vista de Navegación"
+          >
+            ⊞
+          </button>
+          <button
+            className={viewMode === 'tree' ? styles.viewIconActive : styles.viewIcon}
+            onClick={() => setViewMode('tree')}
+            title="Vista de Árbol"
+          >
+            ≡
+          </button>
+        </div>
+
+        <div className={styles.toolbarDivider}></div>
+
+        {/* Botones de acción */}
+        {!(viewMode === 'navigation' && currentSubCategory && getFilteredArticles().length === 0) && (
+          <button 
+            className={styles.toolbarBtn}
+            onClick={() => navigate('/admin-dashboard/modules/articles/new')}
+          >
+            <Plus size={16} />
+            Nuevo
+          </button>
+        )}
+
+        <button className={styles.toolbarBtn} disabled>
+          ✓ Seleccionar
+        </button>
+
+        <button className={styles.toolbarBtn} disabled>
+          ✏️ Editar
+        </button>
+
+        <button className={styles.toolbarBtn} disabled>
+          ⚙️ Acciones
+        </button>
+
+        {/* Volver - solo visible si podemos retroceder */}
+        {viewMode === 'navigation' && (currentDepartment || currentCategory || currentSubCategory) && (
+          <button onClick={goBack} className={styles.toolbarBtn}>
+            <ArrowLeft size={16} />
+            Volver
+          </button>
+        )}
+      </div>
 
       {/* Barra de búsqueda */}
       <div className={styles.searchBar}>
