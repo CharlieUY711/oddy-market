@@ -575,55 +575,33 @@ export const ArticlesList = () => {
           <TreeTable 
             data={buildTreeData()}
             columns={[
-              { key: 'name', header: 'Nombre' },
-              { key: 'sku', header: 'SKU' },
-              { key: 'price', header: 'Precio' },
-              { key: 'stock', header: 'Stock' },
-              { key: 'actions', header: 'Acciones' }
-            ]}
-            renderRow={(item, key) => {
-              if (key === 'name') {
-                return (
-                  <span>
-                    {item.icon} {item.name}
-                  </span>
-                );
-              }
-              if (key === 'sku' && item.type === 'article') {
-                return <code>{item.sku}</code>;
-              }
-              if (key === 'price' && item.type === 'article') {
-                return <strong>${item.price}</strong>;
-              }
-              if (key === 'stock' && item.type === 'article') {
-                return (
+              { 
+                field: 'name', 
+                label: 'Nombre',
+                render: (item) => <span>{item.name}</span>
+              },
+              { 
+                field: 'sku', 
+                label: 'SKU',
+                render: (item) => item.type === 'article' ? <code>{item.sku}</code> : null
+              },
+              { 
+                field: 'price', 
+                label: 'Precio',
+                render: (item) => item.type === 'article' ? <strong>${item.price}</strong> : null
+              },
+              { 
+                field: 'stock', 
+                label: 'Stock',
+                render: (item) => item.type === 'article' ? (
                   <span className={item.stock < 10 ? styles.lowStock : styles.inStock}>
                     {item.stock} unidades
                   </span>
-                );
+                ) : null
               }
-              if (key === 'actions' && item.type === 'article') {
-                return (
-                  <div className={styles.actions}>
-                    <button
-                      className={styles.actionBtn}
-                      onClick={() => navigate(`/admin-dashboard/modules/articles/${item.id}/edit`)}
-                      title="Editar"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      className={`${styles.actionBtn} ${styles.danger}`}
-                      onClick={() => handleDelete(item.id)}
-                      title="Eliminar"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                );
-              }
-              return null;
-            }}
+            ]}
+            onEdit={(item) => item.type === 'article' && navigate(`/admin-dashboard/modules/articles/${item.id}/edit`)}
+            onDelete={(item) => item.type === 'article' && handleDelete(item.id)}
           />
         </div>
       )}
