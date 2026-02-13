@@ -9,6 +9,26 @@ export const GraphicsDefinitionsList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [previewItems, setPreviewItems] = useState([]);
   const [draggedItem, setDraggedItem] = useState(null);
+  const [savedViews, setSavedViews] = useState([]);
+  const [currentViewName, setCurrentViewName] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedView, setSelectedView] = useState(null);
+  const [assignedScreens, setAssignedScreens] = useState([]);
+
+  // PANTALLAS DEL SISTEMA
+  const pantallas = [
+    { id: 'dashboard', name: 'Dashboard Principal' },
+    { id: 'ecommerce', name: 'Sección eCommerce' },
+    { id: 'articulos', name: 'Módulo Artículos' },
+    { id: 'departamentos', name: 'Módulo Departamentos' },
+    { id: 'pedidos', name: 'Módulo Pedidos' },
+    { id: 'clientes', name: 'Módulo Clientes' },
+    { id: 'inventario', name: 'Módulo Inventario' },
+    { id: 'marketing', name: 'Sección Marketing' },
+    { id: 'sistema', name: 'Sección Sistema' },
+    { id: 'gestion', name: 'Sección Gestión' },
+  ];
 
   // CONTENEDORES Y ELEMENTOS DEL SISTEMA
   const contenedores = [
@@ -65,6 +85,67 @@ export const GraphicsDefinitionsList = () => {
     setPreviewItems(previewItems.filter(item => item.id !== itemId));
   };
 
+  const handleSaveView = () => {
+    if (!currentViewName.trim()) {
+      alert('Por favor ingresá un nombre para la vista');
+      return;
+    }
+    const newView = {
+      id: Date.now(),
+      name: currentViewName,
+      elements: previewItems,
+      assignedTo: [],
+      createdAt: new Date().toISOString()
+    };
+    setSavedViews([...savedViews, newView]);
+    setCurrentViewName('');
+    setShowSaveModal(false);
+    alert('Vista guardada exitosamente!');
+  };
+
+  const handleLoadView = (view) => {
+    setPreviewItems(view.elements.map(el => ({ ...el, id: Date.now() + Math.random() })));
+    setCurrentViewName(view.name);
+  };
+
+  const handleAssignView = (view) => {
+    setSelectedView(view);
+    setAssignedScreens(view.assignedTo || []);
+    setShowAssignModal(true);
+  };
+
+  const toggleScreen = (screenId) => {
+    if (assignedScreens.includes(screenId)) {
+      setAssignedScreens(assignedScreens.filter(id => id !== screenId));
+    } else {
+      setAssignedScreens([...assignedScreens, screenId]);
+    }
+  };
+
+  const saveAssignments = () => {
+    const updatedViews = savedViews.map(view => 
+      view.id === selectedView.id 
+        ? { ...view, assignedTo: assignedScreens }
+        : view
+    );
+    setSavedViews(updatedViews);
+    setShowAssignModal(false);
+    alert('Asignaciones guardadas!');
+  };
+
+  const deleteView = (viewId) => {
+    if (confirm('¿Estás seguro de eliminar esta vista?')) {
+      setSavedViews(savedViews.filter(v => v.id !== viewId));
+    }
+  };
+
+  const clearComposition = () => {
+    if (confirm('¿Limpiar la composición actual?')) {
+      setPreviewItems([]);
+      setCurrentViewName('');
+    }
+  };
+
   const breadcrumbs = [
     { label: 'Sistema', path: '/admin-dashboard', onClick: () => navigate('/admin-dashboard') },
     { label: 'Definiciones Gráficas', path: null, onClick: null }
@@ -76,7 +157,7 @@ export const GraphicsDefinitionsList = () => {
       <DashboardHeader breadcrumbs={breadcrumbs} />
 
       <div className={styles.contentWrapper}>
-        {/* MENÚ LATERAL con CONTENEDORES */}
+        {/* MENÚ LATERAL con CONTENEDORES Y VISTAS GUARDADAS */}
         <aside className={styles.sidebar}>
           <h3 className={styles.sidebarTitle}>Contenedores</h3>
           <div className={styles.contenedoresList}>
@@ -98,6 +179,49 @@ export const GraphicsDefinitionsList = () => {
               </div>
             ))}
           </div>
+
+          <div className={styles.divider}></div>
+
+          <h3 className={styles.sidebarTitle}>Vistas Guardadas</h3>
+          <div className={styles.savedViewsList}>
+            {savedViews.length === 0 ? (
+              <p className={styles.emptyMessage}>No hay vistas guardadas</p>
+            ) : (
+              savedViews.map((view) => (
+                <div key={view.id} className={styles.savedViewItem}>
+                  <div className={styles.viewInfo}>
+                    <div className={styles.viewName}>{view.name}</div>
+                    <div className={styles.viewMeta}>
+                      {view.elements.length} elementos • {view.assignedTo?.length || 0} pantallas
+                    </div>
+                  </div>
+                  <div className={styles.viewActions}>
+                    <button 
+                      className={styles.viewActionBtn}
+                      onClick={() => handleLoadView(view)}
+                      title="Cargar vista"
+                    >
+                      📂
+                    </button>
+                    <button 
+                      className={styles.viewActionBtn}
+                      onClick={() => handleAssignView(view)}
+                      title="Asignar pantallas"
+                    >
+                      🔗
+                    </button>
+                    <button 
+                      className={styles.viewActionBtn}
+                      onClick={() => deleteView(view.id)}
+                      title="Eliminar vista"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </aside>
 
         {/* ÁREA DE PREVISUALIZACIÓN */}
@@ -107,8 +231,26 @@ export const GraphicsDefinitionsList = () => {
           onDrop={handleDrop}
         >
           <div className={styles.previewHeader}>
-            <h2 className={styles.previewTitle}>Área de Previsualización</h2>
-            <p className={styles.previewSubtitle}>Arrastrá los contenedores aquí para visualizarlos</p>
+            <div>
+              <h2 className={styles.previewTitle}>Composición de Vista</h2>
+              <p className={styles.previewSubtitle}>Arrastrá los contenedores aquí para armar tu vista</p>
+            </div>
+            <div className={styles.previewActions}>
+              <button 
+                className={styles.btnSecondary}
+                onClick={clearComposition}
+                disabled={previewItems.length === 0}
+              >
+                🗑️ Limpiar
+              </button>
+              <button 
+                className={styles.btnPrimary}
+                onClick={() => setShowSaveModal(true)}
+                disabled={previewItems.length === 0}
+              >
+                💾 Guardar Vista
+              </button>
+            </div>
           </div>
 
           {previewItems.length === 0 ? (
@@ -143,6 +285,77 @@ export const GraphicsDefinitionsList = () => {
           )}
         </main>
       </div>
+
+      {/* MODAL GUARDAR VISTA */}
+      {showSaveModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowSaveModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Guardar Vista</h3>
+              <button className={styles.modalClose} onClick={() => setShowSaveModal(false)}>✕</button>
+            </div>
+            <div className={styles.modalBody}>
+              <label className={styles.label}>
+                Nombre de la vista:
+                <input 
+                  type="text"
+                  className={styles.input}
+                  value={currentViewName}
+                  onChange={(e) => setCurrentViewName(e.target.value)}
+                  placeholder="Ej: Vista Dashboard Principal"
+                  autoFocus
+                />
+              </label>
+              <div className={styles.modalInfo}>
+                <p>Esta vista contiene <strong>{previewItems.length}</strong> elementos</p>
+              </div>
+            </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.btnSecondary} onClick={() => setShowSaveModal(false)}>
+                Cancelar
+              </button>
+              <button className={styles.btnPrimary} onClick={handleSaveView}>
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL ASIGNAR PANTALLAS */}
+      {showAssignModal && selectedView && (
+        <div className={styles.modalOverlay} onClick={() => setShowAssignModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Asignar Vista: {selectedView.name}</h3>
+              <button className={styles.modalClose} onClick={() => setShowAssignModal(false)}>✕</button>
+            </div>
+            <div className={styles.modalBody}>
+              <p className={styles.modalSubtitle}>Seleccioná las pantallas donde aplicar esta vista:</p>
+              <div className={styles.screensList}>
+                {pantallas.map((screen) => (
+                  <label key={screen.id} className={styles.screenItem}>
+                    <input 
+                      type="checkbox"
+                      checked={assignedScreens.includes(screen.id)}
+                      onChange={() => toggleScreen(screen.id)}
+                    />
+                    <span className={styles.screenName}>{screen.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.btnSecondary} onClick={() => setShowAssignModal(false)}>
+                Cancelar
+              </button>
+              <button className={styles.btnPrimary} onClick={saveAssignments}>
+                Guardar Asignaciones
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
