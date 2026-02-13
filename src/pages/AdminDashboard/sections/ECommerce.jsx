@@ -59,15 +59,20 @@ export const ECommerce = () => {
 
   return (
     <div className={styles.section}>
-      <header className={styles.sectionHeader}>
-        <div>
-          <h2 className={styles.sectionTitle}>eCommerce</h2>
-          <p className={styles.sectionSubtitle}>Seleccioná un módulo para comenzar</p>
+      {/* HEADER ESTANDARIZADO */}
+      <header className={styles.moduleHeader}>
+        <h1 className={styles.moduleTitle}>eCommerce</h1>
+        <div className={styles.headerIcons}>
+          <button onClick={() => navigate('/')} className={styles.iconBtn} title="Tienda">
+            🛍️
+          </button>
+          <button onClick={() => navigate('/admin-dashboard')} className={styles.iconBtn} title="Dashboard">
+            📊
+          </button>
         </div>
-        <button className={styles.btnPrimary} onClick={() => navigate('/')}>
-          Volver a la tienda
-        </button>
       </header>
+      
+      <p className={styles.subtitle}>Seleccioná un módulo para comenzar</p>
 
       <div className={styles.moduleGrid}>
         {modules.map((module) => (

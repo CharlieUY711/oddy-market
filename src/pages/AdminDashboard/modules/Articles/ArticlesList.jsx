@@ -493,17 +493,13 @@ export const ArticlesList = () => {
       {currentSubCategory && (
         <div className={styles.articlesList}>
           {getFilteredArticles().length === 0 ? (
-            <div className={styles.emptyState}>
-              <Package size={64} color="#ccc" />
-              <h3>No hay artículos en esta categoría</h3>
-              <p>Creá el primer artículo para comenzar</p>
-              <button 
-                className={styles.btnPrimaryLarge}
+            <div className={styles.articlesGrid}>
+              <div 
+                className={styles.emptyArticleCard}
                 onClick={() => navigate('/admin-dashboard/modules/articles/new')}
               >
-                <Plus size={20} />
-                Crear Artículo
-              </button>
+                <span className={styles.emptyCardText}>Crear</span>
+              </div>
             </div>
           ) : (
             <div className={styles.articlesGrid}>

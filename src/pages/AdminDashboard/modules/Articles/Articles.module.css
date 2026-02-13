@@ -94,8 +94,10 @@
 .toolbarBtn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   height: 32px;
+  min-width: 100px;
   padding: 0 14px;
   background: transparent;
   border: 1px solid #e0e0e0;
@@ -554,6 +556,32 @@
 .cardActionBtn.danger:hover {
   border-color: #f44336;
   color: #f44336;
+}
+
+/* Tarjeta vacía para crear artículo */
+.emptyArticleCard {
+  background: white;
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.emptyArticleCard:hover {
+  border-color: #ff6b35;
+  background: #fff5f0;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(255, 107, 53, 0.15);
+}
+
+.emptyCardText {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ff6b35;
 }
 
 /* Lista de artículos */
