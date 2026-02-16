@@ -4,8 +4,8 @@ import { Search, Heart, User, ShoppingCart, Menu, ChevronDown } from 'lucide-rea
 import { Button } from '../Button';
 import { SearchBar } from '../SearchBar';
 import { MegaMenu } from '../MegaMenu';
-import { useApp } from '../../context/AppContext';
-import { useAuth } from '../../context/AuthContext';
+import { useApp } from '@context/AppContext';
+import { useAuth } from '@context/AuthContext';
 import styles from './Header.module.css';
 
 export const Header = () => {

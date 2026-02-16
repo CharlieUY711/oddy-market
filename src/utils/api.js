@@ -107,8 +107,9 @@ export const api = {
       console.log(`✅ ${products.length} products fetched from backend`);
       return products;
     } catch (error) {
-      console.warn('⚠️ Error fetching from backend, using mock data:', error);
+      console.warn('⚠️ Error fetching from backend, using mock data:', error.message || error);
       // Fallback a mock data si falla el backend
+      // No re-lanzar el error, continuar con mock data
     }
     
     // Mock data (fallback si el backend falla)

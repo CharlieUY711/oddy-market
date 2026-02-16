@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Image, ShoppingBag, Truck } from 'lucide-react';
-import DashboardHeader from '../../../components/Dashboard/DashboardHeader';
+import DashboardHeader from '@components/Dashboard/DashboardHeader';
 import styles from './Section.module.css';
 
 export const ECommerce = () => {

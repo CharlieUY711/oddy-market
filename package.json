@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Proyecto ODDY Market - Desarrollo en paralelo con Figma",
   "scripts": {
-    "dev": "vite",
+    "check:modules": "node scripts/create-missing-modules.js",
+    "dev": "npm run check:modules && vite",
     "build": "vite build",
     "preview": "vite preview",
     "sync-figma": "node scripts/sync-figma.js",
@@ -22,10 +23,17 @@
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "canvas-confetti": "^1.9.4",
+    "fabric": "^7.1.0",
+    "framer-motion": "^12.34.0",
     "lucide-react": "^0.563.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-router-dom": "^7.13.0"
+    "react-dropzone": "^15.0.0",
+    "react-router-dom": "^7.13.0",
+    "recharts": "^3.7.0",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

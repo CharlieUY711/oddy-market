@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../utils/supabase';
-import { Button } from '../../components/Button';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card';
+import { supabase } from '@utils/supabase';
+import { Button } from '@components/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '@components/Card';
 import styles from './Test.module.css';
 
 export const Test = () => {

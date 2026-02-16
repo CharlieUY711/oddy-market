@@ -27,6 +27,14 @@ export const productService = {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
+      // Verificar que la respuesta sea JSON antes de parsear
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.warn('⚠️ Response is not JSON, received:', text.substring(0, 100));
+        throw new Error('Response is not JSON. Backend may be returning HTML (404 or error page).');
+      }
+      
       const data = await response.json();
       console.log(`✅ ${data.articles?.length || 0} products fetched from backend`);
       return data.articles || [];

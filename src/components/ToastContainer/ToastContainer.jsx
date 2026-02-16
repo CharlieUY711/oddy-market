@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNotifications } from '../../context/NotificationContext';
+import { useNotifications } from '@context/NotificationContext';
 import { Toast } from '../Toast';
 import styles from './ToastContainer.module.css';
 

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
-import { useNotifications } from '../../context/NotificationContext';
-import { Button } from '../../components/Button';
-import { Card, CardContent } from '../../components/Card';
-import { Loading } from '../../components/Loading';
-import { api } from '../../utils/api';
-import { formatCurrency } from '../../utils/formatting';
+import { useApp } from '@context/AppContext';
+import { useNotifications } from '@context/NotificationContext';
+import { Button } from '@components/Button';
+import { Card, CardContent } from '@components/Card';
+import { Loading } from '@components/Loading';
+import { api } from '@utils/api';
+import { formatCurrency } from '@utils/formatting';
 import styles from './ProductDetail.module.css';
 
 export const ProductDetail = () => {

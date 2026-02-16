@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { formatCurrency } from '../../utils/formatting';
+import { useApp } from '@context/AppContext';
+import { formatCurrency } from '@utils/formatting';
 import styles from './SearchBar.module.css';
 
 export const SearchBar = ({ isOpen, onClose }) => {

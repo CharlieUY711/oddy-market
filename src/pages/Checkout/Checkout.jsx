@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
-import { useNotifications } from '../../context/NotificationContext';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
-import { Loading } from '../../components/Loading';
+import { useApp } from '@context/AppContext';
+import { useNotifications } from '@context/NotificationContext';
+import { Card, CardHeader, CardTitle, CardContent } from '@components/Card';
+import { Input } from '@components/Input';
+import { Button } from '@components/Button';
+import { Loading } from '@components/Loading';
+import { AgeVerification, requiresAgeVerification, getRequiredAge } from '@components/age-verification';
 import {
   validateCheckoutForm,
   formatCardNumber,
   formatCardExpiry,
-} from '../../utils/validation';
-import { formatCurrency } from '../../utils/formatting';
+} from '@utils/validation';
+import { formatCurrency } from '@utils/formatting';
 import styles from './Checkout.module.css';
 
 export const Checkout = () => {
@@ -21,6 +22,8 @@ export const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [showAgeVerification, setShowAgeVerification] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -72,12 +75,60 @@ export const Checkout = () => {
     }));
   };
 
+  // Verificar restricciones de edad en el carrito
+  const checkCartAgeRestrictions = () => {
+    for (const item of cart) {
+      if (requiresAgeVerification(item)) {
+        const stored = localStorage.getItem('age_verification');
+        if (!stored) {
+          return { 
+            hasRestricted: true, 
+            product: item,
+            minAge: getRequiredAge(item, 'AR')
+          };
+        }
+        
+        try {
+          const verification = JSON.parse(stored);
+          const expiresAt = new Date(verification.expiresAt);
+          const minAge = getRequiredAge(item, 'AR');
+          
+          if (expiresAt < new Date() || verification.age < minAge) {
+            return { 
+              hasRestricted: true, 
+              product: item,
+              minAge
+            };
+          }
+        } catch (err) {
+          return { 
+            hasRestricted: true, 
+            product: item,
+            minAge: getRequiredAge(item, 'AR')
+          };
+        }
+      }
+    }
+    
+    return { hasRestricted: false };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (cart.length === 0) {
       error('Tu carrito está vacío');
       navigate('/products');
+      return;
+    }
+
+    // Verificar restricciones de edad ANTES de validar el formulario
+    const { hasRestricted, product, minAge } = checkCartAgeRestrictions();
+    
+    if (hasRestricted) {
+      error(`Debes verificar tu edad para comprar "${product.name}"`);
+      setShowAgeVerification(true);
+      setPendingCheckout(true);
       return;
     }
 
@@ -127,6 +178,19 @@ export const Checkout = () => {
     }
   };
 
+  const handleAgeVerified = () => {
+    setShowAgeVerification(false);
+    
+    if (pendingCheckout) {
+      setPendingCheckout(false);
+      // Reintentar checkout después de verificación
+      const form = document.querySelector('form');
+      if (form) {
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+        form.dispatchEvent(submitEvent);
+      }
+    }
+  };
 
   const shippingCost = cartTotal > 5000 ? 0 : 500;
   const total = cartTotal + shippingCost;
@@ -428,6 +492,22 @@ export const Checkout = () => {
           </div>
         </div>
       </form>
+
+      {/* Modal de verificación de edad */}
+      <AgeVerification
+        isOpen={showAgeVerification}
+        onClose={() => {
+          setShowAgeVerification(false);
+          setPendingCheckout(false);
+        }}
+        onVerified={handleAgeVerified}
+        requiredAge={18}
+        productName={
+          checkCartAgeRestrictions().hasRestricted
+            ? checkCartAgeRestrictions().product?.name || 'productos con restricción de edad'
+            : 'productos con restricción de edad'
+        }
+      />
     </div>
   );
 };

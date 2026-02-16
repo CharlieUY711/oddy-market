@@ -8,7 +8,8 @@ import {
   Plug, 
   Key, 
   Eye,
-  Palette
+  Palette,
+  RefreshCw
 } from 'lucide-react';
 import styles from './Section.module.css';
 
@@ -62,6 +63,15 @@ export const Sistema = () => {
       endpoint: '/audit/logs'
     },
     {
+      id: 'system-audit',
+      title: 'Auditoría del Sistema',
+      description: 'Evaluación completa de funcionalidades',
+      icon: <Shield size={32} />,
+      color: '#e3f2fd',
+      iconColor: '#2196f3',
+      endpoint: '/audit/system'
+    },
+    {
       id: 'integrations',
       title: 'Integraciones',
       description: 'RRSS, Mercado Libre, Pagos y más',
@@ -87,6 +97,15 @@ export const Sistema = () => {
       color: '#fce4ec',
       iconColor: '#e91e63',
       endpoint: '/settings/views'
+    },
+    {
+      id: 'social-migration',
+      title: 'Migración RRSS',
+      description: 'Respaldar, eliminar y transformar perfiles de Instagram y Facebook',
+      icon: <RefreshCw size={32} />,
+      color: '#fce4ec',
+      iconColor: '#e91e63',
+      endpoint: '/social-migration'
     }
   ];
 
@@ -113,10 +132,12 @@ export const Sistema = () => {
                 audit: '/admin-dashboard/modules/audit',
                 departments: '/admin-dashboard/modules/departments',
                 analytics: '/admin-dashboard/modules/analytics',
-                logs: '/admin-dashboard/modules/audit',
+                logs: '/admin-dashboard/modules/logs',
+                'system-audit': '/admin-dashboard/modules/system-audit',
                 integrations: '/admin-dashboard/modules/integrations',
                 apis: '/admin-dashboard/modules/apis',
-                views: '/admin-dashboard/modules/views'
+                views: '/admin-dashboard/modules/views',
+                'social-migration': '/admin-dashboard/modules/social-migration'
               };
               if (routes[module.id]) {
                 navigate(routes[module.id]);

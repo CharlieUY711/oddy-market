@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card';
-import { Button } from '../../components/Button';
-import { Loading } from '../../components/Loading';
-import { formatCurrency } from '../../utils/formatting';
+import { useApp } from '@context/AppContext';
+import { Card, CardHeader, CardTitle, CardContent } from '@components/Card';
+import { Button } from '@components/Button';
+import { Loading } from '@components/Loading';
+import { formatCurrency } from '@utils/formatting';
 import styles from './Cart.module.css';
 
 export const Cart = () => {

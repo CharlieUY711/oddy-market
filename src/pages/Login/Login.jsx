@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useNotifications } from '../../context/NotificationContext';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
-import { Loading } from '../../components/Loading';
+import { useAuth } from '@context/AuthContext';
+import { useNotifications } from '@context/NotificationContext';
+import { Card, CardHeader, CardTitle, CardContent } from '@components/Card';
+import { Input } from '@components/Input';
+import { Button } from '@components/Button';
+import { Loading } from '@components/Loading';
 import styles from './Login.module.css';
 
 export const Login = () => {

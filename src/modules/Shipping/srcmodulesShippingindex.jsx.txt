@@ -1,0 +1,11 @@
+// src/modules/Shipping/index.jsx
+
+export function ShippingModule() {
+  return (
+    <div style={{ padding: "2rem" }}>
+      <h1>Shipping Module</h1>
+      <p>Este módulo aún no está implementado.</p>
+    </div>
+  );
+}
+

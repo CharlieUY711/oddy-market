@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
-import { useNotifications } from '../../context/NotificationContext';
-import { ProductCard } from '../../components/ProductCard';
-import { Loading } from '../../components/Loading';
-import { SkeletonProductGrid } from '../../components/Skeleton';
-import { ErrorMessage } from '../../components/ErrorMessage';
-import { api } from '../../utils/api';
+import { useApp } from '@context/AppContext';
+import { useNotifications } from '@context/NotificationContext';
+import { SmartProductCard } from '@components/SmartProductCard';
+import { Loading } from '@components/Loading';
+import { SkeletonProductGrid } from '@components/Skeleton';
+import { ErrorMessage } from '@components/ErrorMessage';
+import { api } from '@utils/api';
 import styles from './Products.module.css';
 
 export const Products = () => {
@@ -109,17 +109,9 @@ export const Products = () => {
       ) : (
         <div className={styles.grid}>
           {filteredProducts.map((product) => (
-            <ProductCard
+            <SmartProductCard
               key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              description={product.description}
-              image={product.image}
-              category={product.category}
-              discount={product.discount}
-              rating={product.rating}
-              stock={product.stock}
+              product={product}
               onAddToCart={handleAddToCart}
               onViewDetails={handleViewDetails}
             />

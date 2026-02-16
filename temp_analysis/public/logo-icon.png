@@ -1,3 +1,0 @@
-# Esta carpeta debe contener el logo de ODDY Market
-# Por ahora, utiliza el logo con fondo transparente proporcionado
-# Ruta para usar en componentes: /logo-icon.png o import logo from 'figma:asset/1f1fabcb77ec33f2dd4f6285e8fa133c70772ce8.png'

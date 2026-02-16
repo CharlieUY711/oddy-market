@@ -1,0 +1,1 @@
+export { WheelPro } from './WheelPro';

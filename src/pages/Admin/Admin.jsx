@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/Card';
-import { Button } from '../../components/Button';
-import { Input } from '../../components/Input';
+import { Card, CardHeader, CardTitle, CardContent } from '@components/Card';
+import { Button } from '@components/Button';
+import { Input } from '@components/Input';
 import { ExternalLink, Lock } from 'lucide-react';
 import styles from './Admin.module.css';
 

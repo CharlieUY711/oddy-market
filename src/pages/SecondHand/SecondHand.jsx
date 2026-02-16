@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../../context/AppContext';
-import { useNotifications } from '../../context/NotificationContext';
-import { ProductCard } from '../../components/ProductCard';
-import { SkeletonProductGrid } from '../../components/Skeleton';
-import { ErrorMessage } from '../../components/ErrorMessage';
-import { Card, CardContent } from '../../components/Card';
-import { api } from '../../utils/api';
+import { useApp } from '@context/AppContext';
+import { useNotifications } from '@context/NotificationContext';
+import { ProductCard } from '@components/ProductCard';
+import { SkeletonProductGrid } from '@components/Skeleton';
+import { ErrorMessage } from '@components/ErrorMessage';
+import { Card, CardContent } from '@components/Card';
+import { api } from '@utils/api';
 import styles from './SecondHand.module.css';
 
 const CONDITION_LABELS = {

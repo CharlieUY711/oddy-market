@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, Truck, Shield, Zap, Headphones } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
-import { ProductCard } from '../../components/ProductCard';
-import { Button } from '../../components/Button';
-import { api } from '../../utils/api';
+import { useApp } from '@context/AppContext';
+import { SmartProductCard } from '@components/SmartProductCard';
+import { Button } from '@components/Button';
+import { api } from '@utils/api';
 import styles from './Home.module.css';
 
 export const Home = () => {
@@ -185,17 +185,9 @@ export const Home = () => {
             </div>
             <div className={styles.productsGrid}>
               {featuredProducts.map((product) => (
-                <ProductCard
+                <SmartProductCard
                   key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  price={product.price}
-                  description={product.description}
-                  image={product.image}
-                  category={product.category}
-                  discount={product.discount}
-                  rating={product.rating}
-                  stock={product.stock}
+                  product={product}
                   onAddToCart={handleAddToCart}
                   onViewDetails={handleViewDetails}
                 />
@@ -218,17 +210,9 @@ export const Home = () => {
             </div>
             <div className={styles.productsGrid}>
               {newArrivals.map((product) => (
-                <ProductCard
+                <SmartProductCard
                   key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  price={product.price}
-                  description={product.description}
-                  image={product.image}
-                  category={product.category}
-                  discount={product.discount}
-                  rating={product.rating}
-                  stock={product.stock}
+                  product={product}
                   onAddToCart={handleAddToCart}
                   onViewDetails={handleViewDetails}
                 />

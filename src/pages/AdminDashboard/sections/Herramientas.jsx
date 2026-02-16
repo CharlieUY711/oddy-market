@@ -17,6 +17,15 @@ export const Herramientas = () => {
       endpoint: '/library/image/edit'
     },
     {
+      id: 'ocr',
+      title: 'OCR Enterprise',
+      description: 'Reconocimiento óptico de caracteres y extracción de datos',
+      icon: <FileText size={32} />,
+      color: '#e3f2fd',
+      iconColor: '#2196f3',
+      endpoint: '/ocr/process'
+    },
+    {
       id: 'documents',
       title: 'Generador de Documentos',
       description: 'Crea facturas, contratos y más con IA',
@@ -67,8 +76,27 @@ export const Herramientas = () => {
       </header>
 
       <div className={styles.moduleGrid}>
-        {modules.map((module) => (
-          <div key={module.id} className={styles.moduleCard}>
+        {modules.map((module) => {
+          const routes = {
+            editor: '/admin-dashboard/modules/editor',
+            ocr: '/admin-dashboard/modules/ocr',
+            documents: '/admin-dashboard/modules/documents',
+            printing: '/admin-dashboard/modules/printing',
+            qr: '/admin-dashboard/modules/qr',
+            ai: '/admin-dashboard/modules/ai'
+          };
+          
+          return (
+          <div 
+            key={module.id} 
+            className={styles.moduleCard}
+            onClick={() => {
+              if (routes[module.id]) {
+                navigate(routes[module.id]);
+              }
+            }}
+            style={{ cursor: routes[module.id] ? 'pointer' : 'default' }}
+          >
             <div className={styles.moduleIcon} style={{ background: module.color }}>
               <div style={{ color: module.iconColor }}>{module.icon}</div>
             </div>
@@ -78,7 +106,8 @@ export const Herramientas = () => {
               <span className={styles.moduleEndpoint}>API: {module.endpoint}</span>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

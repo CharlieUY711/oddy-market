@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Heart, Eye, ShoppingCart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../Card';
 import { Button } from '../Button';
-import { useApp } from '../../context/AppContext';
-import { formatCurrency } from '../../utils/formatting';
+import { useApp } from '@context/AppContext';
+import { formatCurrency } from '@utils/formatting';
 import styles from './ProductCard.module.css';
 
 export const ProductCard = ({
