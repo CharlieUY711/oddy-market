@@ -9,6 +9,15 @@ export function ArticleForm(props) {
   );
 }
 
+export function ArticlesList(props) {
+  return (
+    <div style={{ padding: '1rem' }}>
+      <h2>ArticlesList</h2>
+      <p>Placeholder: ArticlesList pendiente de implementación.</p>
+    </div>
+  );
+}
+
 export function ArticlesModule() {
   return (
     <div style={{ padding: '1rem' }}>

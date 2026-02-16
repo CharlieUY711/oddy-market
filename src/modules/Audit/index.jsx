@@ -1,4 +1,6 @@
 import React from 'react';
+export { AuditLogsWrapper } from './AuditLogsWrapper';
+export { SystemAuditWrapper } from './SystemAuditWrapper';
 
 export function AuditModule() {
   return (
