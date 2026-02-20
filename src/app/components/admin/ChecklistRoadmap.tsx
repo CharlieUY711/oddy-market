@@ -59,7 +59,10 @@ type ModuleCategory =
   | "marketplace"
   | "ecommerce"
   | "integrations"
-  | "admin";
+  | "admin"
+  | "audit"
+  | "analytics"
+  | "builder";
 
 interface SubModule {
   id: string;
@@ -94,11 +97,14 @@ const CATEGORY_INFO: Record<ModuleCategory, { label: string; color: string; icon
   crm:          { label: "CRM",                   color: "bg-purple-600",  icon: "👥" },
   projects:     { label: "Proyectos",             color: "bg-indigo-600",  icon: "📋" },
   marketplace:  { label: "Marketplace",           color: "bg-amber-500",   icon: "🏪" },
-  integrations: { label: "Integraciones",         color: "bg-cyan-600",    icon: "🔌" },
-  admin:        { label: "Admin / Sistema",       color: "bg-slate-600",   icon: "⚙️" },
+  integrations: { label: "Integraciones",           color: "bg-cyan-600",    icon: "🔌" },
+  audit:        { label: "Auditoría & Diagnóstico", color: "bg-violet-600",  icon: "🔍" },
+  admin:        { label: "Admin / Sistema",         color: "bg-slate-600",   icon: "⚙️" },
   enterprise:   { label: "Enterprise",            color: "bg-red-600",     icon: "🏢" },
   territory:    { label: "Territorio",            color: "bg-lime-600",    icon: "🗺️" },
   verification: { label: "Verificación",          color: "bg-yellow-600",  icon: "✅" },
+  analytics:    { label: "Analytics & BI",        color: "bg-sky-600",     icon: "📈" },
+  builder:      { label: "Constructor",           color: "bg-fuchsia-600", icon: "🔧" },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -262,8 +268,75 @@ const MODULES_DATA: Module[] = [
   { id: "integrations-replicate",    name: "Replicate AI",               category: "integrations", status: "not-started", priority: "low",    description: "Modelos de IA generativos para procesamiento de imágenes", estimatedHours: 12 },
   { id: "integrations-removebg",     name: "Remove.bg",                  category: "integrations", status: "not-started", priority: "low",    description: "Eliminación automática de fondo en imágenes vía API", estimatedHours: 4 },
 
+  // ==================== AUDITORÍA & DIAGNÓSTICO ====================
+  { id: "audit-hub",      name: "Hub Auditoría & Diagnóstico", category: "audit", status: "not-started", priority: "medium", description: "Hub central con métricas de estado, diagnóstico rápido y acceso a todas las herramientas de auditoría", estimatedHours: 6 },
+  { id: "audit-apis-repo", name: "Repositorio de APIs", category: "audit", status: "not-started", priority: "high", description: "Catálogo centralizado de las 23 APIs del sistema — estado, credenciales, auth type, docs y test de conexión", estimatedHours: 12, submodules: [
+    { id: "audit-apis-catalog",  name: "Catálogo expandible con 23 APIs",   status: "not-started", estimatedHours: 4 },
+    { id: "audit-apis-filter",   name: "Filtros por categoría y estado",    status: "not-started", estimatedHours: 2 },
+    { id: "audit-apis-detail",   name: "Panel detalle: URL, env var, auth", status: "not-started", estimatedHours: 3 },
+    { id: "audit-apis-test",     name: "Test de conexión por API",          status: "not-started", estimatedHours: 3 },
+  ] },
+  { id: "audit-health", name: "Health Monitor", category: "audit", status: "not-started", priority: "high", description: "Verificación en tiempo real de Supabase DB, Auth, Edge Functions, KV Store, Storage y APIs externas con latencias", estimatedHours: 10, submodules: [
+    { id: "audit-health-backend",  name: "Checks de servicios Supabase",  status: "not-started", estimatedHours: 4 },
+    { id: "audit-health-latency",  name: "Latencia y tiempo de respuesta", status: "not-started", estimatedHours: 3 },
+    { id: "audit-health-external", name: "Estado de APIs externas",        status: "not-started", estimatedHours: 3 },
+  ] },
+  { id: "audit-logs", name: "Logs del Sistema", category: "audit", status: "not-started", priority: "medium", description: "Registro de actividad, errores y eventos con filtros por nivel/módulo, detalle expandible y export TXT", estimatedHours: 8, submodules: [
+    { id: "audit-logs-list",    name: "Lista con filtros nivel/módulo", status: "not-started", estimatedHours: 3 },
+    { id: "audit-logs-detail",  name: "Panel detalle expandible",      status: "not-started", estimatedHours: 2 },
+    { id: "audit-logs-export",  name: "Export a TXT",                  status: "not-started", estimatedHours: 1 },
+    { id: "audit-logs-backend", name: "Integración con Supabase Logs", status: "not-started", estimatedHours: 2 },
+  ] },
+
   // ==================== BASE DE PERSONAS ====================
   { id: "base-personas", name: "Base de Personas y Organizaciones", category: "crm", status: "not-started", priority: "critical", description: "Módulo unificado: Personas + Organizaciones + Roles Contextuales. Multi-país.", estimatedHours: 60, submodules: [ { id: "bp-personas", name: "Módulo Personas", status: "not-started", estimatedHours: 20 }, { id: "bp-orgs", name: "Módulo Organizaciones", status: "not-started", estimatedHours: 20 }, { id: "bp-roles", name: "Roles Contextuales", status: "not-started", estimatedHours: 12 }, { id: "bp-clientes", name: "Vista Clientes", status: "not-started", estimatedHours: 8 } ] },
+
+  // ==================== ENTERPRISE (Module Marketplace) ====================
+  { id: "enterprise-multi-entity", name: "Multi-Entity Management", category: "enterprise", status: "not-started", priority: "high", description: "Gestión de múltiples entidades comerciales con dashboards independientes por entidad, usuarios multi-tenant con permisos granulares y consolidación de reportes.", estimatedHours: 48, submodules: [
+    { id: "me-entities",    name: "CRUD de Entidades comerciales",         status: "not-started", estimatedHours: 12 },
+    { id: "me-dashboards",  name: "Dashboards independientes por entidad", status: "not-started", estimatedHours: 16 },
+    { id: "me-permissions", name: "Usuarios multi-entidad con permisos",   status: "not-started", estimatedHours: 12 },
+    { id: "me-reports",     name: "Consolidación de reportes",             status: "not-started", estimatedHours: 8  },
+  ] },
+
+  // ==================== ERP AMPLIADO (Module Marketplace) ====================
+  { id: "erp-multi-warehouse", name: "Multi-Warehouse System", category: "erp", status: "not-started", priority: "high", description: "Sistema de múltiples depósitos con ruteo inteligente, cálculo automático de tiempos de traslado, transferencias entre almacenes y trazabilidad de lotes.", estimatedHours: 40, submodules: [
+    { id: "mw-warehouses", name: "Gestión de depósitos",                     status: "not-started", estimatedHours: 10 },
+    { id: "mw-routing",    name: "Ruteo inteligente de pedidos",             status: "not-started", estimatedHours: 12 },
+    { id: "mw-transfers",  name: "Transferencias entre depósitos",           status: "not-started", estimatedHours: 10 },
+    { id: "mw-times",      name: "Cálculo automático de tiempos de traslado", status: "not-started", estimatedHours: 8  },
+  ] },
+  { id: "erp-smart-quotation", name: "Smart Quotation System", category: "erp", status: "not-started", priority: "medium", description: "Presupuestos inteligentes con monitoreo automático de precios, alertas de cambio de stock, aprobación por flujo y conversión automática a orden de venta.", estimatedHours: 32, submodules: [
+    { id: "sq-builder",  name: "Constructor de presupuestos inteligentes", status: "not-started", estimatedHours: 10 },
+    { id: "sq-monitor",  name: "Monitoreo automático de precios",          status: "not-started", estimatedHours: 8  },
+    { id: "sq-alerts",   name: "Alertas de cambio de stock",               status: "not-started", estimatedHours: 6  },
+    { id: "sq-approval", name: "Flujo de aprobación y conversión a OV",    status: "not-started", estimatedHours: 8  },
+  ] },
+  { id: "erp-supplier-portal", name: "Supplier Portal", category: "erp", status: "not-started", priority: "medium", description: "Portal self-service para proveedores: gestión de órdenes de compra, actualización de catálogos, cotizaciones y comunicación directa con el equipo de compras.", estimatedHours: 36, submodules: [
+    { id: "sp-portal",    name: "Portal web para proveedores",     status: "not-started", estimatedHours: 14 },
+    { id: "sp-orders",    name: "Gestión de órdenes de compra",    status: "not-started", estimatedHours: 10 },
+    { id: "sp-catalog",   name: "Actualización de catálogos",      status: "not-started", estimatedHours: 8  },
+    { id: "sp-messaging", name: "Mensajería proveedor ↔ compras",  status: "not-started", estimatedHours: 4  },
+  ] },
+
+  // ==================== COMUNICACIONES / UNIFIED WORKSPACE (Module Marketplace) ====================
+  { id: "rrss-unified-workspace", name: "Unified Workspace", category: "rrss", status: "not-started", priority: "high", description: "Workspace unificado para gestionar Email, SMS y WhatsApp Business desde un único inbox centralizado con historial completo, plantillas de respuesta rápida y asignación a agentes.", estimatedHours: 36, submodules: [
+    { id: "uw-inbox",     name: "Inbox unificado (Email + SMS + WA)",    status: "not-started", estimatedHours: 14 },
+    { id: "uw-history",   name: "Historial completo de comunicaciones",  status: "not-started", estimatedHours: 8  },
+    { id: "uw-templates", name: "Plantillas de respuesta rápida",        status: "not-started", estimatedHours: 6  },
+    { id: "uw-agents",    name: "Asignación a agentes / equipos",        status: "not-started", estimatedHours: 8  },
+  ] },
+
+  // ==================== ANALYTICS & BI (Module Marketplace) ====================
+  { id: "analytics-advanced", name: "Advanced Analytics & BI", category: "analytics", status: "not-started", priority: "high", description: "Analytics avanzado con Business Intelligence, reportes personalizables programables, dashboards interactivos customizables y predicciones con IA.", estimatedHours: 48, submodules: [
+    { id: "aa-dashboards", name: "Dashboards interactivos customizables", status: "not-started", estimatedHours: 16 },
+    { id: "aa-reports",    name: "Reportes automatizados programables",   status: "not-started", estimatedHours: 12 },
+    { id: "aa-bi",         name: "Business Intelligence avanzado",        status: "not-started", estimatedHours: 12 },
+    { id: "aa-ai",         name: "Predicciones e insights con IA",        status: "not-started", estimatedHours: 8  },
+  ] },
+
+  // ==================== CONSTRUCTOR ====================
+  { id: "builder-constructor", name: "Constructor", category: "builder", status: "not-started", priority: "high", description: "Constructor visual de páginas, tiendas y experiencias digitales. Drag & drop, componentes modulares, templates y publicación directa.", estimatedHours: 80 },
 ];
 
 type ViewMode = "list" | "kanban" | "stats" | "queue";

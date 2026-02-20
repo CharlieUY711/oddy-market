@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
 import { ExternalLink, Settings2, CheckCircle2, AlertCircle, Clock, Zap, Link2, Copy, Check, Map, Key } from 'lucide-react';
+import { Truck } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
 const ORANGE = '#FF6835';
@@ -330,7 +331,8 @@ export function IntegracionesLogisticaView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title="🚚 Logística"
+        icon={Truck}
+        title="Logística"
         subtitle="Carriers, Google Maps Platform y rutas — Uruguay first, Latam progresivo"
         actions={[{ label: '← Integraciones', onClick: () => onNavigate('integraciones') }]}
       />

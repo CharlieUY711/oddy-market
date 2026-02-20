@@ -241,6 +241,7 @@ export function EnviosView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Truck}
         title="Envíos"
         subtitle={`${stats.total} envíos totales · ${stats.en_transito} en tránsito · ${stats.entregados} entregados`}
         actions={[

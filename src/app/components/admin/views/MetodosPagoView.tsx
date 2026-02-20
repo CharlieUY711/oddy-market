@@ -334,6 +334,7 @@ export function MetodosPagoView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={CreditCard}
         title="Métodos de Pago"
         subtitle="Configuración de pasarelas y formas de pago disponibles"
         actions={[

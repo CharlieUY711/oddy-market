@@ -28,7 +28,7 @@ interface Campaign {
 const MOCK_CAMPAIGNS: Campaign[] = [
   { id: '1', name: 'Newsletter Agosto 2025', subject: '🔥 Ofertas de temporada + Nuevos productos', status: 'sent', recipients: 1240, openRate: 34.2, clickRate: 8.7, sentAt: '2025-08-01' },
   { id: '2', name: 'Promo Fin de Semana', subject: '⚡ Solo por 48hs: 20% OFF en todo', status: 'sent', recipients: 980, openRate: 41.5, clickRate: 12.3, sentAt: '2025-07-26' },
-  { id: '3', name: 'Bienvenida nuevos usuarios', subject: '👋 ¡Bienvenido a ODDY Market!', status: 'sent', recipients: 312, openRate: 62.1, clickRate: 28.4, sentAt: '2025-07-20' },
+  { id: '3', name: 'Bienvenida nuevos usuarios', subject: '👋 ¡Bienvenido a Charlie Marketplace!', status: 'sent', recipients: 312, openRate: 62.1, clickRate: 28.4, sentAt: '2025-07-20' },
   { id: '4', name: 'Campaña Septiembre', subject: '🍂 Novedades de otoño — próximamente', status: 'scheduled', recipients: 1500, scheduledAt: '2025-09-01' },
   { id: '5', name: 'Black Friday Early Access', subject: '🖤 Acceso anticipado para miembros VIP', status: 'draft', recipients: 0 },
 ];
@@ -83,9 +83,8 @@ export function MailingView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Mail size={22} /> Sistema de Mailing Avanzado
-        </span>}
+        icon={Mail}
+        title="Sistema de Mailing Avanzado"
         subtitle="Gestión completa de campañas, segmentación y analíticas · Powered by Resend"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('marketing') },
@@ -322,7 +321,7 @@ export function MailingView({ onNavigate }: Props) {
                   {['Variante A', 'Variante B'].map((v, i) => (
                     <div key={i} style={{ border: '1px solid #E5E7EB', borderRadius: '10px', padding: '16px' }}>
                       <p style={{ margin: '0 0 12px', fontWeight: '700', color: i === 0 ? '#3B82F6' : '#EC4899', fontSize: '0.85rem' }}>{v}</p>
-                      {[{ label: 'Asunto', ph: 'Ej: 🔥 Oferta especial para vos' }, { label: 'Nombre del remitente', ph: 'Ej: ODDY Market' }].map(({ label, ph }) => (
+                      {[{ label: 'Asunto', ph: 'Ej: 🔥 Oferta especial para vos' }, { label: 'Nombre del remitente', ph: 'Ej: Charlie Marketplace' }].map(({ label, ph }) => (
                         <div key={label} style={{ marginBottom: '12px' }}>
                           <label style={{ display: 'block', color: '#374151', fontSize: '0.78rem', fontWeight: '600', marginBottom: '4px' }}>{label}</label>
                           <input type="text" placeholder={ph} style={{ width: '100%', padding: '9px 12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '0.82rem', outline: 'none', boxSizing: 'border-box' }} />

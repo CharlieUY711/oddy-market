@@ -107,6 +107,7 @@ export function TransportistasView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Truck}
         title="Transportistas"
         subtitle={`${activos} carriers activos · ${totalEnviosActivos} envíos en curso`}
         actions={[

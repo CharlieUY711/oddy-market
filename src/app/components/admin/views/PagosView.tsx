@@ -115,6 +115,7 @@ export function PagosView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={DollarSign}
         title="Pagos & Transacciones"
         subtitle="Estado de pagos por pedido · vista operacional"
         actions={[

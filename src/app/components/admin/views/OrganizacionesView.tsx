@@ -148,6 +148,7 @@ export function OrganizacionesView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Building2}
         title="Organizaciones"
         subtitle="Empresas, cooperativas y entidades del sistema"
         actions={[{ label: '+ Nueva Organización', primary: true, onClick: openCreate }]}

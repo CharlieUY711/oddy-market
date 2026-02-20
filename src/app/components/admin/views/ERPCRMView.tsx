@@ -133,6 +133,7 @@ export function ERPCRMView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Users}
         title="CRM — Gestión de Clientes"
         subtitle="Contactos, pipeline de ventas y actividades del equipo"
         actions={[

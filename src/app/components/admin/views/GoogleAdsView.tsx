@@ -60,9 +60,8 @@ export function GoogleAdsView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <TrendingUp size={22} /> Google Ads Manager
-        </span>}
+        icon={TrendingUp}
+        title="Google Ads Manager"
         subtitle="Gestiona tus campañas publicitarias"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('marketing') },

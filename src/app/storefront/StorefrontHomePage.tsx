@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Home Page
+   Charlie Marketplace Builder — Home Page
    ===================================================== */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -349,7 +349,7 @@ export default function StorefrontHomePage() {
           <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.08)' }} />
           <div style={{ position: 'absolute', bottom: '-40px', left: '10%', width: '160px', height: '160px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)' }} />
           <div style={{ position: 'relative' }}>
-            <h2 style={{ color: '#fff', fontSize: 'clamp(22px, 4vw, 36px)', marginBottom: '12px' }}>¿Sos vendedor? Unite a Oddy Market</h2>
+            <h2 style={{ color: '#fff', fontSize: 'clamp(22px, 4vw, 36px)', marginBottom: '12px' }}>¿Sos vendedor? Unite a Charlie Marketplace</h2>
             <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '16px', marginBottom: '32px', maxWidth: '560px', margin: '0 auto 32px' }}>
               Más de 12.000 vendedores ya confían en nuestra plataforma. Comisiones mínimas, herramientas de marketing incluidas.
             </p>

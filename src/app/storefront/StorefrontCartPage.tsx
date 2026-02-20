@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Cart Page
+   Charlie Marketplace Builder — Cart Page
    ===================================================== */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -24,7 +24,7 @@ export default function StorefrontCartPage() {
   const toFreeShipping = Math.max(0, SHIPPING_THRESHOLD - subtotal);
 
   const handlePromo = () => {
-    if (promoCode.toUpperCase() === 'ODDY10') {
+    if (promoCode.toUpperCase() === 'CHARLIE10') {
       const d = Math.round(subtotal * 0.1);
       setPromoDiscount(d);
       setPromoApplied(true);
@@ -152,7 +152,7 @@ export default function StorefrontCartPage() {
             </div>
             {promoApplied && (
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#10B981', fontSize: '14px' }}>Descuento (ODDY10)</span>
+                <span style={{ color: '#10B981', fontSize: '14px' }}>Descuento (CHARLIE10)</span>
                 <span style={{ fontWeight: 600, fontSize: '14px', color: '#10B981' }}>-${discount.toFixed(2)}</span>
               </div>
             )}
@@ -185,7 +185,7 @@ export default function StorefrontCartPage() {
                 {promoApplied ? 'Aplicado' : 'Aplicar'}
               </button>
             </div>
-            {!promoApplied && <p style={{ fontSize: '11px', color: '#aaa', marginTop: '6px' }}>Probá con: <strong>ODDY10</strong></p>}
+            {!promoApplied && <p style={{ fontSize: '11px', color: '#aaa', marginTop: '6px' }}>Probá con: <strong>CHARLIE10</strong></p>}
           </div>
 
           {/* Total */}

@@ -151,6 +151,7 @@ export function MapaEnviosView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Navigation}
         title="Mapa de Envíos"
         subtitle={`${counts.en_transito} en tránsito · ${counts.en_reparto} en reparto · ${counts.entregado} entregados · ${counts.fallido} fallidos`}
         actions={[

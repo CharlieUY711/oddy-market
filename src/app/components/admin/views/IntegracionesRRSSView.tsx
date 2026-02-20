@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
 import { ExternalLink, Settings2, CheckCircle2, AlertCircle, Clock, Zap, ShoppingBag } from 'lucide-react';
+import { Smartphone } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
 const ORANGE = '#FF6835';
@@ -77,7 +78,8 @@ export function IntegracionesRRSSView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title="📱 Redes Sociales"
+        icon={Smartphone}
+        title="Redes Sociales"
         subtitle="Publicá tu catálogo en redes y vendé donde está tu audiencia"
         actions={[{ label: '← Integraciones', onClick: () => onNavigate('integraciones') }]}
       />

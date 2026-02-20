@@ -252,6 +252,7 @@ export function TrackingPublicoView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={MapPin}
         title="Tracking Público"
         subtitle="Seguimiento de envíos para destinatarios · Página pública de consulta"
         actions={[

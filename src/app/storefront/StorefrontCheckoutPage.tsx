@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Checkout (multi-step)
+   Charlie Marketplace Builder — Checkout (multi-step)
    ===================================================== */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -255,13 +255,13 @@ export default function StorefrontCheckoutPage() {
                 <div style={{ padding: '24px', backgroundColor: '#F9F5FF', borderRadius: '14px', border: '1.5px solid #D6BCFA' }}>
                   <div style={{ fontSize: '36px', marginBottom: '12px' }}>🏦</div>
                   <h4 style={{ color: '#44337A', marginBottom: '12px' }}>Datos para transferencia</h4>
-                  {[['Banco', 'BROU / Itaú / Santander'], ['Cuenta', '001-12345678-001'], ['RUT/CI', '21.345.678-9'], ['Titular', 'Oddy Market S.A.']].map(([k, v]) => (
+                  {[['Banco', 'BROU / Itaú / Santander'], ['Cuenta', '001-12345678-001'], ['RUT/CI', '21.345.678-9'], ['Titular', 'Charlie Marketplace S.A.']].map(([k, v]) => (
                     <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #E9D8FD' }}>
                       <span style={{ fontSize: '13px', color: '#6B46C1', fontWeight: 500 }}>{k}</span>
                       <span style={{ fontSize: '13px', color: '#44337A', fontWeight: 600 }}>{v}</span>
                     </div>
                   ))}
-                  <p style={{ fontSize: '12px', color: '#805AD5', marginTop: '12px' }}>🎁 5% de descuento por pago por transferencia. Enviá el comprobante a hola@oddy.market</p>
+                  <p style={{ fontSize: '12px', color: '#805AD5', marginTop: '12px' }}>🎁 5% de descuento por pago por transferencia. Enviá el comprobante a hola@charliemarketplace.com</p>
                 </div>
               )}
             </div>

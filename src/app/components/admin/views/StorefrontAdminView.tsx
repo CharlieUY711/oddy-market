@@ -5,7 +5,7 @@
 import React from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
-import { ExternalLink, ShoppingBag, Users, TrendingUp, Package, Eye, Star, ShoppingCart, ArrowRight } from 'lucide-react';
+import { ExternalLink, ShoppingBag, Users, TrendingUp, Package, Eye, Star, ShoppingCart, ArrowRight, Store } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
 
@@ -36,14 +36,14 @@ export function StorefrontAdminView({ onNavigate }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <OrangeHeader title="Portal del Cliente — Storefront" subtitle="Gestión y acceso al front-end público de Oddy Market" />
+      <OrangeHeader icon={Store} title="Portal del Cliente — Storefront" subtitle="Gestión y acceso al front-end público de Charlie Marketplace" />
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
         {/* CTA Hero */}
         <div style={{ background: `linear-gradient(135deg, ${ORANGE} 0%, #FF8C4A 100%)`, borderRadius: '20px', padding: '28px 32px', marginBottom: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', overflow: 'hidden', position: 'relative' }}>
           <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.08)' }} />
           <div>
-            <div style={{ color: '#fff', fontWeight: 800, fontSize: '22px', marginBottom: '6px' }}>Oddy Market Storefront</div>
+            <div style={{ color: '#fff', fontWeight: 800, fontSize: '22px', marginBottom: '6px' }}>Charlie Marketplace Storefront</div>
             <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px', marginBottom: 0 }}>
               Portal del cliente con navbar, catálogo, carrito, checkout y Second Hand. Accedé desde el botón de la derecha.
             </p>

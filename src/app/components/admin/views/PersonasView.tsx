@@ -158,6 +158,7 @@ export function PersonasView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={User}
         title="Base de Personas"
         subtitle="Personas naturales y jurídicas del sistema"
         actions={[{ label: '+ Nueva Persona', primary: true, onClick: openCreate }]}

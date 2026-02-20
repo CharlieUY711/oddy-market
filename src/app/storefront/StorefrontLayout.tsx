@@ -59,7 +59,7 @@ function NavbarInner() {
     <header style={{ position: 'sticky', top: 0, zIndex: 100, backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
       {/* Top announcement bar */}
       <div style={{ backgroundColor: ORANGE, color: '#fff', textAlign: 'center', padding: '6px 16px', fontSize: '13px' }}>
-        🚀 Envío gratis en compras mayores a $150 · <strong>Código: ODDY10</strong> para 10% OFF en tu primera compra
+        🚀 Envío gratis en compras mayores a $150 · <strong>Código: CHARLIE10</strong> para 10% OFF en tu primera compra
       </div>
 
       {/* Main navbar */}
@@ -79,8 +79,8 @@ function NavbarInner() {
             <span style={{ color: '#fff', fontWeight: 700, fontSize: '18px' }}>O</span>
           </div>
           <div>
-            <div style={{ color: '#111', fontWeight: 700, fontSize: '17px', lineHeight: 1.1 }}>Oddy</div>
-            <div style={{ color: ORANGE, fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', lineHeight: 1 }}>MARKET</div>
+            <div style={{ color: '#111', fontWeight: 700, fontSize: '17px', lineHeight: 1.1 }}>Charlie</div>
+            <div style={{ color: ORANGE, fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', lineHeight: 1 }}>MARKETPLACE</div>
           </div>
         </Link>
 
@@ -157,7 +157,7 @@ function NavbarInner() {
               <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', width: '220px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid #f0f0f0', overflow: 'hidden', zIndex: 200 }}>
                 <div style={{ padding: '12px 16px', borderBottom: '1px solid #f5f5f5', backgroundColor: '#FFFAF8' }}>
                   <div style={{ fontWeight: 600, fontSize: '14px', color: '#111' }}>Usuario Demo</div>
-                  <div style={{ fontSize: '12px', color: '#888' }}>usuario@oddy.market</div>
+                  <div style={{ fontSize: '12px', color: '#888' }}>usuario@charliemarketplace.com</div>
                 </div>
                 {[
                   { icon: User, label: 'Mi Perfil', to: '/account' },
@@ -255,7 +255,7 @@ function Footer() {
                 <span style={{ color: '#fff', fontWeight: 700, fontSize: '18px' }}>O</span>
               </div>
               <div>
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: '17px', lineHeight: 1.1 }}>Oddy Market</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: '17px', lineHeight: 1.1 }}>Charlie Marketplace</div>
                 <div style={{ color: ORANGE, fontSize: '11px', fontWeight: 600 }}>MARKETPLACE</div>
               </div>
             </div>
@@ -307,7 +307,7 @@ function Footer() {
             {[
               { icon: MapPin, text: 'Montevideo, Uruguay' },
               { icon: Phone, text: '+598 99 000 000' },
-              { icon: Mail, text: 'hola@oddy.market' },
+              { icon: Mail, text: 'hola@charliemarketplace.com' },
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#999', fontSize: '13px' }}>
                 <item.icon size={14} color={ORANGE} />
@@ -327,7 +327,7 @@ function Footer() {
 
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid #222', paddingTop: '24px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-          <p style={{ fontSize: '12px', color: '#666' }}>© 2026 Oddy Market — Charlie Marketplace Builder v1.5. Todos los derechos reservados.</p>
+          <p style={{ fontSize: '12px', color: '#666' }}>© 2026 Charlie Marketplace Builder v1.5. Todos los derechos reservados.</p>
           <div style={{ display: 'flex', gap: '16px' }}>
             {['Términos', 'Privacidad', 'Cookies'].map(l => (
               <Link key={l} to="/" style={{ fontSize: '12px', color: '#666', textDecoration: 'none' }}

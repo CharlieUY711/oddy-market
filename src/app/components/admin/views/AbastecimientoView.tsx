@@ -100,6 +100,7 @@ export function AbastecimientoView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={ShoppingCart}
         title="Abastecimiento"
         subtitle={`${criticos} alertas críticas · ${bajos} alertas bajas · OCs sugeridas: $${valorOCSugeridas.toLocaleString('es-AR')}`}
         actions={[

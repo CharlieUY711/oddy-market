@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Second Hand Browse
+   Charlie Marketplace Builder — Second Hand Browse
    ===================================================== */
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';

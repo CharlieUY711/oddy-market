@@ -9,6 +9,7 @@ import {
   FolderOpen, Kanban, Plus, Calendar, Users, CheckCircle2,
   Clock, AlertCircle, MoreHorizontal, Flag, Target,
   TrendingUp, Paperclip, MessageSquare, ChevronRight,
+  FolderKanban,
 } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
@@ -134,6 +135,7 @@ export function ProyectosView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={FolderKanban}
         title="Proyectos y Tareas"
         subtitle="Gestión de proyectos, hitos y tablero Kanban del equipo"
         actions={[

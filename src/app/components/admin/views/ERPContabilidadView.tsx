@@ -107,6 +107,7 @@ export function ERPContabilidadView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={BookOpen}
         title="Contabilidad"
         subtitle="Plan de cuentas, asientos contables, AR/AP y conciliación bancaria"
         actions={[

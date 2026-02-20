@@ -3,11 +3,12 @@
    Respalda, elimina y rebrandea tu presencia social
    ===================================================== */
 import React, { useState } from 'react';
+import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
 import {
   Download, Trash2, RefreshCw, Settings, Copy, Eye, EyeOff,
   ExternalLink, AlertTriangle, CheckCircle2, Upload, Info,
-  ChevronLeft, Check,
+  ChevronLeft, Check, ArrowLeftRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -79,22 +80,15 @@ export function MigracionRRSSView({ onNavigate }: Props) {
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: '#F8F9FA' }}>
-      {/* Header naranja del sistema */}
-      <div style={{ backgroundColor: '#FF6835', padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-        <div>
-          <h2 style={{ color: '#fff', margin: 0, fontWeight: 700, fontSize: '18px' }}>Migración de Redes Sociales</h2>
-          <p style={{ color: 'rgba(255,255,255,0.85)', margin: '2px 0 0', fontSize: '13px' }}>Respalda, elimina y rebrandea tu presencia en Facebook e Instagram</p>
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={() => onNavigate('marketing')}
-            style={{ padding: '8px 16px', backgroundColor: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-            Volver
-          </button>
-          <button style={{ padding: '8px 16px', backgroundColor: '#fff', color: '#FF6835', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
-            Ver Historial
-          </button>
-        </div>
-      </div>
+      <OrangeHeader
+        icon={ArrowLeftRight}
+        title="Migración de Redes Sociales"
+        subtitle="Respalda, eliminá y rebrandeá tu presencia en Facebook e Instagram"
+        actions={[
+          { label: 'Volver', onClick: () => onNavigate('marketing') },
+          { label: 'Ver Historial', primary: true },
+        ]}
+      />
 
       {/* Platform selector */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '32px 28px' }}>
@@ -527,7 +521,7 @@ function TabDelete({ cfg }: { cfg: PlatformConfig }) {
 function TabRebrand({ cfg, platform }: { cfg: PlatformConfig; platform: Platform }) {
   const isIG = platform === 'instagram';
   const [bio, setBio] = useState('');
-  const [website, setWebsite] = useState('https://oddymarket.com');
+  const [website, setWebsite] = useState('https://charliemarketplace.com');
   const [saving, setSaving] = useState(false);
 
   const handleSave = () => {
@@ -568,8 +562,8 @@ function TabRebrand({ cfg, platform }: { cfg: PlatformConfig; platform: Platform
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Read-only fields */}
           {[
-            { label: isIG ? 'Username (Solo lectura - cambiar en Instagram)' : 'Nombre de Página (Solo lectura)', placeholder: isIG ? '@oddymarket' : 'Oddy Market', editable: false },
-            { label: isIG ? 'Nombre (Solo lectura - cambiar en Instagram)' : 'Username (Solo lectura)', placeholder: isIG ? 'ODDY Market' : '@oddymarket', editable: false },
+            { label: isIG ? 'Username (Solo lectura - cambiar en Instagram)' : 'Nombre de Página (Solo lectura)', placeholder: isIG ? '@charliemarketplace' : 'Charlie Marketplace', editable: false },
+            { label: isIG ? 'Nombre (Solo lectura - cambiar en Instagram)' : 'Username (Solo lectura)', placeholder: isIG ? 'Charlie Marketplace' : '@charliemarketplace', editable: false },
           ].map(f => (
             <div key={f.label}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#9CA3AF', marginBottom: '6px' }}>{f.label}</label>
@@ -596,7 +590,7 @@ function TabRebrand({ cfg, platform }: { cfg: PlatformConfig; platform: Platform
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#333', marginBottom: '6px' }}>
               Sitio Web <CheckCircle2 size={14} color="#10B981" />
             </label>
-            <input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://oddymarket.com"
+            <input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://charliemarketplace.com"
               style={{ width: '100%', border: '1.5px solid #E0E0E0', borderRadius: '10px', padding: '11px 14px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', backgroundColor: '#FAFAFA' }}
               onFocus={e => (e.target.style.borderColor = cfg.accent)}
               onBlur={e => (e.target.style.borderColor = '#E0E0E0')} />

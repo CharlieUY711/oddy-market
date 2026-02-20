@@ -127,6 +127,7 @@ export function RutasView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Map}
         title="Rutas de Distribución"
         subtitle={`${RUTAS.filter(r=>r.estado==='activa').length} rutas activas · ${totalEnviosActivos} envíos planificados`}
         actions={[

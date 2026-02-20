@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
 import { ExternalLink, Settings2, CheckCircle2, AlertCircle, Clock, Zap, RefreshCw, Package } from 'lucide-react';
+import { Store } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
 const ORANGE = '#FF6835';
@@ -94,7 +95,8 @@ export function IntegracionesTiendasView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title="🏪 Tiendas"
+        icon={Store}
+        title="Tiendas"
         subtitle="Sincronizá tu catálogo con marketplaces y plataformas de eCommerce"
         actions={[{ label: '← Integraciones', onClick: () => onNavigate('integraciones') }]}
       />

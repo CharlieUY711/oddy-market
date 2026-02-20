@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Publicar Artículo Second Hand (multi-step)
+   Charlie Marketplace Builder — Publicar Artículo Second Hand (multi-step)
    ===================================================== */
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -382,7 +382,7 @@ export default function StorefrontPublishPage() {
               </div>
               <div>
                 <p style={{ fontSize: '13px', fontWeight: 600, color: '#333', marginBottom: '2px' }}>Acepto los Términos y Condiciones</p>
-                <p style={{ fontSize: '12px', color: '#888' }}>Confirmo que el artículo es de mi propiedad, la descripción es veraz y acepto las <a href="#" style={{ color: ORANGE }}>políticas de Second Hand</a> de Oddy Market.</p>
+                <p style={{ fontSize: '12px', color: '#888' }}>Confirmo que el artículo es de mi propiedad, la descripción es veraz y acepto las <a href="#" style={{ color: ORANGE }}>políticas de Second Hand</a> de Charlie Marketplace.</p>
               </div>
             </label>
           </div>

@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Router Config (React Router v7)
+   Charlie Marketplace Builder — Router Config (React Router v7)
    ===================================================== */
 import { createBrowserRouter } from 'react-router';
 import StorefrontLayout        from './storefront/StorefrontLayout';

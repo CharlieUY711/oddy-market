@@ -506,6 +506,41 @@ export const MODULE_MANIFEST: ManifestEntry[] = [
     isReal: true,
     notes: '⚙️ Servicios — Twilio, Resend, SendGrid, GA4, GTM, Zapier, n8n',
   },
+  // ══════════════════════════════════════════════════════
+  // AUDITORÍA & DIAGNÓSTICO
+  // ══════════════════════════════════════════════════════
+  {
+    checklistIds: ['audit-hub'],
+    section: 'auditoria',
+    viewFile: 'AuditoriaHubView.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: '🔍 Hub Auditoría — métricas de estado, diagnóstico rápido y acceso a todas las herramientas',
+  },
+  {
+    checklistIds: ['audit-health'],
+    section: 'auditoria-health',
+    viewFile: 'HealthMonitorView.tsx',
+    isReal: true,
+    hasSupabase: true,
+    notes: '💚 Health Monitor — verifica en tiempo real Supabase DB/Auth/Edge/KV/Storage + APIs externas',
+  },
+  {
+    checklistIds: ['audit-logs'],
+    section: 'auditoria-logs',
+    viewFile: 'SystemLogsView.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: '📜 Logs del Sistema — registro de actividad, errores y eventos con filtros y export TXT',
+  },
+  {
+    checklistIds: ['audit-apis-repo'],
+    section: 'integraciones-apis',
+    viewFile: 'RepositorioAPIsView.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: '📡 Repositorio centralizado — 23 APIs con estado, credenciales, docs y test de conexión',
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

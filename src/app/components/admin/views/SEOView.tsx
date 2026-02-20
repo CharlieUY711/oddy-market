@@ -64,7 +64,7 @@ const KEYWORDS: Keyword[] = [
 ];
 
 const PAGINAS: PaginaSEO[] = [
-  { id: 'p1', titulo: 'Tienda de Ropa Online | ODDY Market', url: '/tienda/ropa', score: 88, problemas: [], keywords: ['ropa online', 'moda argentina'], traficoOrganico: 2840, posicionPromedio: 4.2 },
+  { id: 'p1', titulo: 'Tienda de Ropa Online | Charlie Marketplace', url: '/tienda/ropa', score: 88, problemas: [], keywords: ['ropa online', 'moda argentina'], traficoOrganico: 2840, posicionPromedio: 4.2 },
   { id: 'p2', titulo: 'Compra al Por Mayor | Mayorista', url: '/mayorista', score: 76, problemas: ['Meta description muy corta', 'Faltan keywords en H2'], keywords: ['ropa mayorista', 'comprar al por mayor'], traficoOrganico: 1890, posicionPromedio: 2.8 },
   { id: 'p3', titulo: 'Segunda Mano — Artículos Usados', url: '/segunda-mano', score: 61, problemas: ['Velocidad de carga alta (4.2s)', 'Falta schema markup', 'Imágenes sin alt text'], keywords: ['segunda mano', 'artículos usados'], traficoOrganico: 780, posicionPromedio: 11.3 },
   { id: 'p4', titulo: 'Indumentaria de Trabajo y Seguridad', url: '/trabajo', score: 94, problemas: [], keywords: ['ropa de trabajo', 'indumentaria industrial'], traficoOrganico: 3120, posicionPromedio: 1.4 },
@@ -124,6 +124,7 @@ export function SEOView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Search}
         title="SEO"
         subtitle={`${KEYWORDS.length} keywords monitoreadas · ${totalClics.toLocaleString()} clics/mes · CTR promedio ${avgCtr}%`}
         actions={[

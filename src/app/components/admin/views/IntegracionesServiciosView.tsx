@@ -136,7 +136,8 @@ export function IntegracionesServiciosView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title="⚙️ Servicios"
+        icon={Settings2}
+        title="Servicios"
         subtitle="Comunicaciones, analytics y automatizaciones transversales"
         actions={[{ label: '← Integraciones', onClick: () => onNavigate('integraciones') }]}
       />

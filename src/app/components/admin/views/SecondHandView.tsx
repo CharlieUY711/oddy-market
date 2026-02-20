@@ -399,7 +399,8 @@ export function SecondHandView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>♻️ Second Hand</span>}
+        icon={RefreshCw}
+        title="Second Hand"
         subtitle="Marketplace de artículos usados — Moderación, estadísticas y mediación de disputas"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('gestion') },

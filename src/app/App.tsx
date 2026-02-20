@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market / Charlie Marketplace Builder v1.5
+   Charlie Marketplace Builder v1.5
    App Root — React Router v7 Data Mode
    ===================================================== */
 import { RouterProvider } from 'react-router';

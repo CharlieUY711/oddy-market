@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Storefront Mock Data
+   Charlie Marketplace Builder — Storefront Mock Data
    ===================================================== */
 
 export interface Product {

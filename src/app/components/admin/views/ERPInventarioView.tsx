@@ -71,7 +71,8 @@ export function ERPInventarioView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Package size={20} /> Catálogo de Artículos</span>}
+        icon={Package}
+        title="Catálogo de Artículos"
         subtitle="Gestión de productos, stock y movimientos — ERP"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('gestion') },

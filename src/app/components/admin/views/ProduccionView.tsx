@@ -134,6 +134,7 @@ export function ProduccionView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Package}
         title="Producción / Armado"
         subtitle={`${pendientes} órdenes pendientes · ${enProceso} en proceso · ${sinStock > 0 ? `⚠ ${sinStock} componentes sin stock` : 'Stock OK'}`}
         actions={[

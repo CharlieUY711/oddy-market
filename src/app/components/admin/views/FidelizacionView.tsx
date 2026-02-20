@@ -67,9 +67,8 @@ export function FidelizacionView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Star size={22} /> Programa de Fidelización
-        </span>}
+        icon={Star}
+        title="Programa de Fidelización"
         subtitle="Recompensa a tus clientes más leales"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('marketing') },

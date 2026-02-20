@@ -194,10 +194,9 @@ export function RuedaSorteosView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <RefreshCw size={20} /> Rueda de Sorteos Integrada
-        </span>}
-        subtitle="Stock, carrito, email, WhatsApp y redes sociales"
+        icon={RefreshCw}
+        title="Rueda de Sorteos Integrada"
+        subtitle="Sorteos interactivos para campañas y eventos"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('marketing') },
           { label: '+ Nueva Rueda', primary: true },

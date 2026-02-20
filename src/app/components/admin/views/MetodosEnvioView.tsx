@@ -123,6 +123,7 @@ export function MetodosEnvioView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Truck}
         title="Métodos de Envío"
         subtitle="Zonas, tarifas y opciones de entrega disponibles"
         actions={[{ label: '+ Nuevo Método', primary: true, onClick: openNew }]}

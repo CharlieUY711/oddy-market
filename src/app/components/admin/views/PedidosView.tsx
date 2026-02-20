@@ -254,6 +254,7 @@ export function PedidosView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={ShoppingCart}
         title="Pedidos"
         subtitle="Gestión de órdenes, estados y pagos"
         actions={[{ label: '+ Nuevo Pedido', primary: true, onClick: () => { fetchOptions(); setForm(emptyForm()); setShowNew(true); } }]}

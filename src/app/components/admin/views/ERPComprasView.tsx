@@ -68,7 +68,8 @@ export function ERPComprasView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><ClipboardList size={20} /> Compras y Proveedores</span>}
+        icon={ClipboardList}
+        title="Compras y Proveedores"
         subtitle="Órdenes de compra, recepción y gestión de proveedores — ERP"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('gestion') },

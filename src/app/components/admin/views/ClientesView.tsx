@@ -187,6 +187,7 @@ export function ClientesView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={ShoppingBag}
         title="Clientes"
         subtitle="Personas y organizaciones con rol de cliente en el sistema"
         actions={[{ label: '+ Registrar Cliente', primary: true, onClick: openModal }]}

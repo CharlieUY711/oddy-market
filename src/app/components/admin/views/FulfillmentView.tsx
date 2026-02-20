@@ -117,6 +117,7 @@ export function FulfillmentView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={Layers}
         title="Fulfillment / Picking"
         subtitle={`${stats.pendientes} pendientes · ${stats.en_picking} en picking · ${stats.listo_empacar} listos para empacar`}
         actions={[

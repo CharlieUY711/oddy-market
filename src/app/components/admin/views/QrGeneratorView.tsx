@@ -90,6 +90,7 @@ export function QrGeneratorView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={QrCode}
         title="Generador de QR"
         subtitle="Genera códigos QR internamente — sin APIs externas, sin límites"
         actions={onNavigate ? [{ label: '← Herramientas', onClick: () => onNavigate('herramientas') }] : []}

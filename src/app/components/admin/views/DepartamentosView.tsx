@@ -6,6 +6,8 @@ import {
   RefreshCw, Download, Zap, ShieldCheck, UserCog,
 } from 'lucide-react';
 
+import { FolderTree } from 'lucide-react';
+
 interface Props { onNavigate: (section: MainSection) => void; }
 
 const ORANGE = '#FF6835';
@@ -228,6 +230,7 @@ export function DepartamentosView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={FolderTree}
         title="Departamentos y Categorías"
         subtitle="Gestión de departamentos, categorías y subcategorías"
         actions={[

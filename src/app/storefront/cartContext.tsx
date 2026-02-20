@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Cart Context (localStorage persisted)
+   Charlie Marketplace Builder — Cart Context (localStorage persisted)
    ===================================================== */
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
@@ -58,13 +58,13 @@ const CartContext = createContext<CartCtx | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { items: [] }, (init) => {
     try {
-      const s = localStorage.getItem('oddy-cart');
+      const s = localStorage.getItem('charlie-cart');
       return s ? (JSON.parse(s) as CartState) : init;
     } catch { return init; }
   });
 
   useEffect(() => {
-    localStorage.setItem('oddy-cart', JSON.stringify(state));
+    localStorage.setItem('charlie-cart', JSON.stringify(state));
   }, [state]);
 
   const ctx: CartCtx = {

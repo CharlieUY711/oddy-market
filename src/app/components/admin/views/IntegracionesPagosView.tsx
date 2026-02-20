@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
-import { ExternalLink, Settings2, CheckCircle2, AlertCircle, Clock, Zap, Star } from 'lucide-react';
+import { ExternalLink, Settings2, CheckCircle2, AlertCircle, Clock, Zap, Star, CreditCard } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
 
@@ -116,7 +116,8 @@ export function IntegracionesPagosView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title="💳 Pasarela de Pagos"
+        icon={CreditCard}
+        title="Pasarela de Pagos"
         subtitle="Cobros online — Uruguay first, expansión Latam progresiva"
         actions={[{ label: '← Integraciones', onClick: () => onNavigate('integraciones') }]}
       />

@@ -10,20 +10,21 @@ import {
   CircleMinus, Plus, Download, Phone, Mail, MapPin,
   Star, Award, TrendingUp, Calendar,
 } from 'lucide-react';
+import { UserCheck } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
 type Tab = 'empleados' | 'asistencia' | 'nomina';
 
 /* ── Mock data ─────────────────────────────────────── */
 const EMPLOYEES = [
-  { id: 1, name: 'Carlos Varalla',     role: 'CEO & Founder',      dept: 'Dirección',   phone: '+598 99 000 001', email: 'cv@oddy.com',      salary: 120_000, status: 'activo',    joined: 'Ene 2020', performance: 98, avatar: 'CV' },
-  { id: 2, name: 'Ana Martínez',       role: 'Jefa de Ventas',     dept: 'Ventas',      phone: '+598 99 111 222', email: 'am@oddy.com',      salary: 85_000,  status: 'activo',    joined: 'Mar 2021', performance: 94, avatar: 'AM' },
-  { id: 3, name: 'Luis Pérez',         role: 'Dev Lead',           dept: 'Tecnología',  phone: '+598 98 222 333', email: 'lp@oddy.com',      salary: 95_000,  status: 'activo',    joined: 'Jun 2021', performance: 91, avatar: 'LP' },
-  { id: 4, name: 'Sofía Ramírez',      role: 'Community Manager',  dept: 'Marketing',   phone: '+598 99 333 444', email: 'sr@oddy.com',      salary: 55_000,  status: 'activo',    joined: 'Ago 2022', performance: 88, avatar: 'SR' },
-  { id: 5, name: 'Pablo Núñez',        role: 'Logístico Senior',   dept: 'Logística',   phone: '+598 98 444 555', email: 'pn@oddy.com',      salary: 62_000,  status: 'licencia',  joined: 'Feb 2022', performance: 85, avatar: 'PN' },
-  { id: 6, name: 'Gabriela Torres',    role: 'Contadora',          dept: 'Finanzas',    phone: '+598 99 555 666', email: 'gt@oddy.com',      salary: 75_000,  status: 'activo',    joined: 'Nov 2021', performance: 92, avatar: 'GT' },
-  { id: 7, name: 'Federico Alves',     role: 'Soporte Técnico',    dept: 'Tecnología',  phone: '+598 98 666 777', email: 'fa@oddy.com',      salary: 48_000,  status: 'activo',    joined: 'Abr 2023', performance: 80, avatar: 'FA' },
-  { id: 8, name: 'Romina Sosa',        role: 'Asistente RRHH',     dept: 'RRHH',        phone: '+598 99 777 888', email: 'rs@oddy.com',      salary: 50_000,  status: 'activo',    joined: 'Jul 2023', performance: 87, avatar: 'RS' },
+  { id: 1, name: 'Carlos Varalla',     role: 'CEO & Founder',      dept: 'Dirección',   phone: '+598 99 000 001', email: 'cv@charlie.com',      salary: 120_000, status: 'activo',    joined: 'Ene 2020', performance: 98, avatar: 'CV' },
+  { id: 2, name: 'Ana Martínez',       role: 'Jefa de Ventas',     dept: 'Ventas',      phone: '+598 99 111 222', email: 'am@charlie.com',      salary: 85_000,  status: 'activo',    joined: 'Mar 2021', performance: 94, avatar: 'AM' },
+  { id: 3, name: 'Luis Pérez',         role: 'Dev Lead',           dept: 'Tecnología',  phone: '+598 98 222 333', email: 'lp@charlie.com',      salary: 95_000,  status: 'activo',    joined: 'Jun 2021', performance: 91, avatar: 'LP' },
+  { id: 4, name: 'Sofía Ramírez',      role: 'Community Manager',  dept: 'Marketing',   phone: '+598 99 333 444', email: 'sr@charlie.com',      salary: 55_000,  status: 'activo',    joined: 'Ago 2022', performance: 88, avatar: 'SR' },
+  { id: 5, name: 'Pablo Núñez',        role: 'Logístico Senior',   dept: 'Logística',   phone: '+598 98 444 555', email: 'pn@charlie.com',      salary: 62_000,  status: 'licencia',  joined: 'Feb 2022', performance: 85, avatar: 'PN' },
+  { id: 6, name: 'Gabriela Torres',    role: 'Contadora',          dept: 'Finanzas',    phone: '+598 99 555 666', email: 'gt@charlie.com',      salary: 75_000,  status: 'activo',    joined: 'Nov 2021', performance: 92, avatar: 'GT' },
+  { id: 7, name: 'Federico Alves',     role: 'Soporte Técnico',    dept: 'Tecnología',  phone: '+598 98 666 777', email: 'fa@charlie.com',      salary: 48_000,  status: 'activo',    joined: 'Abr 2023', performance: 80, avatar: 'FA' },
+  { id: 8, name: 'Romina Sosa',        role: 'Asistente RRHH',     dept: 'RRHH',        phone: '+598 99 777 888', email: 'rs@charlie.com',      salary: 50_000,  status: 'activo',    joined: 'Jul 2023', performance: 87, avatar: 'RS' },
 ];
 
 const DEPTS = ['Todos', 'Dirección', 'Ventas', 'Tecnología', 'Marketing', 'Logística', 'Finanzas', 'RRHH'];
@@ -87,6 +88,7 @@ export function ERPRRHHView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={UserCheck}
         title="Recursos Humanos"
         subtitle="Gestión de empleados, asistencia y liquidación de nómina"
         actions={[

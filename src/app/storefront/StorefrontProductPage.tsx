@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Product Detail Page
+   Charlie Marketplace Builder — Product Detail Page
    ===================================================== */
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
@@ -23,7 +23,7 @@ function StarRating({ rating, size = 16 }: { rating: number; size?: number }) {
 const MOCK_REVIEWS = [
   { id: 1, user: 'María G.', avatar: 'M', rating: 5, date: '2026-02-10', text: 'Excelente producto, llegó en perfectas condiciones y mucho más rápido de lo esperado. 100% recomendado.' },
   { id: 2, user: 'Carlos M.', avatar: 'C', rating: 4, date: '2026-02-05', text: 'Muy buena calidad, el color es exactamente como en las fotos. Solo bajé 1 estrella porque el packaging podría ser mejor.' },
-  { id: 3, user: 'Ana L.', avatar: 'A', rating: 5, date: '2026-01-28', text: 'Segunda vez que compro en Oddy Market, siempre conforme. El producto supera las expectativas.' },
+  { id: 3, user: 'Ana L.', avatar: 'A', rating: 5, date: '2026-01-28', text: 'Segunda vez que compro en Charlie Marketplace, siempre conforme. El producto supera las expectativas.' },
 ];
 
 export default function StorefrontProductPage() {
@@ -249,7 +249,7 @@ export default function StorefrontProductPage() {
           <div style={{ backgroundColor: '#F9F9F9', borderRadius: '14px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {[
               { icon: Truck, text: 'Envío gratis en compras mayores a $150' },
-              { icon: Shield, text: 'Compra protegida — Garantía Oddy Market' },
+              { icon: Shield, text: 'Compra protegida — Garantía Charlie Marketplace' },
               { icon: RotateCcw, text: 'Devoluciones gratuitas hasta 30 días' },
               { icon: Check, text: 'Vendedor verificado · 98% de satisfacción' },
             ].map((g, i) => (

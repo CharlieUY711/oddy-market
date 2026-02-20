@@ -67,7 +67,8 @@ export function ERPFacturacionView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Receipt size={20} /> Facturación</span>}
+        icon={Receipt}
+        title="Facturación"
         subtitle="Emisión de facturas, tickets y notas de crédito — ERP"
         actions={[
           { label: 'Volver', onClick: () => onNavigate('gestion') },

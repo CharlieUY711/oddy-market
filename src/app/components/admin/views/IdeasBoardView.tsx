@@ -37,6 +37,7 @@ import {
 import { MANIFEST_BY_SECTION } from '../../../utils/moduleManifest';
 import type { MainSection } from '../../../AdminDashboard';
 import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { OrangeHeader } from '../OrangeHeader';
 
 const API = `https://${projectId}.supabase.co/functions/v1/make-server-75638143/ideas`;
 const HEADERS = { 'Content-Type': 'application/json', Authorization: `Bearer ${publicAnonKey}` };
@@ -100,7 +101,7 @@ const FAMILIES = [
     ],
   },
   {
-    id: 'gestion', label: 'Gestión ERP', emoji: '🗃️', color: '#6B7280',
+    id: 'gestion', label: 'Gestión', emoji: '🗃️', color: '#6B7280',
     modules: [
       { id: 'gestion', label: 'Resumen ERP' },
       { id: 'erp-inventario', label: 'Inventario' },
@@ -1364,7 +1365,7 @@ export function IdeasBoardView({ onNavigate }: Props) {
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8F9FA' }}>
         <div style={{ textAlign: 'center' }}>
           <RefreshCw size={32} color={ORANGE} style={{ animation: 'spin 1s linear infinite' }} />
-          <p style={{ color: '#6B7280', marginTop: 12, fontSize: '0.875rem' }}>Cargando Ideas Board…</p>
+          <p style={{ color: '#6B7280', marginTop: 12, fontSize: '0.875rem' }}>Cargando Registro de Ideas…</p>
         </div>
       </div>
     );
@@ -1373,39 +1374,17 @@ export function IdeasBoardView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <header style={{
-        backgroundColor: ORANGE,
-        padding: '0 28px',
-        height: 72,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexShrink: 0,
-      }}>
-        <div>
-          <h1 style={{ color: '#FFFFFF', margin: 0, fontSize: '1.3rem', fontWeight: '800', lineHeight: 1.2 }}>
-            💡 Ideas Board
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.82)', margin: '3px 0 0', fontSize: '0.8rem' }}>
-            Canvas visual de módulos e ideas — {canvases.length} canvas{canvases.length !== 1 ? 'es' : ''}
-          </p>
-        </div>
-        <button
-          onClick={() => onNavigate('herramientas')}
-          style={{
-            padding: '8px 18px',
-            borderRadius: 8,
-            border: '1.5px solid rgba(255,255,255,0.5)',
-            backgroundColor: 'transparent',
-            color: '#fff',
-            fontSize: '0.82rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-          }}
-        >
-          ← Herramientas
-        </button>
-      </header>
+      <OrangeHeader
+        icon={Lightbulb}
+        title="Registro de Ideas"
+        subtitle={`Canvas visual de módulos e ideas — ${canvases.length} canvas${canvases.length !== 1 ? 'es' : ''}`}
+        actions={[
+          {
+            label: '← Herramientas',
+            onClick: () => onNavigate('herramientas'),
+          },
+        ]}
+      />
 
       {/* Board */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>

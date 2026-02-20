@@ -80,7 +80,8 @@ export function RedesSocialesView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Share2 size={20} /> Redes Sociales</span>}
+        icon={Share2}
+        title="Redes Sociales"
         subtitle="Gestión y administración"
         actions={[
           { label: '← Volver', onClick: () => onNavigate('marketing') },

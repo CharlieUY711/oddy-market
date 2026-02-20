@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market / Charlie Marketplace Builder v1.5
+   Charlie Marketplace Builder v1.5
    AdminDashboard — Shell Principal
    ===================================================== */
 
@@ -11,6 +11,7 @@ import { MarketingView }      from './components/admin/views/MarketingView';
 import { HerramientasView }   from './components/admin/views/HerramientasView';
 import { QrGeneratorView }    from './components/admin/views/QrGeneratorView';
 import { GestionView }        from './components/admin/views/GestionView';
+import { POSView }            from './components/admin/views/POSView';
 import { SistemaView }        from './components/admin/views/SistemaView';
 import { DisenoView }         from './components/admin/views/DisenoView';
 import { ChecklistView }      from './components/admin/views/ChecklistView';
@@ -57,13 +58,19 @@ import { IntegracionesLogisticaView }  from './components/admin/views/Integracio
 import { IntegracionesTiendasView }    from './components/admin/views/IntegracionesTiendasView';
 import { IntegracionesRRSSView }       from './components/admin/views/IntegracionesRRSSView';
 import { IntegracionesServiciosView }  from './components/admin/views/IntegracionesServiciosView';
-// ── Workspace Suite (6 herramientas) ──────────────────────────────────────
+// ── Workspace Suite (6 herramientas) ──────────────────────────────────────────
 import { BibliotecaWorkspace }         from './components/admin/views/BibliotecaWorkspace';
 import { EditorImagenesWorkspace }     from './components/admin/views/EditorImagenesWorkspace';
 import { GenDocumentosWorkspace }      from './components/admin/views/GenDocumentosWorkspace';
 import { GenPresupuestosWorkspace }    from './components/admin/views/GenPresupuestosWorkspace';
 import { OCRWorkspace }                from './components/admin/views/OCRWorkspace';
 import { ImpresionWorkspace }          from './components/admin/views/ImpresionWorkspace';
+// ── Auditoría & Diagnóstico ───────────────────────────────────────────────────
+import { AuditoriaHubView }            from './components/admin/views/AuditoriaHubView';
+import { HealthMonitorView }           from './components/admin/views/HealthMonitorView';
+import { SystemLogsView }              from './components/admin/views/SystemLogsView';
+// ── Repositorio de APIs ───────────────────────────────────────────────────────
+import { RepositorioAPIsView }         from './components/admin/views/RepositorioAPIsView';
 import { Toaster } from 'sonner';
 
 export type MainSection =
@@ -73,6 +80,7 @@ export type MainSection =
   | 'herramientas'
   | 'qr-generator'
   | 'gestion'
+  | 'pos'
   | 'sistema'
   | 'diseno'
   | 'checklist'
@@ -119,13 +127,19 @@ export type MainSection =
   | 'integraciones-tiendas'
   | 'integraciones-rrss'
   | 'integraciones-servicios'
-  // ── Workspace Suite ──────────────────────────────────────
+  // ── Workspace Suite ──────────────────────────────────────────────────────────
   | 'biblioteca'
   | 'editor-imagenes'
   | 'gen-documentos'
   | 'gen-presupuestos'
   | 'ocr'
-  | 'impresion';
+  | 'impresion'
+  // ── Auditoría & Diagnóstico ───────────────────────────────────────────────────
+  | 'auditoria'
+  | 'auditoria-health'
+  | 'auditoria-logs'
+  // ── Repositorio de APIs ───────────────────────────────────────────────────────
+  | 'integraciones-apis';
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<MainSection>('dashboard');
@@ -143,6 +157,7 @@ export default function AdminDashboard() {
           {activeSection === 'herramientas'    && <HerramientasView   onNavigate={nav} />}
           {activeSection === 'qr-generator'    && <QrGeneratorView    onNavigate={nav} />}
           {activeSection === 'gestion'         && <GestionView        onNavigate={nav} />}
+          {activeSection === 'pos'             && <POSView            onNavigate={nav} />}
           {activeSection === 'sistema'         && <SistemaView        onNavigate={nav} />}
           {activeSection === 'diseno'          && <DisenoView         onNavigate={nav} />}
           {activeSection === 'checklist'       && <ChecklistView      onNavigate={nav} />}
@@ -196,6 +211,12 @@ export default function AdminDashboard() {
           {activeSection === 'gen-presupuestos'        && <GenPresupuestosWorkspace   onNavigate={nav} />}
           {activeSection === 'ocr'                     && <OCRWorkspace               onNavigate={nav} />}
           {activeSection === 'impresion'               && <ImpresionWorkspace         onNavigate={nav} />}
+          {/* ── Auditoría & Diagnóstico ── */}
+          {activeSection === 'auditoria'               && <AuditoriaHubView           onNavigate={nav} />}
+          {activeSection === 'auditoria-health'        && <HealthMonitorView          onNavigate={nav} />}
+          {activeSection === 'auditoria-logs'          && <SystemLogsView             onNavigate={nav} />}
+          {/* ── Repositorio de APIs ── */}
+          {activeSection === 'integraciones-apis'      && <RepositorioAPIsView        onNavigate={nav} />}
         </main>
       </div>
     </>

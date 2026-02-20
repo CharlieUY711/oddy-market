@@ -1,5 +1,5 @@
 /* =====================================================
-   ODDY Market — Account Page
+   Charlie Marketplace Builder — Account Page
    ===================================================== */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router';
@@ -75,11 +75,11 @@ export default function StorefrontAccountPage() {
   const [profile, setProfile] = useState({
     nombre: 'Usuario',
     apellido: 'Demo',
-    email: 'usuario@oddy.market',
+    email: 'usuario@charliemarketplace.com',
     telefono: '+598 99 000 000',
     ciudad: 'Montevideo',
     pais: 'Uruguay',
-    bio: 'Comprador y vendedor activo en Oddy Market.',
+    bio: 'Comprador y vendedor activo en Charlie Marketplace.',
   });
 
   useEffect(() => {

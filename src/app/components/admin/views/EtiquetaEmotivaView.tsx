@@ -192,6 +192,7 @@ export function EtiquetaEmotivaView({ onNavigate }: Props) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <OrangeHeader
+        icon={QrCode}
         title="Etiqueta Emotiva"
         subtitle="Mensajes personalizados con QR para tus envíos"
         actions={[
