@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
-import { supabase } from '/utils/supabase/client';
+import { supabase } from "../../../../utils/supabase/client";
 import { toast } from 'sonner';
 import {
   Search, Plus, Edit2, Trash2, User, Building2,
