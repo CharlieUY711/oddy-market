@@ -11,6 +11,7 @@ import { metodosEnvio } from "./metodos_envio.tsx";
 import { etiquetas } from "./etiquetas.tsx";
 import { roadmap } from "./roadmap.tsx";
 import { ideasBoard } from "./ideas_board.tsx";
+import { cargaMasiva } from "./carga_masiva.tsx";
 
 const app = new Hono();
 
@@ -52,5 +53,8 @@ app.route("/make-server-75638143/roadmap", roadmap);
 
 // Ideas Board
 app.route("/make-server-75638143/ideas", ideasBoard);
+
+// Carga Masiva de Archivos
+app.route("/make-server-75638143/carga-masiva", cargaMasiva);
 
 Deno.serve(app.fetch);

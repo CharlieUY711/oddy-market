@@ -3,7 +3,7 @@ import { HubView, HubCardDef, HubComingSoonItem } from '../HubView';
 import type { MainSection } from '../../../AdminDashboard';
 import {
   Share2, ArrowLeftRight, TrendingUp, Users, MessageCircle,
-  BarChart2, Instagram, Zap, Calendar, Eye,
+  BarChart2, Instagram, Zap, Calendar, Eye, Store, Facebook,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -32,6 +32,17 @@ export function RRSSHubView({ onNavigate }: Props) {
         { icon: Users,      value: '3',   label: 'Cuentas activas' },
         { icon: BarChart2,  value: '97%', label: 'Compatibilidad'  },
         { icon: TrendingUp, value: '0',   label: 'Pendientes'      },
+      ],
+    },
+    {
+      id: 'meta-business', icon: Store, onClick: nav('meta-business'),
+      gradient: 'linear-gradient(135deg, #1877F2 0%, #E1306C 100%)', color: '#1877F2',
+      badge: 'Meta API · Shop', label: 'Meta Business / RRSS Shop',
+      description: 'Catálogo en Facebook e Instagram, Meta Ads, píxel de conversión y sincronización de productos en tiempo real.',
+      stats: [
+        { icon: Store,      value: '892',  label: 'Órdenes Shop'   },
+        { icon: Facebook,   value: '34k',  label: 'Seguidores'     },
+        { icon: TrendingUp, value: '3.8x', label: 'ROAS'           },
       ],
     },
   ];

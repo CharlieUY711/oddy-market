@@ -4,7 +4,7 @@ import type { MainSection } from '../../../AdminDashboard';
 import {
   Settings, Sparkles, CreditCard, Truck, Plug, CheckSquare,
   Activity, Shield, BarChart2, Eye, Clock, BookOpen,
-  Box, DollarSign, Monitor, Zap, TrendingUp,
+  Box, DollarSign, Monitor, Zap, TrendingUp, LogIn, Users,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -47,6 +47,13 @@ export function SistemaView({ onNavigate }: Props) {
       badge: 'Roadmap · Progreso', label: 'Checklist & Roadmap',
       description: 'Estado de todos los módulos y progreso de Charlie. Cola de ejecución y auditoría del manifest.',
       stats: [{ icon: CheckSquare, value: '—', label: 'Módulos' }, { icon: TrendingUp, value: '—', label: 'Progreso' }, { icon: Clock, value: '—', label: 'Pendientes' }],
+    },
+    {
+      id: 'auth-registro', icon: LogIn, onClick: nav('auth-registro'),
+      gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', color: '#10B981',
+      badge: 'Auth · Supabase', label: 'Registro y Login',
+      description: 'Módulo de autenticación completo: Login, registro, recuperación, OAuth (Google, Meta, GitHub). Vista previa + test en vivo.',
+      stats: [{ icon: Users, value: '—', label: 'Usuarios' }, { icon: Shield, value: '4', label: 'Providers' }, { icon: Zap, value: 'JWT', label: 'Tokens' }],
     },
   ];
 

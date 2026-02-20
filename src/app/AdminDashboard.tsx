@@ -71,6 +71,11 @@ import { HealthMonitorView }           from './components/admin/views/HealthMoni
 import { SystemLogsView }              from './components/admin/views/SystemLogsView';
 // ── Repositorio de APIs ───────────────────────────────────────────────────────
 import { RepositorioAPIsView }         from './components/admin/views/RepositorioAPIsView';
+import { ConstructorView }             from './components/admin/views/ConstructorView';
+import { AuthRegistroView }            from './components/admin/views/AuthRegistroView';
+import { CargaMasivaView }             from './components/admin/views/CargaMasivaView';
+import { MetaBusinessView }            from './components/admin/views/MetaBusinessView';
+import { UnifiedWorkspaceView }        from './components/admin/views/UnifiedWorkspaceView';
 import { Toaster } from 'sonner';
 
 export type MainSection =
@@ -139,7 +144,14 @@ export type MainSection =
   | 'auditoria-health'
   | 'auditoria-logs'
   // ── Repositorio de APIs ───────────────────────────────────────────────────────
-  | 'integraciones-apis';
+  | 'integraciones-apis'
+  // ── Constructor ───────────────────────────────────────────────────────────────
+  | 'constructor'
+  // ── Nuevos módulos v2 ─────────────────────────────────────────────────────────
+  | 'auth-registro'
+  | 'carga-masiva'
+  | 'meta-business'
+  | 'unified-workspace';
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<MainSection>('dashboard');
@@ -217,6 +229,13 @@ export default function AdminDashboard() {
           {activeSection === 'auditoria-logs'          && <SystemLogsView             onNavigate={nav} />}
           {/* ── Repositorio de APIs ── */}
           {activeSection === 'integraciones-apis'      && <RepositorioAPIsView        onNavigate={nav} />}
+          {/* ── Constructor ── */}
+          {activeSection === 'constructor'             && <ConstructorView            onNavigate={nav} />}
+          {/* ── Nuevos módulos v2 ── */}
+          {activeSection === 'auth-registro'           && <AuthRegistroView           onNavigate={nav} />}
+          {activeSection === 'carga-masiva'            && <CargaMasivaView            onNavigate={nav} />}
+          {activeSection === 'meta-business'           && <MetaBusinessView           onNavigate={nav} />}
+          {activeSection === 'unified-workspace'       && <UnifiedWorkspaceView       onNavigate={nav} />}
         </main>
       </div>
     </>

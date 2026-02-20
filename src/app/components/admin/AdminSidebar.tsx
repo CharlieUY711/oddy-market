@@ -5,7 +5,7 @@ import React from 'react';
 import {
   LayoutDashboard, ShoppingCart, Megaphone, Wrench, Database,
   Monitor, Sparkles, Package, Truck, Rss, ExternalLink, Plug,
-  Search,
+  Search, Blocks,
 } from 'lucide-react';
 import type { MainSection } from '../../AdminDashboard';
 
@@ -110,7 +110,7 @@ export function AdminSidebar({ activeSection, onNavigate }: Props) {
       </div>
 
       {/* ── Nav ── */}
-      <nav style={{ flex: 1, padding: '6px 0' }}>
+      <nav style={{ flex: 1, padding: '6px 0', overflowY: 'auto' }}>
         {NAV_ITEMS.map(item => {
           const isActive = activeSection === item.id || activeHub === item.id;
           return (
@@ -149,6 +149,52 @@ export function AdminSidebar({ activeSection, onNavigate }: Props) {
             </button>
           );
         })}
+
+        {/* ── Divisor Constructor ── */}
+        <div style={{
+          margin: '8px 14px',
+          borderTop: '1px solid rgba(255,255,255,0.25)',
+        }} />
+
+        {/* ── Constructor ── */}
+        {(() => {
+          const isActive = activeSection === 'constructor';
+          return (
+            <button
+              onClick={() => onNavigate('constructor')}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '9px 16px',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: isActive ? 'rgba(0,0,0,0.18)' : 'transparent',
+                color: '#000',
+                borderLeft: isActive ? '3px solid #000' : '3px solid transparent',
+                transition: 'all 0.14s',
+              }}
+              onMouseEnter={e => {
+                if (!isActive) (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(0,0,0,0.10)';
+              }}
+              onMouseLeave={e => {
+                if (!isActive) (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
+              }}
+            >
+              <Blocks size={16} strokeWidth={isActive ? 2.5 : 2} style={{ flexShrink: 0 }} />
+              <span style={{
+                fontSize: '0.84rem',
+                fontWeight: isActive ? '700' : '600',
+                textAlign: 'left',
+                whiteSpace: 'nowrap',
+                color: '#000',
+              }}>
+                Constructor
+              </span>
+            </button>
+          );
+        })()}
       </nav>
 
       {/* ── Tip ── */}

@@ -4,7 +4,7 @@ import type { MainSection } from '../../../AdminDashboard';
 import {
   Wrench, Image, FolderOpen, FileText, DollarSign, ScanLine, Printer,
   QrCode, RotateCcw, Lightbulb, Zap, Download, CheckCircle, Star,
-  Package, Users, BarChart2, Layout,
+  Package, Users, BarChart2, Layout, Upload, LayoutGrid, LogIn,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -79,6 +79,20 @@ export function HerramientasView({ onNavigate }: Props) {
       description: 'Canvas visual tipo pizarrón con stickers, conectores y notas. Brainstorming visual libre.',
       stats: [{ icon: Layout, value: '—', label: 'Tableros' }, { icon: Lightbulb, value: '—', label: 'Ideas' }, { icon: BarChart2, value: '—', label: 'Conectores' }],
     },
+    {
+      id: 'carga-masiva', icon: Upload, onClick: nav('carga-masiva'),
+      gradient: 'linear-gradient(135deg, #FF6835 0%, #e04e20 100%)', color: '#FF6835',
+      badge: 'Storage · Supabase', label: 'Carga Masiva de Archivos',
+      description: 'Upload masivo con drag & drop. CSV, imágenes, docs. Queue de archivos con progreso y Supabase Storage.',
+      stats: [{ icon: Upload, value: '∞', label: 'Archivos' }, { icon: Zap, value: 'Auto', label: 'Queue' }, { icon: Download, value: 'URL', label: 'Signed URL' }],
+    },
+    {
+      id: 'unified-workspace', icon: LayoutGrid, onClick: nav('unified-workspace'),
+      gradient: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)', color: '#8B5CF6',
+      badge: 'Workspace · Suite', label: 'Unified Workspace',
+      description: 'Docs, tareas kanban, notas sticky, calendario mensual y chat interno en un único espacio de trabajo.',
+      stats: [{ icon: LayoutGrid, value: '5', label: 'Secciones' }, { icon: Users, value: 'Multi', label: 'Usuario' }, { icon: Zap, value: 'RT', label: 'Realtime' }],
+    },
   ];
 
   const comingSoon: HubComingSoonItem[] = [
@@ -102,8 +116,8 @@ export function HerramientasView({ onNavigate }: Props) {
         },
         {
           label: 'Herramientas Rápidas',
-          count: '3 herramientas',
-          subtitle: 'Utilitarios ligeros sin workspace completo',
+          count: '5 herramientas',
+          subtitle: 'Utilitarios ligeros · Carga masiva de archivos · Workspace unificado',
           cards: quickCards,
         },
       ]}
