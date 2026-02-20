@@ -57,6 +57,13 @@ import { IntegracionesLogisticaView }  from './components/admin/views/Integracio
 import { IntegracionesTiendasView }    from './components/admin/views/IntegracionesTiendasView';
 import { IntegracionesRRSSView }       from './components/admin/views/IntegracionesRRSSView';
 import { IntegracionesServiciosView }  from './components/admin/views/IntegracionesServiciosView';
+// ── Workspace Suite (6 herramientas) ──────────────────────────────────────
+import { BibliotecaWorkspace }         from './components/admin/views/BibliotecaWorkspace';
+import { EditorImagenesWorkspace }     from './components/admin/views/EditorImagenesWorkspace';
+import { GenDocumentosWorkspace }      from './components/admin/views/GenDocumentosWorkspace';
+import { GenPresupuestosWorkspace }    from './components/admin/views/GenPresupuestosWorkspace';
+import { OCRWorkspace }                from './components/admin/views/OCRWorkspace';
+import { ImpresionWorkspace }          from './components/admin/views/ImpresionWorkspace';
 import { Toaster } from 'sonner';
 
 export type MainSection =
@@ -111,7 +118,14 @@ export type MainSection =
   | 'integraciones-logistica'
   | 'integraciones-tiendas'
   | 'integraciones-rrss'
-  | 'integraciones-servicios';
+  | 'integraciones-servicios'
+  // ── Workspace Suite ──────────────────────────────────────
+  | 'biblioteca'
+  | 'editor-imagenes'
+  | 'gen-documentos'
+  | 'gen-presupuestos'
+  | 'ocr'
+  | 'impresion';
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<MainSection>('dashboard');
@@ -175,6 +189,13 @@ export default function AdminDashboard() {
           {activeSection === 'integraciones-tiendas'   && <IntegracionesTiendasView   onNavigate={nav} />}
           {activeSection === 'integraciones-rrss'      && <IntegracionesRRSSView      onNavigate={nav} />}
           {activeSection === 'integraciones-servicios' && <IntegracionesServiciosView onNavigate={nav} />}
+          {/* ── Workspace Suite ── */}
+          {activeSection === 'biblioteca'              && <BibliotecaWorkspace        onNavigate={nav} />}
+          {activeSection === 'editor-imagenes'         && <EditorImagenesWorkspace    onNavigate={nav} />}
+          {activeSection === 'gen-documentos'          && <GenDocumentosWorkspace     onNavigate={nav} />}
+          {activeSection === 'gen-presupuestos'        && <GenPresupuestosWorkspace   onNavigate={nav} />}
+          {activeSection === 'ocr'                     && <OCRWorkspace               onNavigate={nav} />}
+          {activeSection === 'impresion'               && <ImpresionWorkspace         onNavigate={nav} />}
         </main>
       </div>
     </>

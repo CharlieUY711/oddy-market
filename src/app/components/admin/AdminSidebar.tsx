@@ -12,7 +12,7 @@ import {
   ShoppingCart as OrderIcon, CreditCard, MapPin, Navigation,
   QrCode, Rss, Map, Factory, Box, AlertTriangle, Radio,
   Search, Zap, Globe, Lightbulb, Plug, CreditCard as PayCard,
-  Smartphone,
+  Smartphone, Image, FileText, DollarSign, ScanLine, Printer, Library,
 } from 'lucide-react';
 import type { MainSection } from '../../AdminDashboard';
 
@@ -85,9 +85,15 @@ const NAV_GROUPS: NavGroup[] = [
   {
     id: 'herramientas', icon: Wrench, label: 'Herramientas',
     children: [
-      { id: 'herramientas',  label: 'Hub Herramientas', icon: Wrench     },
-      { id: 'qr-generator',  label: 'Generador QR',     icon: QrCode     },
-      { id: 'ideas-board',   label: 'Ideas Board',      icon: Lightbulb  },
+      { id: 'herramientas',     label: 'Hub Herramientas',  icon: Wrench      },
+      { id: 'biblioteca',       label: 'Biblioteca',        icon: Library     },
+      { id: 'editor-imagenes',  label: 'Editor de Imágenes',icon: Image       },
+      { id: 'gen-documentos',   label: 'Documentos',        icon: FileText    },
+      { id: 'gen-presupuestos', label: 'Presupuestos',      icon: DollarSign  },
+      { id: 'ocr',              label: 'OCR',               icon: ScanLine    },
+      { id: 'impresion',        label: 'Impresión',         icon: Printer     },
+      { id: 'qr-generator',     label: 'Generador QR',      icon: QrCode      },
+      { id: 'ideas-board',      label: 'Ideas Board',       icon: Lightbulb   },
     ],
   },
   {
