@@ -98,7 +98,7 @@ export const MODULE_MANIFEST: ManifestEntry[] = [
     notes: 'Vista filtrada de personas/organizaciones con rol cliente',
   },
 
-  // ══════════════════════���═══════════════════════════════
+  // ══════════════════════════════════════════════════════
   // eCOMMERCE
   // ══════════════════════════════════════════════════════
   {
@@ -305,7 +305,55 @@ export const MODULE_MANIFEST: ManifestEntry[] = [
     section: 'herramientas',
     viewFile: 'HerramientasView.tsx',
     isReal: false,
-    notes: 'Hub de navegación (9 tarjetas: Editor, Docs, QR, IA, OCR, Presupuestos, Rueda, Impresión, Biblioteca)',
+    notes: 'Hub de navegación — 6 workspace tools + 3 herramientas rápidas',
+  },
+  {
+    checklistIds: ['tools-library'],
+    section: 'biblioteca',
+    viewFile: 'BibliotecaWorkspace.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: 'Biblioteca de assets — upload drag&drop, colecciones, tags, grid/lista, export',
+  },
+  {
+    checklistIds: ['tools-image-editor'],
+    section: 'editor-imagenes',
+    viewFile: 'EditorImagenesWorkspace.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: 'Editor de imágenes — filtros CSS, rotación, flip, 8 presets, export PNG/JPG',
+  },
+  {
+    checklistIds: ['tools-documents'],
+    section: 'gen-documentos',
+    viewFile: 'GenDocumentosWorkspace.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: 'Generador de documentos WYSIWYG — 8 tipos de bloque, A4, export PDF',
+  },
+  {
+    checklistIds: ['tools-quotes'],
+    section: 'gen-presupuestos',
+    viewFile: 'GenPresupuestosWorkspace.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: 'Generador de presupuestos — ítems, IVA, descuentos, multi-moneda, export PDF',
+  },
+  {
+    checklistIds: ['tools-ocr'],
+    section: 'ocr',
+    viewFile: 'OCRWorkspace.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: 'OCR con Tesseract.js — 100% browser, sin API key, Español/Inglés/PT, export TXT',
+  },
+  {
+    checklistIds: ['tools-print'],
+    section: 'impresion',
+    viewFile: 'ImpresionWorkspace.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: 'Módulo de impresión — cola de trabajos, A4 preview, papel/orientación/color/calidad',
   },
   {
     checklistIds: ['tools-qr'],
