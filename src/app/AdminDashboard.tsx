@@ -21,6 +21,7 @@ import { GoogleAdsView }      from './components/admin/views/GoogleAdsView';
 import { RuedaSorteosView }   from './components/admin/views/RuedaSorteosView';
 import { FidelizacionView }   from './components/admin/views/FidelizacionView';
 import { RedesSocialesView }  from './components/admin/views/RedesSocialesView';
+import { RRSSHubView }        from './components/admin/views/RRSSHubView';
 import { DepartamentosView }  from './components/admin/views/DepartamentosView';
 import { SecondHandView }     from './components/admin/views/SecondHandView';
 import { ERPInventarioView }  from './components/admin/views/ERPInventarioView';
@@ -60,6 +61,7 @@ export type MainSection =
   | 'rueda-sorteos'
   | 'fidelizacion'
   | 'redes-sociales'
+  | 'rrss'
   | 'departamentos'
   | 'secondhand'
   | 'erp-inventario'
@@ -79,7 +81,8 @@ export type MainSection =
   | 'pagos'
   | 'envios'
   | 'logistica'
-  | 'etiqueta-emotiva';
+  | 'etiqueta-emotiva'
+  | 'roadmap';
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<MainSection>('dashboard');
@@ -100,6 +103,7 @@ export default function AdminDashboard() {
           {activeSection === 'sistema'         && <SistemaView        onNavigate={nav} />}
           {activeSection === 'diseno'          && <DisenoView         onNavigate={nav} />}
           {activeSection === 'checklist'       && <ChecklistView      onNavigate={nav} />}
+          {activeSection === 'roadmap'         && <ChecklistView      onNavigate={nav} />}
           {activeSection === 'integraciones'   && <IntegracionesView  onNavigate={nav} />}
           {activeSection === 'migracion-rrss'  && <MigracionRRSSView  onNavigate={nav} />}
           {activeSection === 'mailing'         && <MailingView        onNavigate={nav} />}
@@ -107,6 +111,7 @@ export default function AdminDashboard() {
           {activeSection === 'rueda-sorteos'   && <RuedaSorteosView   onNavigate={nav} />}
           {activeSection === 'fidelizacion'    && <FidelizacionView   onNavigate={nav} />}
           {activeSection === 'redes-sociales'  && <RedesSocialesView  onNavigate={nav} />}
+          {activeSection === 'rrss'            && <RRSSHubView          onNavigate={nav} />}
           {activeSection === 'departamentos'   && <DepartamentosView  onNavigate={nav} />}
           {activeSection === 'secondhand'      && <SecondHandView     onNavigate={nav} />}
           {activeSection === 'erp-inventario'  && <ERPInventarioView  onNavigate={nav} />}

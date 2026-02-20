@@ -10,7 +10,7 @@ import {
   Settings, Link2, Shield, CheckSquare, Store, Layers,
   ExternalLink, FolderTree, User, Building2, ShoppingBag,
   ShoppingCart as OrderIcon, CreditCard, MapPin, Navigation,
-  QrCode,
+  QrCode, Rss, Map,
 } from 'lucide-react';
 import type { MainSection } from '../../AdminDashboard';
 
@@ -57,14 +57,19 @@ const NAV_GROUPS: NavGroup[] = [
   {
     id: 'marketing', icon: Megaphone, label: 'Marketing',
     children: [
-      { id: 'marketing',        label: 'Dashboard RRSS',    icon: BarChart3     },
-      { id: 'mailing',          label: 'Email / Mailing',   icon: Mail          },
-      { id: 'google-ads',       label: 'Google Ads',        icon: BarChart3     },
-      { id: 'redes-sociales',   label: 'Redes Sociales',    icon: Share2        },
-      { id: 'fidelizacion',     label: 'Fidelización',      icon: Heart         },
-      { id: 'rueda-sorteos',    label: 'Rueda de Sorteos',  icon: Gift          },
-      { id: 'migracion-rrss',   label: 'Migración RRSS',    icon: ArrowLeftRight},
-      { id: 'etiqueta-emotiva', label: 'Etiqueta Emotiva',  icon: QrCode        },
+      { id: 'marketing',        label: 'Dashboard Marketing', icon: BarChart3     },
+      { id: 'mailing',          label: 'Email / Mailing',    icon: Mail          },
+      { id: 'google-ads',       label: 'Google Ads',         icon: BarChart3     },
+      { id: 'fidelizacion',     label: 'Fidelización',       icon: Heart         },
+      { id: 'rueda-sorteos',    label: 'Rueda de Sorteos',   icon: Gift          },
+      { id: 'etiqueta-emotiva', label: 'Etiqueta Emotiva',   icon: QrCode        },
+    ],
+  },
+  {
+    id: 'rrss', icon: Rss, label: 'RRSS',
+    children: [
+      { id: 'redes-sociales', label: 'Centro Operativo',  icon: Share2        },
+      { id: 'migracion-rrss', label: 'Migración RRSS',    icon: ArrowLeftRight},
     ],
   },
   { id: 'herramientas', icon: Wrench, label: 'Herramientas' },
@@ -93,9 +98,9 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'metodos-envio', label: 'Métodos de Envío',  icon: Truck       },
       { id: 'integraciones', label: 'Integraciones',     icon: Link2       },
       { id: 'diseno',        label: 'Diseño / Marca',    icon: Sparkles    },
-      { id: 'checklist',     label: 'Checklist',         icon: CheckSquare },
     ],
   },
+  { id: 'roadmap', icon: Map, label: 'Checklist & Roadmap' },
 ];
 
 /* ── Which group owns a given section ── */
