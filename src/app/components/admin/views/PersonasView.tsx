@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { supabase } from '../../../../utils/supabase/client';
 import { toast } from 'sonner';
 import {
   Search, Plus, Edit2, Trash2, User, Building2,
@@ -13,9 +13,6 @@ import {
 } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
-
-const API = `https://${projectId}.supabase.co/functions/v1/make-server-75638143`;
-const HEADERS = { 'Content-Type': 'application/json', Authorization: `Bearer ${publicAnonKey}` };
 
 const ORANGE = '#FF6835';
 const TIPOS = ['', 'natural', 'juridica'];
@@ -70,14 +67,29 @@ export function PersonasView({ onNavigate }: Props) {
   const fetchPersonas = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      if (filterTipo) params.set('tipo', filterTipo);
-      if (filterActivo !== '') params.set('activo', filterActivo);
-      const res = await fetch(`${API}/personas?${params}`, { headers: HEADERS });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error);
-      setPersonas(json.data ?? []);
+      let query = supabase
+        .from('personas_75638143')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (filterTipo) {
+        query = query.eq('tipo', filterTipo);
+      }
+
+      if (filterActivo !== '') {
+        query = query.eq('activo', filterActivo === 'true');
+      }
+
+      if (search) {
+        query = query.or(
+          `nombre.ilike.%${search}%,apellido.ilike.%${search}%,email.ilike.%${search}%`
+        );
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setPersonas(data ?? []);
     } catch (e: unknown) {
       console.error('Error cargando personas:', e);
       toast.error('Error al cargar personas');
@@ -117,19 +129,37 @@ export function PersonasView({ onNavigate }: Props) {
     if (!form.nombre.trim()) { toast.error('El nombre es requerido'); return; }
     setSaving(true);
     try {
-      const body = { ...form };
-      if (!body.fecha_nacimiento) delete (body as Record<string, unknown>).fecha_nacimiento;
-      const url = editando ? `${API}/personas/${editando.id}` : `${API}/personas`;
-      const method = editando ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, headers: HEADERS, body: JSON.stringify(body) });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error);
-      toast.success(editando ? 'Persona actualizada' : 'Persona creada');
+      const body: Record<string, unknown> = { ...form };
+      if (!body.fecha_nacimiento || body.fecha_nacimiento === '') {
+        delete body.fecha_nacimiento;
+      }
+
+      if (editando) {
+        const { data, error } = await supabase
+          .from('personas_75638143')
+          .update(body)
+          .eq('id', editando.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        toast.success('Persona actualizada');
+      } else {
+        const { data, error } = await supabase
+          .from('personas_75638143')
+          .insert(body)
+          .select()
+          .single();
+
+        if (error) throw error;
+        toast.success('Persona creada');
+      }
+
       setShowModal(false);
       fetchPersonas();
     } catch (e: unknown) {
       console.error('Error guardando persona:', e);
-      toast.error(`Error al guardar: ${e instanceof Error ? e.message : e}`);
+      toast.error(`Error al guardar: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setSaving(false);
     }
@@ -139,9 +169,12 @@ export function PersonasView({ onNavigate }: Props) {
     if (!confirm('¿Eliminar esta persona? Esta acción no se puede deshacer.')) return;
     setDeletingId(id);
     try {
-      const res = await fetch(`${API}/personas/${id}`, { method: 'DELETE', headers: HEADERS });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error);
+      const { error } = await supabase
+        .from('personas_75638143')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
       toast.success('Persona eliminada');
       fetchPersonas();
     } catch (e: unknown) {
