@@ -232,6 +232,8 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
   const [creds, setCreds] = useState<Record<string, string>>({});
   const [verifying, setVerifying] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [missingKeys, setMissingKeys] = useState<Set<string>>(new Set());
+  const [verifyResult, setVerifyResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const LS_KEY = `charlie_migracion_creds_${platform}`;
 
@@ -265,13 +267,40 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
     { n: 6, label: 'Configurar Credenciales', link: null, desc: 'Ingresa las credenciales en el sistema' },
   ];
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
+    /* 1 — Validar que todos los campos estén completos */
+    const missingFields = cfg.credentialFields.filter(f => !creds[f.key]?.trim());
+    if (missingFields.length > 0) {
+      toast.error(`Completá estos campos antes de verificar: ${missingFields.map(f => f.label).join(', ')}`);
+      setMissingKeys(new Set(missingFields.map(f => f.key)));
+      return;
+    }
+    setMissingKeys(new Set());
     setVerifying(true);
-    setTimeout(() => {
+    setVerifyResult(null);
+
+    /* 2 — Llamada real a la Graph API de Meta con el Access Token */
+    try {
+      const token = creds['token']?.trim();
+      const res   = await fetch(
+        `https://graph.facebook.com/v19.0/me?fields=id,name&access_token=${encodeURIComponent(token)}`
+      );
+      const data  = await res.json();
+
+      if (data.error) {
+        setVerifyResult({ ok: false, msg: `Error Meta API: ${data.error.message}` });
+        toast.error(`❌ Token inválido: ${data.error.message}`);
+      } else {
+        setVerifyResult({ ok: true, msg: `Cuenta conectada: ${data.name} (ID: ${data.id})` });
+        toast.success(`✅ Conexión verificada — ${data.name}`);
+        onVerified();
+      }
+    } catch (err) {
+      setVerifyResult({ ok: false, msg: `Error de red: ${String(err)}` });
+      toast.error('❌ No se pudo conectar con la API de Meta. Revisá tu conexión.');
+    } finally {
       setVerifying(false);
-      toast.success('¡Conexión verificada exitosamente!');
-      onVerified();
-    }, 1800);
+    }
   };
 
   const handleCopy = (val: string, label: string) => {
@@ -357,16 +386,16 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
           {cfg.credentialFields.map(field => (
             <div key={field.key}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#333', marginBottom: '6px' }}>{field.label}</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: missingKeys.has(field.key) ? '#DC2626' : '#333', marginBottom: '6px' }}>{field.label}{missingKeys.has(field.key) && <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 700, color: '#DC2626' }}>← Requerido</span>}</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type={showCreds ? 'text' : 'password'}
                   value={creds[field.key] ?? ''}
-                  onChange={e => setCreds(c => ({ ...c, [field.key]: e.target.value }))}
+                  onChange={e => { setCreds(c => ({ ...c, [field.key]: e.target.value })); setMissingKeys(m => { const n = new Set(m); n.delete(field.key); return n; }); }}
                   placeholder={field.placeholder}
-                  style={{ flex: 1, border: '1.5px solid #E0E0E0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', backgroundColor: '#FAFAFA', color: '#888' }}
-                  onFocus={e => (e.target.style.borderColor = cfg.accent)}
-                  onBlur={e => (e.target.style.borderColor = '#E0E0E0')}
+                  style={{ flex: 1, border: `1.5px solid ${missingKeys.has(field.key) ? '#DC2626' : '#E0E0E0'}`, borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', backgroundColor: missingKeys.has(field.key) ? '#FEF2F2' : '#FAFAFA', color: '#888' }}
+                  onFocus={e => (e.target.style.borderColor = missingKeys.has(field.key) ? '#DC2626' : cfg.accent)}
+                  onBlur={e => (e.target.style.borderColor = missingKeys.has(field.key) ? '#DC2626' : '#E0E0E0')}
                 />
                 <button onClick={() => handleCopy(creds[field.key] ?? '', field.label)}
                   style={{ width: '40px', height: '40px', border: '1.5px solid #E0E0E0', borderRadius: '10px', backgroundColor: '#FAFAFA', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -386,10 +415,20 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
           <button
             onClick={handleVerify}
             disabled={verifying}
-            style={{ padding: '14px', backgroundColor: '#fff', color: '#333', border: '1.5px solid #E0E0E0', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            {verifying ? '⏳ Verificando...' : 'Verificar Conexión'}
+            style={{ padding: '14px', backgroundColor: '#fff', color: '#333', border: '1.5px solid #E0E0E0', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: verifying ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: verifying ? 0.7 : 1 }}>
+            {verifying ? '⏳ Verificando...' : '🔌 Verificar Conexión'}
           </button>
         </div>
+
+        {/* Resultado de verificación */}
+        {verifyResult && (
+          <div style={{ marginTop: '12px', padding: '12px 16px', backgroundColor: verifyResult.ok ? '#ECFDF5' : '#FEF2F2', border: `1px solid ${verifyResult.ok ? '#A7F3D0' : '#FECACA'}`, borderRadius: '10px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            {verifyResult.ok
+              ? <CheckCircle2 size={15} color="#059669" style={{ flexShrink: 0, marginTop: '1px' }} />
+              : <AlertTriangle size={15} color="#DC2626" style={{ flexShrink: 0, marginTop: '1px' }} />}
+            <span style={{ fontSize: '12px', fontWeight: 600, color: verifyResult.ok ? '#065F46' : '#7F1D1D', lineHeight: 1.5 }}>{verifyResult.msg}</span>
+          </div>
+        )}
 
         {/* Info: dónde se guarda */}
         <div style={{ marginTop: '14px', padding: '12px 16px', backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
