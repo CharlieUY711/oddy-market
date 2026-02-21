@@ -7,6 +7,7 @@ import { Star, Heart, ShoppingCart, ArrowRight, Zap, Shield, Truck, RefreshCw, C
 import { toast } from 'sonner';
 import { PRODUCTS, CATEGORIES, SECOND_HAND, CONDITION_LABELS, CONDITION_COLORS } from './storefrontData';
 import { useCart } from './cartContext';
+import { AgeGateModal, isAgeVerified } from '../components/AgeGateModal';
 
 const ORANGE = '#FF6835';
 
@@ -208,9 +209,40 @@ function HeroSection() {
 
 export default function StorefrontHomePage() {
   const navigate = useNavigate();
+  const [ageGate, setAgeGate] = useState<{ open: boolean; catId: string; catName: string; catEmoji: string } | null>(null);
+
+  const handleCategoryClick = (cat: typeof CATEGORIES[0]) => {
+    if (cat.ageRestricted) {
+      if (isAgeVerified()) {
+        navigate(`/?cat=${cat.id}`);
+      } else {
+        setAgeGate({ open: true, catId: cat.id, catName: cat.name, catEmoji: cat.emoji });
+      }
+    } else {
+      navigate(`/?cat=${cat.id}`);
+    }
+  };
 
   return (
     <div>
+      {/* Age Gate Modal */}
+      {ageGate && (
+        <AgeGateModal
+          isOpen={ageGate.open}
+          categoryName={ageGate.catName}
+          categoryEmoji={ageGate.catEmoji}
+          onVerified={() => {
+            setAgeGate(null);
+            navigate(`/?cat=${ageGate.catId}`);
+            toast.success(`Bienvenido a ${ageGate.catName}`);
+          }}
+          onBlocked={() => {
+            setAgeGate(null);
+            toast.error('Acceso restringido — Contenido solo para mayores de 18 años');
+          }}
+        />
+      )}
+
       <HeroSection />
 
       {/* Trust badges */}
@@ -250,11 +282,17 @@ export default function StorefrontHomePage() {
           {CATEGORIES.map(cat => (
             <button
               key={cat.id}
-              onClick={() => navigate(`/?cat=${cat.id}`)}
-              style={{ backgroundColor: '#fff', border: '1.5px solid #f0f0f0', borderRadius: '16px', padding: '24px 16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
-              onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = ORANGE; el.style.boxShadow = '0 4px 16px rgba(255,104,53,0.12)'; el.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = '#f0f0f0'; el.style.boxShadow = 'none'; el.style.transform = 'none'; }}
+              onClick={() => handleCategoryClick(cat)}
+              style={{ backgroundColor: '#fff', border: `1.5px solid ${cat.ageRestricted ? '#7C3AED30' : '#f0f0f0'}`, borderRadius: '16px', padding: '24px 16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = cat.ageRestricted ? '#7C3AED' : ORANGE; el.style.boxShadow = `0 4px 16px ${cat.ageRestricted ? 'rgba(124,58,237,0.14)' : 'rgba(255,104,53,0.12)'}` ; el.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = cat.ageRestricted ? '#7C3AED30' : '#f0f0f0'; el.style.boxShadow = 'none'; el.style.transform = 'none'; }}
             >
+              {/* Badge +18 */}
+              {cat.ageRestricted && (
+                <div style={{ position: 'absolute', top: '6px', right: '6px', fontSize: '10px', fontWeight: '800', color: '#fff', backgroundColor: '#EF4444', borderRadius: '4px', padding: '1px 5px', lineHeight: '16px' }}>
+                  18+
+                </div>
+              )}
               <div style={{ fontSize: '36px', marginBottom: '10px' }}>{cat.emoji}</div>
               <div style={{ fontWeight: 600, fontSize: '14px', color: '#111', marginBottom: '4px' }}>{cat.name}</div>
               <div style={{ fontSize: '12px', color: '#888' }}>{cat.count} productos</div>

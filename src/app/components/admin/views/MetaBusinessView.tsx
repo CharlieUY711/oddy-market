@@ -10,6 +10,8 @@ import {
   Facebook, Instagram, ArrowUp, ArrowDown, Circle,
 } from 'lucide-react';
 import type { MainSection } from '../../../AdminDashboard';
+import { OrangeHeader } from '../OrangeHeader';
+import { RRSSBanner }   from '../RRSSBanner';
 
 interface Props { onNavigate: (s: MainSection) => void; }
 
@@ -94,7 +96,16 @@ export function MetaBusinessView({ onNavigate }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: '#F8F9FA' }}>
 
-      {/* Top Bar */}
+      <OrangeHeader
+        icon={Store}
+        title="Meta Business / RRSS Shop"
+        subtitle="Facebook · Instagram · Ads · Píxel · Catálogo"
+        actions={[{ label: '← Volver', onClick: () => onNavigate('rrss') }]}
+      />
+
+      <RRSSBanner onNavigate={onNavigate} active="meta-business" />
+
+      {/* Top Bar — tabs */}
       <div style={{
         height: '56px', flexShrink: 0, backgroundColor: '#fff',
         borderBottom: '1px solid #E5E7EB',

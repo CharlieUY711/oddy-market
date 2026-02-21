@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
+import { RRSSBanner }   from '../RRSSBanner';
 import type { MainSection } from '../../../AdminDashboard';
 import {
   BarChart2, Users, Heart, Eye, Send, MessageCircle,
@@ -84,10 +85,12 @@ export function RedesSocialesView({ onNavigate }: Props) {
         title="Redes Sociales"
         subtitle="Gestión y administración"
         actions={[
-          { label: '← Volver', onClick: () => onNavigate('marketing') },
+          { label: '← Volver', onClick: () => onNavigate('rrss') },
           { label: 'Volver a la tienda' },
         ]}
       />
+
+      <RRSSBanner onNavigate={onNavigate} active="redes-sociales" />
 
       {/* Sub-header: Centro Operativo title + tabs */}
       <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E7EB', flexShrink: 0 }}>

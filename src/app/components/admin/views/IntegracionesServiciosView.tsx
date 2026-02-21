@@ -5,12 +5,12 @@
 import React, { useState } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
-import { ExternalLink, Settings2, CheckCircle2, AlertCircle, Clock, Zap, Send, BarChart2, GitBranch } from 'lucide-react';
+import { ExternalLink, Settings2, CheckCircle2, AlertCircle, Clock, Zap, Send, BarChart2, GitBranch, Shield } from 'lucide-react';
 
 interface Props { onNavigate: (section: MainSection) => void; }
 const ORANGE = '#FF6835';
 type Status = 'connected' | 'sandbox' | 'pending' | 'coming-soon';
-type Category = 'messaging' | 'email' | 'analytics' | 'automation';
+type Category = 'messaging' | 'email' | 'analytics' | 'automation' | 'identity';
 
 interface Service {
   id: string; emoji: string; name: string;
@@ -18,6 +18,7 @@ interface Service {
   category: Category; status: Status; features: string[];
   badge?: string; docsUrl?: string;
   configFields?: { label: string; type: 'text' | 'password' | 'tel' }[];
+  navigateTo?: MainSection;   // ← abre panel dedicado en lugar de expandir inline
 }
 
 const SERVICES: Service[] = [
@@ -101,6 +102,17 @@ const SERVICES: Service[] = [
     features: ['Visual flows', 'Self-hosted', 'Open-source', '400+ nodes'],
     docsUrl: 'https://docs.n8n.io',
   },
+  // ── Identidad & KYC ─────────────────────────────
+  {
+    id: 'metamap', emoji: '🛡️', name: 'MetaMap',
+    description: 'KYC y verificación de identidad: documento + selfie + liveness detection. Se activa automáticamente al comprar productos con restricción de edad (+18).',
+    color: '#1F2937', bg: '#F3F4F6',
+    category: 'identity', status: 'pending',
+    features: ['Documento ID', 'Selfie + Liveness', 'Verificación de edad', '6 países LATAM'],
+    badge: 'Edad +18',
+    docsUrl: 'https://docs.metamap.com',
+    navigateTo: 'metamap-config',
+  },
 ];
 
 const STATUS_META: Record<Status, { label: string; color: string; bg: string; Icon: any }> = {
@@ -115,6 +127,7 @@ const CAT_META: Record<Category, { label: string; icon: React.ReactNode; color: 
   email:      { label: 'Email',          icon: <Send size={13} />,      color: '#1A82E2' },
   analytics:  { label: 'Analytics',     icon: <BarChart2 size={13} />, color: '#E37400' },
   automation: { label: 'Automatización', icon: <GitBranch size={13} />, color: '#EA4B71' },
+  identity:   { label: 'Identidad & KYC', icon: <Shield size={13} />,  color: '#1F2937' },
 };
 
 type CatFilter = 'all' | Category;
@@ -147,10 +160,11 @@ export function IntegracionesServiciosView({ onNavigate }: Props) {
         {/* Stats */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           {[
-            { label: 'Servicios',      value: SERVICES.length,                                         color: '#111827' },
+            { label: 'Servicios',      value: SERVICES.length,                                          color: '#111827' },
             { label: 'Mensajería',     value: SERVICES.filter(s => s.category === 'messaging').length,  color: '#F22F46' },
             { label: 'Email',          value: SERVICES.filter(s => s.category === 'email').length,      color: '#1A82E2' },
             { label: 'Automatización', value: SERVICES.filter(s => s.category === 'automation').length, color: '#EA4B71' },
+            { label: 'Identidad',      value: SERVICES.filter(s => s.category === 'identity').length,   color: '#1F2937' },
           ].map((s, i) => (
             <div key={i} style={{ flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: '12px 16px', border: '1px solid #E5E7EB', textAlign: 'center' }}>
               <div style={{ fontSize: '1.5rem', fontWeight: '800', color: s.color }}>{s.value}</div>
@@ -161,7 +175,7 @@ export function IntegracionesServiciosView({ onNavigate }: Props) {
 
         {/* Filters */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-          {(['all', 'messaging', 'email', 'analytics', 'automation'] as CatFilter[]).map(f => (
+          {(['all', 'messaging', 'email', 'analytics', 'automation', 'identity'] as CatFilter[]).map(f => (
             <button key={f} onClick={() => setCatFilter(f)}
               style={{
                 padding: '5px 14px', borderRadius: 20, cursor: 'pointer',
@@ -176,7 +190,7 @@ export function IntegracionesServiciosView({ onNavigate }: Props) {
         </div>
 
         {/* Cards grouped by category */}
-        {(['messaging', 'email', 'analytics', 'automation'] as Category[]).map(cat => {
+        {(['messaging', 'email', 'analytics', 'automation', 'identity'] as Category[]).map(cat => {
           const items = filtered.filter(s => s.category === cat);
           if (!items.length) return null;
           const cm = CAT_META[cat];
@@ -234,10 +248,16 @@ export function IntegracionesServiciosView({ onNavigate }: Props) {
                                 <ExternalLink size={11} /> Docs
                               </a>
                             )}
-                            {s.status !== 'coming-soon' && s.configFields && (
+                            {s.status !== 'coming-soon' && s.configFields && !s.navigateTo && (
                               <button onClick={() => setExpandedId(isExp ? null : s.id)}
                                 style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 12px', borderRadius: 7, border: 'none', backgroundColor: s.color, color: '#fff', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer' }}>
                                 <Settings2 size={11} /> Configurar
+                              </button>
+                            )}
+                            {s.status !== 'coming-soon' && s.navigateTo && (
+                              <button onClick={() => onNavigate(s.navigateTo!)}
+                                style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 12px', borderRadius: 7, border: 'none', backgroundColor: s.color, color: '#fff', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer' }}>
+                                <Shield size={11} /> Abrir panel
                               </button>
                             )}
                           </div>

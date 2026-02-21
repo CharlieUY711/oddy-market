@@ -6,6 +6,8 @@ import { Link, useNavigate } from 'react-router';
 import { Check, ChevronRight, CreditCard, Smartphone, Building2, Lock, ArrowRight, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCart } from './cartContext';
+import { MetaMapVerification, isMetamapVerified } from '../components/MetaMapVerification';
+import { PRODUCTS } from './storefrontData';
 
 const ORANGE = '#FF6835';
 
@@ -78,6 +80,14 @@ export default function StorefrontCheckoutPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>(1);
   const [orderNumber] = useState(`OM-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
+  const [showMetaMap, setShowMetaMap] = useState(false);
+
+  // Detectar productos con restricción de edad en el carrito
+  const restrictedItems = items
+    .map(item => PRODUCTS.find(p => p.id === item.productId))
+    .filter(p => p?.ageRestricted)
+    .map(p => p!.name);
+  const hasRestrictedItems = restrictedItems.length > 0;
 
   const [form, setForm] = useState<FormData>({
     nombre: '', apellido: '', email: '', telefono: '',
@@ -106,6 +116,11 @@ export default function StorefrontCheckoutPage() {
   const handleNext = () => {
     if (!validateStep()) return;
     if (step === 3) {
+      // Verificar si hay productos +18 y si el KYC MetaMap no está hecho
+      if (hasRestrictedItems && !isMetamapVerified()) {
+        setShowMetaMap(true);
+        return;
+      }
       toast.loading('Procesando pago...', { id: 'pay' });
       setTimeout(() => {
         toast.dismiss('pay');
@@ -116,6 +131,17 @@ export default function StorefrontCheckoutPage() {
     } else {
       setStep(prev => (prev + 1) as Step);
     }
+  };
+
+  const handleMetaMapVerified = () => {
+    setShowMetaMap(false);
+    toast.loading('Procesando pago...', { id: 'pay' });
+    setTimeout(() => {
+      toast.dismiss('pay');
+      toast.success('¡Pago aprobado!');
+      clearCart();
+      setStep(4);
+    }, 1800);
   };
 
   if (items.length === 0 && step !== 4) {
@@ -129,6 +155,16 @@ export default function StorefrontCheckoutPage() {
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px 64px' }}>
+
+      {/* MetaMap KYC Modal */}
+      <MetaMapVerification
+        isOpen={showMetaMap}
+        orderNumber={orderNumber}
+        restrictedItems={restrictedItems}
+        onVerified={handleMetaMapVerified}
+        onClose={() => setShowMetaMap(false)}
+      />
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '28px' }}>
         <Link to="/cart" style={{ color: '#888', textDecoration: 'none', fontSize: '13px' }}>Carrito</Link>
         <ChevronRight size={13} color="#ccc" />

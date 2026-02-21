@@ -18,6 +18,8 @@ export interface Product {
   sizes?: string[];
   stock: number;
   isNew?: boolean;
+  ageRestricted?: boolean;   // ← nuevo
+  minAge?: number;           // ← nuevo
 }
 
 export interface Category {
@@ -26,6 +28,8 @@ export interface Category {
   emoji: string;
   count: number;
   color: string;
+  ageRestricted?: boolean;   // ← nuevo
+  minAge?: number;           // ← nuevo
 }
 
 export interface SecondHandListing {
@@ -164,6 +168,53 @@ export const PRODUCTS: Product[] = [
     stock: 5,
     isNew: true,
   },
+  /* ── Productos con restricción de edad ── */
+  {
+    id: 'p9',
+    name: 'Vino Malbec Reserva 2022',
+    category: 'alcohol',
+    price: 28,
+    rating: 4.7,
+    reviews: 312,
+    image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80',
+    badge: '🍷 Reserva',
+    description: 'Malbec Reserva de Mendoza. Notas de ciruela, tabaco y especias. 13.5% vol. Botella 750ml.',
+    specs: { 'Varietal': 'Malbec 100%', 'Cosecha': '2022', 'Graduación': '13.5%', 'Contenido': '750 ml', 'Origen': 'Mendoza, AR' },
+    stock: 48,
+    ageRestricted: true,
+    minAge: 18,
+  },
+  {
+    id: 'p10',
+    name: 'Pack Cerveza Artesanal IPA x6',
+    category: 'alcohol',
+    price: 18,
+    originalPrice: 24,
+    rating: 4.5,
+    reviews: 189,
+    image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=600&q=80',
+    badge: 'Oferta',
+    description: 'Pack de 6 cervezas IPA artesanal. Lupulada, 6.2% vol. Lata 473ml. Producción local UY.',
+    specs: { 'Estilo': 'India Pale Ale', 'Graduación': '6.2%', 'Contenido': '473 ml x6', 'Origen': 'Montevideo, UY' },
+    stock: 34,
+    ageRestricted: true,
+    minAge: 18,
+  },
+  {
+    id: 'p11',
+    name: 'Whisky Single Malt 12 años',
+    category: 'alcohol',
+    price: 65,
+    rating: 4.9,
+    reviews: 94,
+    image: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?w=600&q=80',
+    description: 'Single Malt escocés 12 años. Notas de vainilla, miel y roble. 40% vol. 700ml.',
+    specs: { 'Tipo': 'Single Malt Scotch', 'Añejamiento': '12 años', 'Graduación': '40%', 'Contenido': '700 ml', 'Origen': 'Highlands, UK' },
+    stock: 12,
+    ageRestricted: true,
+    minAge: 18,
+    isNew: true,
+  },
 ];
 
 export const CATEGORIES: Category[] = [
@@ -173,6 +224,8 @@ export const CATEGORIES: Category[] = [
   { id: 'deportes',   name: 'Deportes',   emoji: '⚽', count: 204, color: '#F59E0B' },
   { id: 'accesorios', name: 'Accesorios', emoji: '🎒', count: 156, color: '#8B5CF6' },
   { id: 'bebes',      name: 'Bebés',      emoji: '🍼', count: 83,  color: '#F97316' },
+  { id: 'alcohol',    name: 'Alcohol & Bebidas', emoji: '🍷', count: 48, color: '#7C3AED', ageRestricted: true, minAge: 18 },
+  { id: 'tabaco',     name: 'Tabaco',     emoji: '🚬', count: 22,  color: '#6B7280', ageRestricted: true, minAge: 18 },
 ];
 
 export const SECOND_HAND: SecondHandListing[] = [

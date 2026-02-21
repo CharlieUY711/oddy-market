@@ -2,8 +2,9 @@
    Migración de RRSS — Instagram + Facebook
    Respalda, elimina y rebrandea tu presencia social
    ===================================================== */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
+import { RRSSBanner }   from '../RRSSBanner';
 import type { MainSection } from '../../../AdminDashboard';
 import {
   Download, Trash2, RefreshCw, Settings, Copy, Eye, EyeOff,
@@ -85,10 +86,12 @@ export function MigracionRRSSView({ onNavigate }: Props) {
         title="Migración de Redes Sociales"
         subtitle="Respalda, eliminá y rebrandeá tu presencia en Facebook e Instagram"
         actions={[
-          { label: 'Volver', onClick: () => onNavigate('marketing') },
+          { label: 'Volver', onClick: () => onNavigate('rrss') },
           { label: 'Ver Historial', primary: true },
         ]}
       />
+
+      <RRSSBanner onNavigate={onNavigate} active="migracion-rrss" />
 
       {/* Platform selector */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '32px 28px' }}>
@@ -174,14 +177,25 @@ function PlatformView({ platform, onBack, onNavigate }: { platform: Platform; on
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* Platform header */}
-      <div style={{ background: cfg.gradient, padding: '22px 28px', display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.35)' }}>
+      {/* OrangeHeader */}
+      <OrangeHeader
+        icon={ArrowLeftRight}
+        title={cfg.name}
+        subtitle={cfg.subtitle}
+        actions={[{ label: '← Volver', onClick: onBack }]}
+      />
+
+      {/* RRSS sub-banner */}
+      <RRSSBanner onNavigate={onNavigate} active="migracion-rrss" />
+
+      {/* Colored platform strip — icon + title */}
+      <div style={{ background: cfg.gradient, padding: '14px 28px', display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
+        <div style={{ width: '38px', height: '38px', borderRadius: '11px', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.35)' }}>
           {cfg.icon}
         </div>
         <div>
-          <h2 style={{ color: '#fff', margin: 0, fontWeight: 800, fontSize: '20px', lineHeight: 1.2 }}>{cfg.name}</h2>
-          <p style={{ color: 'rgba(255,255,255,0.85)', margin: '3px 0 0', fontSize: '13px' }}>{cfg.subtitle}</p>
+          <h2 style={{ color: '#fff', margin: 0, fontWeight: 800, fontSize: '16px', lineHeight: 1.2 }}>{cfg.name}</h2>
+          <p style={{ color: 'rgba(255,255,255,0.8)', margin: '2px 0 0', fontSize: '12px' }}>{cfg.subtitle}</p>
         </div>
       </div>
 
@@ -217,6 +231,21 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
   const [showCreds, setShowCreds] = useState(false);
   const [creds, setCreds] = useState<Record<string, string>>({});
   const [verifying, setVerifying] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  const LS_KEY = `charlie_migracion_creds_${platform}`;
+
+  /* Cargar credenciales guardadas al montar */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setCreds(parsed.creds ?? {});
+        setSavedAt(parsed.savedAt ?? null);
+      }
+    } catch {}
+  }, [platform]);
 
   const isIG = platform === 'instagram';
 
@@ -248,6 +277,13 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
   const handleCopy = (val: string, label: string) => {
     navigator.clipboard.writeText(val || 'Sin valor');
     toast.success(`${label} copiado`);
+  };
+
+  const handleSave = () => {
+    const ts = new Date().toISOString();
+    localStorage.setItem(LS_KEY, JSON.stringify({ creds, savedAt: ts, platform }));
+    setSavedAt(ts);
+    toast.success('✅ Credenciales guardadas en este navegador');
   };
 
   return (
@@ -343,7 +379,7 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <button
-            onClick={() => toast.success('Credenciales guardadas')}
+            onClick={handleSave}
             style={{ padding: '14px', background: cfg.gradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             Guardar Credenciales
           </button>
@@ -353,6 +389,29 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
             style={{ padding: '14px', backgroundColor: '#fff', color: '#333', border: '1.5px solid #E0E0E0', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             {verifying ? '⏳ Verificando...' : 'Verificar Conexión'}
           </button>
+        </div>
+
+        {/* Info: dónde se guarda */}
+        <div style={{ marginTop: '14px', padding: '12px 16px', backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Info size={13} color="#0369A1" />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#0369A1' }}>¿Dónde se guardan?</span>
+          </div>
+          <span style={{ fontSize: '12px', color: '#0369A1', lineHeight: 1.5 }}>
+            Las credenciales se almacenan en el <strong>localStorage de este navegador</strong> bajo la clave
+            {' '}<code style={{ backgroundColor: '#E0F2FE', padding: '1px 5px', borderRadius: '4px', fontFamily: 'monospace', fontSize: '11px' }}>{LS_KEY}</code>.
+            Son accesibles desde DevTools → Application → Local Storage.
+          </span>
+          {savedAt && (
+            <span style={{ fontSize: '11px', color: '#0EA5E9', fontWeight: 600, marginTop: '2px' }}>
+              💾 Último guardado: {new Date(savedAt).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })}
+            </span>
+          )}
+          {!savedAt && (
+            <span style={{ fontSize: '11px', color: '#F59E0B', fontWeight: 600, marginTop: '2px' }}>
+              ⚠️ Aún no guardadas — presioná "Guardar Credenciales"
+            </span>
+          )}
         </div>
       </div>
     </div>

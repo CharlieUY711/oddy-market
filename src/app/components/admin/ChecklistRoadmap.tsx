@@ -336,7 +336,20 @@ const MODULES_DATA: Module[] = [
   ] },
 
   // ==================== CONSTRUCTOR ====================
-  { id: "builder-constructor", name: "Constructor", category: "builder", status: "not-started", priority: "high", description: "Constructor visual de páginas, tiendas y experiencias digitales. Drag & drop, componentes modulares, templates y publicación directa.", estimatedHours: 80 },
+  { id: "builder-constructor", name: "Constructor", category: "builder", status: "progress-50", priority: "high", description: "Constructor visual de páginas, tiendas y experiencias digitales. Drag & drop, componentes modulares, templates y publicación directa.", estimatedHours: 80, submodules: [
+    { id: "bc-modules",    name: "Selección de módulos con sub-opciones por proveedor",                                           status: "completed",   estimatedHours: 12 },
+    { id: "bc-envvars",    name: "Generación automática de .env.example según módulos + proveedores",                             status: "completed",   estimatedHours: 4  },
+    { id: "bc-frontstore", name: "Step 3 — Elección de template de Frontstore (Minimal, Bold, Marketplace, Luxury, Delivery…)",  status: "not-started", estimatedHours: 20 },
+    { id: "bc-colors",     name: "Step 3 — Configurador de paleta de colores con preview en vivo del template",                   status: "not-started", estimatedHours: 10 },
+    { id: "bc-homepage",   name: "Step 3 — Selector de secciones de la Home (hero, categorías, ofertas, testimonios…)",           status: "not-started", estimatedHours: 8  },
+    { id: "bc-github",        name: "Generación real de repositorio en GitHub vía API con template + config aplicada",               status: "not-started", estimatedHours: 16 },
+    { id: "bc-preview",       name: "Preview live del storefront antes de generar el repo",                                          status: "not-started", estimatedHours: 10 },
+    { id: "bc-arch-schema",   name: "Definir schema KV de config por tenant: módulos activos, proveedores, colores, template",       status: "not-started", estimatedHours: 4  },
+    { id: "bc-arch-topdown",  name: "Flujo top-down: vistas hijas leen config del Constructor al cargar (módulos, proveedores)",     status: "not-started", estimatedHours: 12 },
+    { id: "bc-arch-bottomup", name: "Flujo bottom-up: vistas hijas persisten su estado de config de vuelta al KV store",             status: "not-started", estimatedHours: 12 },
+    { id: "bc-arch-badges",   name: "Constructor muestra badges reales por módulo: configurado / pendiente / con errores",           status: "not-started", estimatedHours: 8  },
+    { id: "bc-arch-progress", name: "Panel de progreso real en Constructor calculado desde estado persistido de cada módulo",        status: "not-started", estimatedHours: 6  },
+  ] },
 ];
 
 type ViewMode = "list" | "kanban" | "stats" | "queue";

@@ -80,6 +80,7 @@ import { AdminDashboardView }          from './components/admin/views/AdminDashb
 import { UserDashboardView }           from './components/admin/views/UserDashboardView';
 import { ConfigVistasPorRolView }      from './components/admin/views/ConfigVistasPorRolView';
 import { DocumentacionView }           from './components/admin/views/DocumentacionView';
+import { MetaMapView }                 from './components/admin/views/MetaMapView';
 import { Toaster } from 'sonner';
 
 export type MainSection =
@@ -160,7 +161,8 @@ export type MainSection =
   | 'dashboard-admin'
   | 'dashboard-usuario'
   | 'config-vistas'
-  | 'documentacion';
+  | 'documentacion'
+  | 'metamap-config';
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<MainSection>('dashboard');
@@ -250,6 +252,7 @@ export default function AdminDashboard() {
           {activeSection === 'dashboard-usuario'       && <UserDashboardView          onNavigate={nav} />}
           {activeSection === 'config-vistas'           && <ConfigVistasPorRolView     onNavigate={nav} />}
           {activeSection === 'documentacion'           && <DocumentacionView          onNavigate={nav} />}
+          {activeSection === 'metamap-config'          && <MetaMapView                onNavigate={nav} />}
         </main>
       </div>
     </>
