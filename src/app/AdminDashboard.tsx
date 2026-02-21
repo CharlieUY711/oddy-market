@@ -28,7 +28,6 @@ import { SecondHandView }     from './components/admin/views/SecondHandView';
 import { ERPInventarioView }  from './components/admin/views/ERPInventarioView';
 import { ERPFacturacionView } from './components/admin/views/ERPFacturacionView';
 import { ERPComprasView }     from './components/admin/views/ERPComprasView';
-import { StorefrontAdminView } from './components/admin/views/StorefrontAdminView';
 import { ERPCRMView }         from './components/admin/views/ERPCRMView';
 import { ERPContabilidadView } from './components/admin/views/ERPContabilidadView';
 import { ERPRRHHView }        from './components/admin/views/ERPRRHHView';
@@ -111,7 +110,6 @@ export type MainSection =
   | 'erp-contabilidad'
   | 'erp-rrhh'
   | 'proyectos'
-  | 'storefront'
   | 'personas'
   | 'organizaciones'
   | 'clientes'
@@ -202,7 +200,6 @@ export default function AdminDashboard() {
           {activeSection === 'erp-contabilidad'&& <ERPContabilidadView onNavigate={nav} />}
           {activeSection === 'erp-rrhh'        && <ERPRRHHView        onNavigate={nav} />}
           {activeSection === 'proyectos'       && <ProyectosView      onNavigate={nav} />}
-          {activeSection === 'storefront'      && <StorefrontAdminView onNavigate={nav} />}
           {activeSection === 'personas'        && <PersonasView        onNavigate={nav} />}
           {activeSection === 'organizaciones'  && <OrganizacionesView  onNavigate={nav} />}
           {activeSection === 'clientes'        && <ClientesView        onNavigate={nav} />}

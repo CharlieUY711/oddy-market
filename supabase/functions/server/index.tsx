@@ -13,6 +13,7 @@ import { roadmap } from "./roadmap.tsx";
 import { ideasBoard } from "./ideas_board.tsx";
 import { cargaMasiva } from "./carga_masiva.tsx";
 import { ageVerification } from "./age_verification.tsx";
+import { rrss } from "./rrss.tsx";
 
 const app = new Hono();
 
@@ -60,5 +61,8 @@ app.route("/make-server-75638143/carga-masiva", cargaMasiva);
 
 // Verificación de Edad + MetaMap
 app.route("/make-server-75638143/age-verification", ageVerification);
+
+// Redes Sociales — RRSS (Meta: Instagram + Facebook)
+app.route("/make-server-75638143/rrss", rrss);
 
 Deno.serve(app.fetch);

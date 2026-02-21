@@ -3,7 +3,7 @@ import { HubView, HubCardDef, HubQuickLink, HubComingSoonItem } from '../HubView
 import type { MainSection } from '../../../AdminDashboard';
 import {
   ShoppingCart, DollarSign, Truck, Package, FolderTree, ShoppingBag,
-  RefreshCw, Store, CreditCard, TrendingUp, Users, Clock, CheckCircle,
+  RefreshCw, CreditCard, TrendingUp, Users, Clock, CheckCircle,
   AlertCircle, BarChart2, Tag, Percent, Box, MapPin,
 } from 'lucide-react';
 
@@ -61,13 +61,6 @@ export function EcommerceView({ onNavigate }: Props) {
       badge: 'Marketplace', label: 'Segunda Mano',
       description: 'Marketplace interno de artículos usados con publicaciones, moderación y estadísticas.',
       stats: [{ icon: Tag, value: '—', label: 'Publicaciones' }, { icon: CheckCircle, value: '—', label: 'Activas' }, { icon: ShoppingCart, value: '—', label: 'Vendidos' }],
-    },
-    {
-      id: 'storefront', icon: Store, onClick: nav('storefront'),
-      gradient: 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)', color: '#EC4899',
-      badge: 'Tienda', label: 'Portal del Cliente',
-      description: 'Panel público del storefront: banner, carrusel, vitrina de productos y SEO integrado.',
-      stats: [{ icon: Users, value: '—', label: 'Visitas' }, { icon: Percent, value: '—', label: 'Conversión' }, { icon: Package, value: '—', label: 'Destacados' }],
     },
   ];
 

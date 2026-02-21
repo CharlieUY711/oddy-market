@@ -3,15 +3,16 @@
    Centro de comando completo para Meta Business Suite
    Charlie Marketplace Builder v1.5
    ===================================================== */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { OrangeHeader } from '../OrangeHeader';
 import type { MainSection } from '../../../AdminDashboard';
 import {
   Share2, BarChart2, ArrowLeftRight, Monitor, Zap, Calendar,
   BookOpen, CheckCircle, Settings, Rocket, Star, HelpCircle,
   Facebook, Instagram, MessageCircle, Wrench, ExternalLink,
-  ChevronRight,
+  ChevronRight, AlertCircle, Loader,
 } from 'lucide-react';
+import { getStatus, type AllStatus, type PlatformStatus } from '../../../services/rrssApi';
 
 const ORANGE   = '#FF6835';
 const FB_BLUE  = '#1877F2';
@@ -151,6 +152,29 @@ function AdditionalCard({ icon: Icon, iconBg, iconColor, title, description, sta
 
 /* ── Main export ── */
 export function RRSSHubView({ onNavigate }: Props) {
+  const [platformStatus, setPlatformStatus] = useState<AllStatus | null>(null);
+  const [loadingStatus, setLoadingStatus] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingStatus(true);
+    getStatus().then(s => {
+      if (!cancelled) { setPlatformStatus(s); setLoadingStatus(false); }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  /* Derive chip props from real status */
+  function chipProps(p: PlatformStatus | undefined): { status: string; dot: string } {
+    if (!p) return { status: 'Cargando…', dot: 'rgba(255,255,255,0.5)' };
+    if (p.status === 'connected')    return { status: `✓ ${p.accountName ?? 'Conectado'}`, dot: '#4ADE80' };
+    if (p.status === 'pending')      return { status: 'Sin verificar', dot: '#FCD34D' };
+    if (p.status === 'coming_soon')  return { status: 'Próximamente', dot: '#94A3B8' };
+    return { status: 'Sin credenciales', dot: '#F87171' };
+  }
+
+  const igChip = chipProps(platformStatus?.instagram);
+  const fbChip = chipProps(platformStatus?.facebook);
 
   const mainTools: MainCardProps[] = [
     {
@@ -266,11 +290,25 @@ export function RRSSHubView({ onNavigate }: Props) {
         <div style={{ background: 'linear-gradient(135deg, #5B21B6 0%, #1D4ED8 60%, #1877F2 100%)', padding: '16px 32px' }}>
           {/* Platform status row */}
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <PlatformChip icon={Facebook}        platform="Facebook"     status="Conectado"      statusColor={FB_BLUE}  onClick={() => onNavigate('meta-business')} />
-            <PlatformChip icon={Instagram}        platform="Instagram"    status="Conectado"      statusColor={IG_PINK}  onClick={() => onNavigate('meta-business')} />
-            <PlatformChip icon={MessageCircle}    platform="WhatsApp"     status="Activo"         statusColor={WA_GREEN} onClick={() => onNavigate('redes-sociales')} />
-            <PlatformChip icon={Wrench}           platform="Herramientas" status="6 disponibles"  statusColor='#fff'     />
+            <PlatformChip icon={Facebook}     platform="Facebook"     status={loadingStatus ? '…' : fbChip.status} statusColor={FB_BLUE}  onClick={() => onNavigate('migracion-rrss')} />
+            <PlatformChip icon={Instagram}    platform="Instagram"    status={loadingStatus ? '…' : igChip.status} statusColor={IG_PINK}  onClick={() => onNavigate('migracion-rrss')} />
+            <PlatformChip icon={MessageCircle} platform="WhatsApp"    status="Próximamente"  statusColor={WA_GREEN} />
+            <PlatformChip icon={Wrench}       platform="Herramientas" status="6 disponibles" statusColor='#fff' />
           </div>
+          {!loadingStatus && platformStatus && (
+            platformStatus.instagram.status !== 'connected' || platformStatus.facebook.status !== 'connected'
+          ) && (
+            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', backgroundColor: 'rgba(251,191,36,0.15)', borderRadius: '8px', border: '1px solid rgba(251,191,36,0.3)' }}>
+              <AlertCircle size={14} color="#FCD34D" />
+              <span style={{ fontSize: '12px', color: '#FCD34D', fontWeight: 600 }}>
+                Credenciales pendientes — configurá tu API en{' '}
+                <button onClick={() => onNavigate('migracion-rrss')}
+                  style={{ background: 'none', border: 'none', color: '#FCD34D', fontWeight: 800, cursor: 'pointer', textDecoration: 'underline', padding: 0, fontSize: '12px' }}>
+                  Migración RRSS → Configuración
+                </button>
+              </span>
+            </div>
+          )}
         </div>
 
         <div style={{ padding: '32px 32px 48px', maxWidth: '1200px' }}>

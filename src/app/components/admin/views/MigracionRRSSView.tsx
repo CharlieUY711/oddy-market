@@ -9,9 +9,10 @@ import type { MainSection } from '../../../AdminDashboard';
 import {
   Download, Trash2, RefreshCw, Settings, Copy, Eye, EyeOff,
   ExternalLink, AlertTriangle, CheckCircle2, Upload, Info,
-  ChevronLeft, Check, ArrowLeftRight,
+  ChevronLeft, Check, ArrowLeftRight, Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getCreds, saveCreds, verifyCreds, deleteCreds } from '../../../services/rrssApi';
 
 interface Props { onNavigate: (section: MainSection) => void; }
 
@@ -231,22 +232,35 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
   const [showCreds, setShowCreds] = useState(false);
   const [creds, setCreds] = useState<Record<string, string>>({});
   const [verifying, setVerifying] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loadingCreds, setLoadingCreds] = useState(true);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [missingKeys, setMissingKeys] = useState<Set<string>>(new Set());
   const [verifyResult, setVerifyResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
-  const LS_KEY = `charlie_migracion_creds_${platform}`;
-
-  /* Cargar credenciales guardadas al montar */
+  /* ── Load credentials from backend on mount ── */
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setCreds(parsed.creds ?? {});
-        setSavedAt(parsed.savedAt ?? null);
+    let cancelled = false;
+    setLoadingCreds(true);
+    getCreds(platform).then(data => {
+      if (cancelled) return;
+      if (data) {
+        setCreds({
+          appId:     data.appId     ?? '',
+          appSecret: data.appSecret ?? '',
+          token:     data.token     ?? '',
+          accountId: data.accountId ?? '',
+          pageId:    data.pageId    ?? '',
+        });
+        setSavedAt(data.savedAt ?? null);
+        if (data.verified?.verified) {
+          setVerifyResult({ ok: true, msg: `Cuenta conectada: ${data.verified.accountName} (ID: ${data.verified.accountId})` });
+          onVerified();
+        }
       }
-    } catch {}
+      setLoadingCreds(false);
+    });
+    return () => { cancelled = true; };
   }, [platform]);
 
   const isIG = platform === 'instagram';
@@ -268,7 +282,6 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
   ];
 
   const handleVerify = async () => {
-    /* 1 — Validar que todos los campos estén completos */
     const missingFields = cfg.credentialFields.filter(f => !creds[f.key]?.trim());
     if (missingFields.length > 0) {
       toast.error(`Completá estos campos antes de verificar: ${missingFields.map(f => f.label).join(', ')}`);
@@ -276,30 +289,26 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
       return;
     }
     setMissingKeys(new Set());
+
+    /* Auto-guardar antes si no hay savedAt */
+    if (!savedAt) {
+      toast.info('Guardando credenciales antes de verificar…');
+      await handleSave();
+    }
+
     setVerifying(true);
     setVerifyResult(null);
+    const res = await verifyCreds(platform);
+    setVerifying(false);
 
-    /* 2 — Llamada real a la Graph API de Meta con el Access Token */
-    try {
-      const token = creds['token']?.trim();
-      const res   = await fetch(
-        `https://graph.facebook.com/v19.0/me?fields=id,name&access_token=${encodeURIComponent(token)}`
-      );
-      const data  = await res.json();
-
-      if (data.error) {
-        setVerifyResult({ ok: false, msg: `Error Meta API: ${data.error.message}` });
-        toast.error(`❌ Token inválido: ${data.error.message}`);
-      } else {
-        setVerifyResult({ ok: true, msg: `Cuenta conectada: ${data.name} (ID: ${data.id})` });
-        toast.success(`✅ Conexión verificada — ${data.name}`);
-        onVerified();
-      }
-    } catch (err) {
-      setVerifyResult({ ok: false, msg: `Error de red: ${String(err)}` });
-      toast.error('❌ No se pudo conectar con la API de Meta. Revisá tu conexión.');
-    } finally {
-      setVerifying(false);
+    if (res.ok && res.data?.verified) {
+      setVerifyResult({ ok: true, msg: `Cuenta conectada: ${res.data.accountName} (ID: ${res.data.accountId})` });
+      toast.success(`✅ Conexión verificada — ${res.data.accountName}`);
+      onVerified();
+    } else {
+      const errMsg = res.data?.error ?? res.error ?? 'Error desconocido';
+      setVerifyResult({ ok: false, msg: errMsg });
+      toast.error(`❌ ${errMsg}`);
     }
   };
 
@@ -308,12 +317,53 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
     toast.success(`${label} copiado`);
   };
 
-  const handleSave = () => {
-    const ts = new Date().toISOString();
-    localStorage.setItem(LS_KEY, JSON.stringify({ creds, savedAt: ts, platform }));
-    setSavedAt(ts);
-    toast.success('✅ Credenciales guardadas en este navegador');
+  const handleSave = async () => {
+    const missingFields = cfg.credentialFields.filter(f => !creds[f.key]?.trim());
+    if (missingFields.length > 0) {
+      toast.error(`Completá todos los campos: ${missingFields.map(f => f.label).join(', ')}`);
+      setMissingKeys(new Set(missingFields.map(f => f.key)));
+      return;
+    }
+    setSaving(true);
+    const res = await saveCreds(platform, {
+      appId:     creds['appId'],
+      appSecret: creds['appSecret'],
+      token:     creds['token'],
+      accountId: creds['accountId'] || undefined,
+      pageId:    creds['pageId']    || undefined,
+    });
+    setSaving(false);
+    if (res.ok) {
+      setSavedAt(res.savedAt ?? new Date().toISOString());
+      setVerifyResult(null);
+      toast.success('✅ Credenciales guardadas en la base de datos');
+    } else {
+      toast.error(`❌ Error al guardar: ${res.error}`);
+    }
   };
+
+  const handleDeleteCreds = async () => {
+    if (!confirm('¿Seguro que querés eliminar las credenciales guardadas?')) return;
+    const res = await deleteCreds(platform);
+    if (res.ok) {
+      setCreds({});
+      setSavedAt(null);
+      setVerifyResult(null);
+      toast.success('Credenciales eliminadas');
+    } else {
+      toast.error(`Error: ${res.error}`);
+    }
+  };
+
+  if (loadingCreds) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px', gap: '12px', color: '#6B7280' }}>
+        <Loader2 size={22} style={{ animation: 'spin 1s linear infinite' }} />
+        <span style={{ fontSize: '14px' }}>Cargando credenciales desde la base de datos…</span>
+        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 24px 48px' }}>
@@ -409,14 +459,15 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <button
             onClick={handleSave}
-            style={{ padding: '14px', background: cfg.gradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            Guardar Credenciales
+            disabled={saving}
+            style={{ padding: '14px', background: cfg.gradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: saving ? 0.7 : 1 }}>
+            {saving ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Guardando…</> : '💾 Guardar Credenciales'}
           </button>
           <button
             onClick={handleVerify}
             disabled={verifying}
             style={{ padding: '14px', backgroundColor: '#fff', color: '#333', border: '1.5px solid #E0E0E0', borderRadius: '10px', fontWeight: 700, fontSize: '14px', cursor: verifying ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: verifying ? 0.7 : 1 }}>
-            {verifying ? '⏳ Verificando...' : '🔌 Verificar Conexión'}
+            {verifying ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Verificando…</> : '🔌 Verificar Conexión'}
           </button>
         </div>
 
@@ -432,14 +483,20 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
 
         {/* Info: dónde se guarda */}
         <div style={{ marginTop: '14px', padding: '12px 16px', backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Info size={13} color="#0369A1" />
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#0369A1' }}>¿Dónde se guardan?</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Info size={13} color="#0369A1" />
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#0369A1' }}>Almacenamiento — Supabase KV</span>
+            </div>
+            {savedAt && (
+              <button onClick={handleDeleteCreds}
+                style={{ fontSize: '11px', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
+                🗑 Eliminar credenciales
+              </button>
+            )}
           </div>
           <span style={{ fontSize: '12px', color: '#0369A1', lineHeight: 1.5 }}>
-            Las credenciales se almacenan en el <strong>localStorage de este navegador</strong> bajo la clave
-            {' '}<code style={{ backgroundColor: '#E0F2FE', padding: '1px 5px', borderRadius: '4px', fontFamily: 'monospace', fontSize: '11px' }}>{LS_KEY}</code>.
-            Son accesibles desde DevTools → Application → Local Storage.
+            Las credenciales se guardan en la <strong>base de datos Supabase</strong> del proyecto (tabla KV), cifradas en tránsito via HTTPS. Persisten entre sesiones y dispositivos.
           </span>
           {savedAt && (
             <span style={{ fontSize: '11px', color: '#0EA5E9', fontWeight: 600, marginTop: '2px' }}>
@@ -448,10 +505,11 @@ function TabConfig({ cfg, platform, onBack, onVerified }: { cfg: PlatformConfig;
           )}
           {!savedAt && (
             <span style={{ fontSize: '11px', color: '#F59E0B', fontWeight: 600, marginTop: '2px' }}>
-              ⚠️ Aún no guardadas — presioná "Guardar Credenciales"
+              ⚠️ Sin credenciales en la base de datos — completá los campos y guardá
             </span>
           )}
         </div>
+        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>
   );
