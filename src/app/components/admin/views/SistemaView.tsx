@@ -5,6 +5,7 @@ import {
   Settings, Sparkles, CreditCard, Truck, Plug, CheckSquare,
   Activity, Shield, BarChart2, Eye, Clock, BookOpen,
   Box, DollarSign, Monitor, Zap, TrendingUp, LogIn, Users,
+  LayoutDashboard, UserCircle, Lock,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -55,23 +56,49 @@ export function SistemaView({ onNavigate }: Props) {
       description: 'Módulo de autenticación completo: Login, registro, recuperación, OAuth (Google, Meta, GitHub). Vista previa + test en vivo.',
       stats: [{ icon: Users, value: '—', label: 'Usuarios' }, { icon: Shield, value: '4', label: 'Providers' }, { icon: Zap, value: 'JWT', label: 'Tokens' }],
     },
+    {
+      id: 'dashboard-admin', icon: LayoutDashboard, onClick: nav('dashboard-admin'),
+      gradient: 'linear-gradient(135deg, #FF6835 0%, #ff8c42 100%)', color: '#FF6835',
+      badge: 'Admin · Sistema', label: 'Dashboard de Admin',
+      description: 'Panel de administración: usuarios por rol, estado de servicios, alertas del sistema y actividad de administración.',
+      stats: [{ icon: Shield, value: '5', label: 'Roles' }, { icon: Activity, value: '6', label: 'Servicios' }, { icon: Users, value: '153', label: 'Usuarios' }],
+    },
+    {
+      id: 'dashboard-usuario', icon: UserCircle, onClick: nav('dashboard-usuario'),
+      gradient: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)', color: '#7C3AED',
+      badge: 'Roles · Personalizado', label: 'Dashboard de Usuario',
+      description: 'Vista personalizada según el rol del usuario: KPIs, módulos accesibles, actividad reciente. Simulador de 5 roles.',
+      stats: [{ icon: UserCircle, value: '5', label: 'Roles' }, { icon: Eye, value: '—', label: 'Módulos/rol' }, { icon: Activity, value: 'Live', label: 'Simulador' }],
+    },
+    {
+      id: 'config-vistas', icon: Lock, onClick: nav('config-vistas'),
+      gradient: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', color: '#3B82F6',
+      badge: 'Permisos · Granular', label: 'Config. de Vistas por Rol',
+      description: 'Define qué puede ver y hacer cada rol. Toggles granulares por módulo y sub-acción. Pasarelas, integraciones y más.',
+      stats: [{ icon: Users, value: '5', label: 'Roles' }, { icon: Lock, value: '7', label: 'Grupos' }, { icon: Shield, value: '40+', label: 'Permisos' }],
+    },
+    {
+      id: 'documentacion', icon: BookOpen, onClick: nav('documentacion'),
+      gradient: 'linear-gradient(135deg, #6B7280 0%, #374151 100%)', color: '#6B7280',
+      badge: 'Docs · Versiones', label: 'Documentación',
+      description: 'Manual de usuario y documentación técnica editable. Control de versiones, historial de cambios. Nivel 1 de auto-actualización.',
+      stats: [{ icon: BookOpen, value: '5', label: 'Sec. usuario' }, { icon: BarChart2, value: '4', label: 'Sec. técnica' }, { icon: Clock, value: 'v1.5', label: 'Versión' }],
+    },
   ];
 
   const comingSoon: HubComingSoonItem[] = [
-    { icon: Box,       label: 'Module Marketplace', desc: 'Módulos enterprise portables'          },
-    { icon: Activity,  label: 'Diagnóstico Backend', desc: 'Estado de servicios backend'          },
-    { icon: DollarSign,label: 'Gen. Presupuestos',   desc: 'Presupuestos para clientes'           },
-    { icon: BookOpen,  label: 'Documentación',       desc: 'Manuales y guías técnicas'            },
-    { icon: Shield,    label: 'Auditoría Sistema',   desc: 'Evaluación de funcionalidades'        },
-    { icon: BarChart2, label: 'Analíticas',          desc: 'Reportes y métricas avanzadas'        },
-    { icon: Eye,       label: 'Config Vistas',       desc: 'Permisos de visualización por rol'    },
+    { icon: Box,        label: 'Module Marketplace', desc: 'Módulos enterprise portables'          },
+    { icon: Activity,   label: 'Diagnóstico Backend', desc: 'Estado de servicios backend'          },
+    { icon: DollarSign, label: 'Gen. Presupuestos',   desc: 'Presupuestos para clientes'           },
+    { icon: Shield,     label: 'Auditoría Sistema',   desc: 'Evaluación de funcionalidades'        },
+    { icon: BarChart2,  label: 'Analíticas',          desc: 'Reportes y métricas avanzadas'        },
   ];
 
   return (
     <HubView
       hubIcon={Settings}
       title="Sistema"
-      subtitle="Configuración · Integraciones · Diseño · Auditoría · Roadmap"
+      subtitle="Configuración · Integraciones · Diseño · Auditoría · Roadmap · Documentación"
       sections={[{ cards }]}
       comingSoon={comingSoon}
     />

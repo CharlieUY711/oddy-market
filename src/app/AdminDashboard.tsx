@@ -76,6 +76,10 @@ import { AuthRegistroView }            from './components/admin/views/AuthRegist
 import { CargaMasivaView }             from './components/admin/views/CargaMasivaView';
 import { MetaBusinessView }            from './components/admin/views/MetaBusinessView';
 import { UnifiedWorkspaceView }        from './components/admin/views/UnifiedWorkspaceView';
+import { AdminDashboardView }          from './components/admin/views/AdminDashboardView';
+import { UserDashboardView }           from './components/admin/views/UserDashboardView';
+import { ConfigVistasPorRolView }      from './components/admin/views/ConfigVistasPorRolView';
+import { DocumentacionView }           from './components/admin/views/DocumentacionView';
 import { Toaster } from 'sonner';
 
 export type MainSection =
@@ -151,7 +155,12 @@ export type MainSection =
   | 'auth-registro'
   | 'carga-masiva'
   | 'meta-business'
-  | 'unified-workspace';
+  | 'unified-workspace'
+  // ── Sistema: Dashboards + Config + Docs ───────────────────────────────────────
+  | 'dashboard-admin'
+  | 'dashboard-usuario'
+  | 'config-vistas'
+  | 'documentacion';
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<MainSection>('dashboard');
@@ -236,6 +245,11 @@ export default function AdminDashboard() {
           {activeSection === 'carga-masiva'            && <CargaMasivaView            onNavigate={nav} />}
           {activeSection === 'meta-business'           && <MetaBusinessView           onNavigate={nav} />}
           {activeSection === 'unified-workspace'       && <UnifiedWorkspaceView       onNavigate={nav} />}
+          {/* ── Sistema: Dashboards + Config + Docs ── */}
+          {activeSection === 'dashboard-admin'         && <AdminDashboardView         onNavigate={nav} />}
+          {activeSection === 'dashboard-usuario'       && <UserDashboardView          onNavigate={nav} />}
+          {activeSection === 'config-vistas'           && <ConfigVistasPorRolView     onNavigate={nav} />}
+          {activeSection === 'documentacion'           && <DocumentacionView          onNavigate={nav} />}
         </main>
       </div>
     </>
