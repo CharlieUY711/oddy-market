@@ -11,6 +11,7 @@ import {
   Lock, Zap, Plus, X, CheckSquare, Square,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   MousePointer, Crop, Move, Hand, Type, Pipette, Droplets,
+  Undo2, Trash2,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -38,7 +39,7 @@ interface SlotState {
   rotation: number; flipH: boolean; flipV: boolean; label: string;
 }
 
-type ToolId = 'select' | 'crop' | 'transform' | 'pan' | 'text' | 'eyedrop';
+type ToolId = 'select' | 'crop' | 'transform' | 'pan' | 'text' | 'eyedrop' | 'watermark';
 
 /* ══════════ CONSTANTS ══════════ */
 const CANVAS_TEMPLATES = [
@@ -68,12 +69,13 @@ const SLOT_ICONS  = [Lock, Zap, Plus, Plus, Plus, Plus];
 
 /* tools: icon + label for tooltip, no visible text */
 const TOOLS: { id: ToolId; Icon: React.FC<{size?:number}>; tip: string }[] = [
-  { id: 'select',    Icon: MousePointer, tip: 'Selección (V)' },
-  { id: 'crop',      Icon: Crop,         tip: 'Recorte (C)'   },
+  { id: 'select',    Icon: MousePointer, tip: 'Selección (V)'  },
+  { id: 'crop',      Icon: Crop,         tip: 'Recorte (C)'    },
   { id: 'transform', Icon: Move,         tip: 'Transformar (T)'},
   { id: 'pan',       Icon: Hand,         tip: 'Mano (H)'       },
   { id: 'text',      Icon: Type,         tip: 'Texto (X)'      },
   { id: 'eyedrop',   Icon: Pipette,      tip: 'Cuentagotas (E)'},
+  { id: 'watermark', Icon: Droplets,     tip: 'Marca de agua'  },
 ];
 
 /* ══════════ UTILS ══════════ */
@@ -159,7 +161,7 @@ function LeftPanel({
   adj, setAdj, presetName, setPresetName,
   onUpload, onRemoveBg, processing, hasImage,
   bgTolerance, setBgTolerance, bgColor, setBgColor,
-  activeTool, setActiveTool, onAddWatermark,
+  activeTool, setActiveTool,
 }: {
   adj: Adjustments; setAdj: (a: Adjustments) => void;
   presetName: string; setPresetName: (n: string) => void;
@@ -168,7 +170,6 @@ function LeftPanel({
   bgTolerance: number; setBgTolerance: (v: number) => void;
   bgColor: string; setBgColor: (c: string) => void;
   activeTool: ToolId; setActiveTool: (t: ToolId) => void;
-  onAddWatermark: () => void;
 }) {
   const Slider = (key: keyof Adjustments, label: string, min: number, max: number, step = 1) => (
     <div key={key} style={{ marginBottom: 9 }}>
@@ -267,22 +268,15 @@ function LeftPanel({
         <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:5 }}>
           {TOOLS.map(({ id, Icon, tip }) => {
             const active = activeTool === id;
+            const isWatermark = id === 'watermark';
             return (
               <button key={id} onClick={()=>setActiveTool(id)} title={tip}
-                style={{ height:36,borderRadius:7,border:`1.5px solid ${active?'#FF6835':'#E5E7EB'}`,backgroundColor:active?'#FF6835':'#F9FAFB',color:active?'#fff':'#374151',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.1s' }}>
+                style={{ height:36,borderRadius:7,border:`1.5px solid ${active?(isWatermark?'#10B981':'#FF6835'):'#E5E7EB'}`,backgroundColor:active?(isWatermark?'#10B981':'#FF6835'):'#F9FAFB',color:active?'#fff':'#374151',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.1s' }}>
                 <Icon size={15}/>
               </button>
             );
           })}
         </div>
-      </div>
-
-      {/* Watermark — sticky bottom */}
-      <div style={{ padding:'10px 12px', borderTop:'1px solid #F3F4F6', flexShrink:0 }}>
-        <button onClick={onAddWatermark} disabled={!hasImage}
-          style={{ width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'9px',borderRadius:8,border:`1.5px solid ${hasImage?'#10B981':'#E5E7EB'}`,backgroundColor:hasImage?'#ECFDF5':'#F9FAFB',color:hasImage?'#059669':'#9CA3AF',cursor:hasImage?'pointer':'not-allowed',fontSize:'0.75rem',fontWeight:'700' }}>
-          <Droplets size={13}/> Marca de Agua
-        </button>
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
@@ -334,6 +328,7 @@ function CanvasArea({
   fontFamily, setFontFamily, fontSize, setFontSize,
   fontBold, setFontBold, fontItalic, setFontItalic, fontUnderline, setFontUnderline,
   textAlign, setTextAlign, textColor, setTextColor,
+  onUndo, onClear, onDelete, canUndo, hasSelected,
 }: {
   imageSrc: string|null; adj: Adjustments;
   rotation: number; setRotation: (r:number)=>void;
@@ -355,6 +350,8 @@ function CanvasArea({
   fontUnderline: boolean; setFontUnderline: (v:boolean)=>void;
   textAlign: 'left'|'center'|'right'; setTextAlign: (v:'left'|'center'|'right')=>void;
   textColor: string; setTextColor: (v:string)=>void;
+  onUndo: ()=>void; onClear: ()=>void; onDelete: ()=>void;
+  canUndo: boolean; hasSelected: boolean;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const frameRef   = useRef<HTMLDivElement>(null);
@@ -417,6 +414,16 @@ function CanvasArea({
   /* Click on empty frame area: add text (text tool) OR deselect */
   const onFrameClick=(e:React.MouseEvent)=>{
     if (e.target!==frameRef.current) return;
+    if (activeTool==='watermark') {
+      const fr=frameRef.current!.getBoundingClientRect();
+      const wm:TextItem={
+        id:'wm_'+uid(), content:'© MARCA DE AGUA',
+        x:(e.clientX-fr.left)/fr.width*100, y:(e.clientY-fr.top)/fr.height*100,
+        fontFamily:'Arial', fontSize:80, bold:true, italic:false, underline:false,
+        align:'center', color:'rgba(255,255,255,0.4)', rotation:-30, opacity:55,
+      };
+      setTextItems(prev=>[...prev,wm]); setSelectedId(wm.id); setActiveTool('select'); return;
+    }
     if (activeTool==='text') {
       const fr=frameRef.current!.getBoundingClientRect();
       const newItem:TextItem={
@@ -433,7 +440,7 @@ function CanvasArea({
 
   const imgTransform=`rotate(${rotation}deg) scaleX(${flipH?-1:1}) scaleY(${flipV?-1:1})`;
   const aspectLabel=imgDims?aspectStr(imgDims.w,imgDims.h):null;
-  const cursorMap:Record<ToolId,string>={ select:'default',crop:'crosshair',transform:'move',pan:'grab',text:'text',eyedrop:'crosshair' };
+  const cursorMap:Record<ToolId,string>={ select:'default',crop:'crosshair',transform:'move',pan:'grab',text:'text',eyedrop:'crosshair',watermark:'copy' };
 
   const tgl=(active:boolean):React.CSSProperties=>({
     ...tbBtn, backgroundColor:active?'#FFF4F0':'#fff',
@@ -501,6 +508,22 @@ function CanvasArea({
           <input type="color" value={textColor} onChange={e=>setTextColor(e.target.value)}
             style={{ position:'absolute',inset:0,opacity:0,width:'100%',height:'100%',cursor:'pointer' }}/>
         </label>
+
+        {/* ── Action buttons: undo / clear / delete ── */}
+        <div style={{ flex:1 }}/>
+        <div style={tbSep}/>
+        <button onClick={onUndo} disabled={!canUndo} title="Deshacer (Ctrl+Z)"
+          style={{ ...tbBtn, color:canUndo?'#374151':'#D1D5DB', border:`1px solid ${canUndo?'#E5E7EB':'#F3F4F6'}` }}>
+          <Undo2 size={14}/>
+        </button>
+        <button onClick={onClear} title="Limpiar área"
+          style={{ ...tbBtn, color:'#6B7280' }}>
+          <Trash2 size={14}/>
+        </button>
+        <button onClick={onDelete} disabled={!hasSelected} title="Eliminar seleccionado (Supr)"
+          style={{ ...tbBtn, backgroundColor:hasSelected?'#FEF2F2':'#fff', color:hasSelected?'#EF4444':'#D1D5DB', border:`1px solid ${hasSelected?'#FECACA':'#F3F4F6'}` }}>
+          <X size={14}/>
+        </button>
       </div>
 
       {/* ── CONTENT: slot strip + canvas ── */}
@@ -786,6 +809,10 @@ export function EditorImagenesWorkspace({ onNavigate }: Props) {
   const [textAlign,setTextAlign]         = useState<'left'|'center'|'right'>('center');
   const [textColor,setTextColor]         = useState('#ffffff');
 
+  // Undo (stores snapshots of textItems + imagePos)
+  const undoStack = useRef<{ textItems: TextItem[]; imagePos: {x:number;y:number} }[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
+
   const fileRef=useRef<HTMLInputElement>(null);
 
   const handleFileLoad=(file:File)=>{
@@ -841,18 +868,58 @@ export function EditorImagenesWorkspace({ onNavigate }: Props) {
     }
   };
 
-  const handleAddWatermark=()=>{
-    if (!imageSrc) return;
-    const wm:TextItem={
-      id:'wm_'+uid(), content:'© MARCA DE AGUA',
-      x:50, y:50,
-      fontFamily:'Arial', fontSize:80, bold:true, italic:false, underline:false,
-      align:'center', color:'rgba(255,255,255,0.4)', rotation:-30, opacity:55,
-    };
-    setTextItems(prev=>[...prev.filter(t=>!t.id.startsWith('wm_')),wm]);
-    setSelectedId(wm.id);
-    setActiveTool('select'); // switch to select so they can drag it
+  // Save snapshot before destructive actions
+  const snapshot = useCallback((items: TextItem[], pos: {x:number;y:number}) => {
+    undoStack.current = [...undoStack.current.slice(-9), { textItems: items, imagePos: pos }];
+    setCanUndo(true);
+  }, []);
+
+  const handleUndo = () => {
+    const prev = undoStack.current.pop();
+    if (!prev) return;
+    setTextItems(prev.textItems);
+    setImagePos(prev.imagePos);
+    setSelectedId(null);
+    setCanUndo(undoStack.current.length > 0);
   };
+
+  const handleClear = () => {
+    snapshot(textItems, imagePos);
+    setTextItems([]);
+    setImagePos({x:0,y:0});
+    setSelectedId(null);
+  };
+
+  const handleDelete = () => {
+    if (!selectedId) return;
+    snapshot(textItems, imagePos);
+    if (selectedId === 'image') {
+      // deselect image (don't remove it, just deselect)
+      setSelectedId(null);
+    } else {
+      setTextItems(prev => prev.filter(t => t.id !== selectedId));
+      setSelectedId(null);
+    }
+  };
+
+  // Keyboard: Delete / Backspace removes selected element
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) return;
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedId && selectedId !== 'image') {
+          setTextItems(prev => prev.filter(t => t.id !== selectedId));
+          setSelectedId(null);
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault(); handleUndo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selectedId, textItems, imagePos]);
 
   const doExport=(s:SlotState,fname:string)=>{
     const img=new Image();
@@ -886,7 +953,6 @@ export function EditorImagenesWorkspace({ onNavigate }: Props) {
             bgTolerance={bgTolerance} setBgTolerance={setBgTolerance}
             bgColor={bgColor} setBgColor={setBgColor}
             activeTool={activeTool} setActiveTool={setActiveTool}
-            onAddWatermark={handleAddWatermark}
           />
         }
         canvas={
@@ -910,6 +976,8 @@ export function EditorImagenesWorkspace({ onNavigate }: Props) {
               fontUnderline={fontUnderline} setFontUnderline={setFontUnderline}
               textAlign={textAlign} setTextAlign={setTextAlign}
               textColor={textColor} setTextColor={setTextColor}
+              onUndo={handleUndo} onClear={handleClear} onDelete={handleDelete}
+              canUndo={canUndo} hasSelected={!!selectedId}
             />
           </div>
         }
