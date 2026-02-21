@@ -1,8 +1,8 @@
 /**
- * 🖼️ Editor de Imágenes Pro v3
- * Strip · BG removal BFS · Auto-ajuste · Templates · Text overlay
+ * 🖼️ Editor de Imágenes Pro v4
+ * Un toolbar · Drag image & text · Tools · Watermark
  */
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { WorkspaceShell } from '../workspace/WorkspaceShell';
 import type { MainSection } from '../../../AdminDashboard';
 import {
@@ -10,26 +10,44 @@ import {
   ZoomIn, ZoomOut, RotateCcw, RotateCw, Eraser, Loader,
   Plus, Lock, Zap, X, CheckSquare, Square,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Type,
+  MousePointer, Crop, Move, Hand, Scissors, Droplets, Trash2,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
 
-/* ══════════════ TYPES ══════════════ */
+/* ══════ TYPES ══════ */
 interface Adjustments {
   brightness: number; contrast: number; saturation: number;
   hue: number; blur: number; sepia: number; opacity: number;
 }
 const DEFAULT_ADJ: Adjustments = {
-  brightness: 100, contrast: 100, saturation: 100,
-  hue: 0, blur: 0, sepia: 0, opacity: 100,
+  brightness: 100, contrast: 100, saturation: 100, hue: 0, blur: 0, sepia: 0, opacity: 100,
 };
+
+interface TextItem {
+  id: string;
+  content: string;
+  x: number;   // % from frame left
+  y: number;   // % from frame top
+  fontFamily: string;
+  fontSize: number;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  align: 'left' | 'center' | 'right';
+  color: string;
+  rotation: number;
+  opacity: number;
+}
 
 interface SlotState {
   src: string; adj: Adjustments;
   rotation: number; flipH: boolean; flipV: boolean; label: string;
 }
 
-/* ══════════════ TEMPLATES ══════════════ */
+type ToolId = 'select' | 'crop' | 'transform' | 'pan' | 'text';
+
+/* ══════ TEMPLATES ══════ */
 const CANVAS_TEMPLATES = [
   { id: 'square', name: 'Web Cuadrado', w: 1200, h: 1200, shape: 'rect',   emoji: '⬛', desc: '1200 × 1200' },
   { id: 'story',  name: 'Story 9:10',  w: 1080, h: 1200, shape: 'rect',   emoji: '📱', desc: '1080 × 1200' },
@@ -39,7 +57,6 @@ const CANVAS_TEMPLATES = [
   { id: 'circle', name: 'Circular',    w: 1200, h: 1200, shape: 'circle', emoji: '⭕', desc: '1200 × 1200' },
 ];
 
-/* ══════════════ FILTER PRESETS ══════════════ */
 const FILTER_PRESETS = [
   { name: 'Original', values: DEFAULT_ADJ },
   { name: 'Vívido',   values: { ...DEFAULT_ADJ, brightness: 110, contrast: 115, saturation: 150 } },
@@ -51,148 +68,113 @@ const FILTER_PRESETS = [
   { name: 'Noir',     values: { ...DEFAULT_ADJ, saturation: 0, contrast: 130, brightness: 90 } },
 ];
 
-const FONT_FAMILIES = [
-  'Arial', 'Georgia', 'Verdana', 'Courier New',
-  'Impact', 'Trebuchet MS', 'Palatino', 'Tahoma',
+const FONT_FAMILIES = ['Arial', 'Georgia', 'Verdana', 'Courier New', 'Impact', 'Trebuchet MS', 'Palatino', 'Tahoma'];
+
+const LEFT_TOOLS: { id: ToolId; Icon: React.FC<{ size?: number }>; label: string; shortcut: string }[] = [
+  { id: 'select',    Icon: MousePointer, label: 'Selección',   shortcut: 'V' },
+  { id: 'crop',      Icon: Crop,         label: 'Recorte',     shortcut: 'C' },
+  { id: 'transform', Icon: Move,         label: 'Transformar', shortcut: 'T' },
+  { id: 'pan',       Icon: Hand,         label: 'Mano',        shortcut: 'H' },
 ];
 
-/* ══════════════ UTILS ══════════════ */
-function buildFilter(adj: Adjustments): string {
-  return [
-    `brightness(${adj.brightness}%)`, `contrast(${adj.contrast}%)`,
-    `saturate(${adj.saturation}%)`, `hue-rotate(${adj.hue}deg)`,
-    `blur(${adj.blur}px)`, `sepia(${adj.sepia}%)`, `opacity(${adj.opacity}%)`,
-  ].join(' ');
+/* ══════ UTILS ══════ */
+function buildFilter(a: Adjustments) {
+  return `brightness(${a.brightness}%) contrast(${a.contrast}%) saturate(${a.saturation}%) hue-rotate(${a.hue}deg) blur(${a.blur}px) sepia(${a.sepia}%) opacity(${a.opacity}%)`;
 }
 function gcd(a: number, b: number): number { return b === 0 ? a : gcd(b, a % b); }
-function aspectStr(w: number, h: number): string {
-  const d = gcd(w, h); const rw = w / d, rh = h / d;
+function aspectStr(w: number, h: number) {
+  const d = gcd(w, h), rw = w / d, rh = h / d;
   return (rw > 20 || rh > 20) ? `${(w / h).toFixed(2)}:1` : `${rw}:${rh}`;
 }
+function uid() { return Math.random().toString(36).slice(2, 9); }
 
-/* ══════════════ BFS BACKGROUND REMOVAL ══════════════ */
-async function removeBg(src: string, tolerance = 58): Promise<string> {
+/* ══════ BFS BG REMOVAL ══════ */
+async function removeBg(src: string, tol = 58): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const MAX = 2000;
-      const sc = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
-      const W = Math.round(img.naturalWidth * sc);
-      const H = Math.round(img.naturalHeight * sc);
-      const canvas = document.createElement('canvas');
-      canvas.width = W; canvas.height = H;
+      const MAX = 2000, sc = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+      const W = Math.round(img.naturalWidth * sc), H = Math.round(img.naturalHeight * sc);
+      const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
       ctx.drawImage(img, 0, 0, W, H);
-      const imgData = ctx.getImageData(0, 0, W, H);
-      const px = imgData.data;
-
-      /* median border color */
+      const imgData = ctx.getImageData(0, 0, W, H); const px = imgData.data;
       const samps: [number, number, number][] = [];
-      const addS = (x: number, y: number) => {
-        const i = (y * W + x) * 4;
-        samps.push([px[i], px[i + 1], px[i + 2]]);
-      };
-      for (let x = 0; x < W; x++) { addS(x, 0); addS(x, H - 1); }
-      for (let y = 1; y < H - 1; y++) { addS(0, y); addS(W - 1, y); }
-      samps.sort((a, b) =>
-        (0.299 * a[0] + 0.587 * a[1] + 0.114 * a[2]) -
-        (0.299 * b[0] + 0.587 * b[1] + 0.114 * b[2]));
+      const addS = (x: number, y: number) => { const i = (y * W + x) * 4; samps.push([px[i], px[i+1], px[i+2]]); };
+      for (let x = 0; x < W; x++) { addS(x, 0); addS(x, H-1); }
+      for (let y = 1; y < H-1; y++) { addS(0, y); addS(W-1, y); }
+      samps.sort((a, b) => (0.299*a[0]+0.587*a[1]+0.114*a[2]) - (0.299*b[0]+0.587*b[1]+0.114*b[2]));
       const [bgR, bgG, bgB] = samps[samps.length >> 1];
-
-      const dist = (idx: number) => {
-        const dr = px[idx] - bgR, dg = px[idx + 1] - bgG, db = px[idx + 2] - bgB;
-        return Math.sqrt(dr * dr + dg * dg + db * db);
-      };
-
-      /* BFS */
-      const visited = new Uint8Array(W * H);
-      const queue = new Int32Array(W * H * 2);
-      let head = 0, tail = 0;
-      const enq = (pos: number) => {
-        if (pos >= 0 && pos < W * H && !visited[pos]) { visited[pos] = 1; queue[tail++] = pos; }
-      };
-      for (let x = 0; x < W; x++) { enq(x); enq((H - 1) * W + x); }
-      for (let y = 1; y < H - 1; y++) { enq(y * W); enq(y * W + W - 1); }
-      while (head < tail) {
-        const pos = queue[head++];
-        const x = pos % W; const y = (pos / W) | 0;
-        if (dist(pos * 4) <= tolerance) {
-          px[pos * 4 + 3] = 0;
-          if (x > 0) enq(pos - 1); if (x < W - 1) enq(pos + 1);
-          if (y > 0) enq(pos - W); if (y < H - 1) enq(pos + W);
+      const dist = (i: number) => { const dr=px[i]-bgR,dg=px[i+1]-bgG,db=px[i+2]-bgB; return Math.sqrt(dr*dr+dg*dg+db*db); };
+      const visited = new Uint8Array(W*H); const queue = new Int32Array(W*H*2); let head=0, tail=0;
+      const enq = (p: number) => { if (p>=0&&p<W*H&&!visited[p]) { visited[p]=1; queue[tail++]=p; } };
+      for (let x=0;x<W;x++){enq(x);enq((H-1)*W+x);}
+      for (let y=1;y<H-1;y++){enq(y*W);enq(y*W+W-1);}
+      while (head<tail) {
+        const pos=queue[head++]; const x=pos%W; const y=(pos/W)|0;
+        if (dist(pos*4)<=tol) { px[pos*4+3]=0; if(x>0)enq(pos-1);if(x<W-1)enq(pos+1);if(y>0)enq(pos-W);if(y<H-1)enq(pos+W); }
+      }
+      const snap=new Uint8Array(W*H); for(let i=0;i<W*H;i++) snap[i]=px[i*4+3];
+      for (let y=1;y<H-1;y++) for (let x=1;x<W-1;x++) {
+        const pos=y*W+x;
+        if (snap[pos]>0) {
+          const hasTrans=snap[pos-1]===0||snap[pos+1]===0||snap[pos-W]===0||snap[pos+W]===0;
+          if (hasTrans) { const d=dist(pos*4),t=tol*0.6; px[pos*4+3]=Math.round(255*Math.min(1,Math.max(0,(d-t)/(tol-t)))); }
         }
       }
-
-      /* edge feather */
-      const snap = new Uint8Array(W * H);
-      for (let i = 0; i < W * H; i++) snap[i] = px[i * 4 + 3];
-      for (let y = 1; y < H - 1; y++) {
-        for (let x = 1; x < W - 1; x++) {
-          const pos = y * W + x;
-          if (snap[pos] > 0) {
-            const hasTrans = snap[pos-1]===0||snap[pos+1]===0||snap[pos-W]===0||snap[pos+W]===0;
-            if (hasTrans) {
-              const d = dist(pos * 4); const t = tolerance * 0.6;
-              px[pos * 4 + 3] = Math.round(255 * Math.min(1, Math.max(0, (d - t) / (tolerance - t))));
-            }
-          }
-        }
-      }
-      ctx.putImageData(imgData, 0, 0);
-      resolve(canvas.toDataURL('image/png'));
+      ctx.putImageData(imgData, 0, 0); resolve(canvas.toDataURL('image/png'));
     };
-    img.onerror = () => reject(new Error('load failed'));
+    img.onerror = () => reject(new Error('load'));
     img.src = src;
   });
 }
 
-/* ══════════════ AUTO-ADJUST ══════════════ */
 async function autoAdjust(src: string): Promise<Adjustments> {
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
-      const S = 80;
-      const c = document.createElement('canvas'); c.width = S; c.height = S;
-      const ctx = c.getContext('2d')!; ctx.drawImage(img, 0, 0, S, S);
-      const { data } = ctx.getImageData(0, 0, S, S);
-      let sumL = 0, sumSq = 0, n = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        if (data[i + 3] < 80) continue;
-        const l = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
-        sumL += l; sumSq += l * l; n++;
+      const S=80, c=document.createElement('canvas'); c.width=S; c.height=S;
+      const ctx=c.getContext('2d')!; ctx.drawImage(img,0,0,S,S);
+      const {data}=ctx.getImageData(0,0,S,S); let sumL=0,sumSq=0,n=0;
+      for (let i=0;i<data.length;i+=4) {
+        if (data[i+3]<80) continue;
+        const l=(0.299*data[i]+0.587*data[i+1]+0.114*data[i+2])/255;
+        sumL+=l; sumSq+=l*l; n++;
       }
       if (!n) { resolve(DEFAULT_ADJ); return; }
-      const mean = sumL / n;
-      const std = Math.sqrt(Math.max(0, sumSq / n - mean * mean));
-      let brightness = 100, contrast = 100;
-      if (mean < 0.35) brightness = Math.min(130, Math.round(0.42 / (mean + 0.01) * 100));
-      else if (mean > 0.78) brightness = Math.max(80, Math.round(0.6 / (mean + 0.01) * 100));
-      if (std < 0.1) contrast = 118; else if (std > 0.38) contrast = 90;
-      resolve({ ...DEFAULT_ADJ, brightness, contrast, saturation: 108 });
+      const mean=sumL/n; const std=Math.sqrt(Math.max(0,sumSq/n-mean*mean));
+      let brightness=100, contrast=100;
+      if (mean<0.35) brightness=Math.min(130,Math.round(0.42/(mean+0.01)*100));
+      else if (mean>0.78) brightness=Math.max(80,Math.round(0.6/(mean+0.01)*100));
+      if (std<0.1) contrast=118; else if (std>0.38) contrast=90;
+      resolve({...DEFAULT_ADJ,brightness,contrast,saturation:108});
     };
-    img.onerror = () => resolve(DEFAULT_ADJ);
-    img.src = src;
+    img.onerror=()=>resolve(DEFAULT_ADJ); img.src=src;
   });
 }
 
-/* ══════════════ LEFT PANEL ══════════════ */
+/* ══════ LEFT PANEL ══════ */
 function LeftPanel({
-  adj, setAdj, onUpload, onRemoveBg, processing, hasImage, bgTolerance, setBgTolerance, bgColor, setBgColor,
+  adj, setAdj, onUpload, onRemoveBg, processing, hasImage,
+  bgTolerance, setBgTolerance, bgColor, setBgColor,
+  activeTool, setActiveTool, onAddWatermark,
 }: {
   adj: Adjustments; setAdj: (a: Adjustments) => void;
   onUpload: () => void; onRemoveBg: () => void;
   processing: boolean; hasImage: boolean;
   bgTolerance: number; setBgTolerance: (v: number) => void;
   bgColor: string; setBgColor: (c: string) => void;
+  activeTool: ToolId; setActiveTool: (t: ToolId) => void;
+  onAddWatermark: () => void;
 }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const S = (key: keyof Adjustments, label: string, min: number, max: number, step = 1) => (
-    <div style={{ marginBottom: 9 }}>
+  const Slider = (key: keyof Adjustments, label: string, min: number, max: number, step = 1) => (
+    <div key={key} style={{ marginBottom: 9 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
         <label style={{ fontSize: '0.66rem', fontWeight: '600', color: '#374151' }}>{label}</label>
         <span style={{ fontSize: '0.66rem', color: '#9CA3AF', fontWeight: '600' }}>
-          {adj[key]}{key === 'hue' ? '°' : key === 'blur' ? 'px' : '%'}
+          {adj[key]}{key==='hue'?'°':key==='blur'?'px':'%'}
         </span>
       </div>
       <input type="range" min={min} max={max} step={step} value={adj[key]}
@@ -201,139 +183,143 @@ function LeftPanel({
     </div>
   );
 
-  /* active filter preset name */
-  const activePreset = FILTER_PRESETS.find(p => JSON.stringify(p.values) === JSON.stringify(adj))?.name ?? '';
+  const activePreset = FILTER_PRESETS.find(p => JSON.stringify(p.values)===JSON.stringify(adj))?.name ?? '';
 
   return (
-    <div style={{ padding: '10px 12px' }}>
-      {/* Upload */}
-      <button onClick={onUpload}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px', borderRadius: 8, border: '1.5px dashed #FFD4C2', backgroundColor: '#FFF4F0', color: '#FF6835', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700', marginBottom: 8 }}>
-        <Upload size={13} /> Cargar imagen
-      </button>
-
-      {/* Remove BG */}
-      <button onClick={onRemoveBg} disabled={!hasImage || processing}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px', borderRadius: 8, border: `1.5px solid ${hasImage && !processing ? '#818CF8' : '#E5E7EB'}`, backgroundColor: hasImage && !processing ? '#EEF2FF' : '#F9FAFB', color: hasImage && !processing ? '#4F46E5' : '#9CA3AF', cursor: hasImage && !processing ? 'pointer' : 'not-allowed', fontSize: '0.75rem', fontWeight: '700', marginBottom: 6 }}>
-        {processing
-          ? <><Loader size={13} style={{ animation: 'spin 0.8s linear infinite' }} /> Procesando...</>
-          : <><Eraser size={13} /> Quitar fondo</>}
-      </button>
-
-      {/* Tolerance dial */}
-      <div style={{ marginBottom: 10 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-          <label style={{ fontSize: '0.62rem', fontWeight: '600', color: '#6B7280' }}>Tolerancia</label>
-          <span style={{ fontSize: '0.62rem', color: '#9CA3AF', fontWeight: '600' }}>{bgTolerance}</span>
-        </div>
-        <input type="range" min={5} max={120} step={1} value={bgTolerance}
-          onChange={e => setBgTolerance(Number(e.target.value))}
-          style={{ width: '100%', accentColor: '#4F46E5', cursor: 'pointer', height: 3 }} />
-      </div>
-
-      {/* Background color */}
-      <div style={{ marginBottom: 14 }}>
-        <label style={{ fontSize: '0.62rem', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: 4 }}>Color de fondo</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {/* Transparent swatch */}
-          <button onClick={() => setBgColor('')}
-            title="Transparente"
-            style={{ width: 24, height: 24, borderRadius: 5, border: `2px solid ${bgColor === '' ? '#FF6835' : '#E5E7EB'}`, backgroundImage: 'repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%)', backgroundSize: '8px 8px', cursor: 'pointer', flexShrink: 0 }} />
-          {/* Color picker */}
-          <label style={{ position: 'relative', cursor: 'pointer', width: 24, height: 24, flexShrink: 0 }}>
-            <div style={{ width: 24, height: 24, borderRadius: 5, border: `2px solid ${bgColor ? '#FF6835' : '#E5E7EB'}`, backgroundColor: bgColor || '#fff', cursor: 'pointer' }} />
-            <input type="color" value={bgColor || '#ffffff'}
-              onChange={e => setBgColor(e.target.value)}
-              style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
-          </label>
-          {/* Quick whites / blacks */}
-          {['#ffffff', '#f8f8f8', '#000000', '#f0f0f0'].map(c => (
-            <button key={c} onClick={() => setBgColor(c)}
-              style={{ width: 20, height: 20, borderRadius: 4, border: `1.5px solid ${bgColor === c ? '#FF6835' : '#D1D5DB'}`, backgroundColor: c, cursor: 'pointer', flexShrink: 0 }} />
-          ))}
-        </div>
-      </div>
-
-      {/* Filters dropdown */}
-      <div style={{ marginBottom: 12 }}>
-        <button onClick={() => setFiltersOpen(o => !o)}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 10px', borderRadius: 7, border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#374151', cursor: 'pointer', fontSize: '0.72rem', fontWeight: '700' }}>
-          <span>🎨 Filtros{activePreset ? ` — ${activePreset}` : ''}</span>
-          <span style={{ fontSize: '0.65rem', color: '#9CA3AF', transition: 'transform 0.15s', display: 'inline-block', transform: filtersOpen ? 'rotate(180deg)' : 'none' }}>▾</span>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px' }}>
+        {/* Upload */}
+        <button onClick={onUpload}
+          style={{ width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'8px',borderRadius:8,border:'1.5px dashed #FFD4C2',backgroundColor:'#FFF4F0',color:'#FF6835',cursor:'pointer',fontSize:'0.75rem',fontWeight:'700',marginBottom:8 }}>
+          <Upload size={13}/> Cargar imagen
         </button>
-        {filtersOpen && (
-          <div style={{ marginTop: 4, padding: '8px', borderRadius: 7, border: '1px solid #E5E7EB', backgroundColor: '#fff', display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {FILTER_PRESETS.map(p => {
-              const active = JSON.stringify(adj) === JSON.stringify(p.values);
-              return (
-                <button key={p.name} onClick={() => { setAdj(p.values); setFiltersOpen(false); }}
-                  style={{ padding: '4px 9px', borderRadius: 5, border: `1px solid ${active ? '#FF6835' : '#E5E7EB'}`, backgroundColor: active ? '#FF6835' : '#fff', color: active ? '#fff' : '#374151', cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600' }}>
-                  {p.name}
-                </button>
-              );
-            })}
+
+        {/* Remove BG */}
+        <button onClick={onRemoveBg} disabled={!hasImage||processing}
+          style={{ width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'8px',borderRadius:8,border:`1.5px solid ${hasImage&&!processing?'#818CF8':'#E5E7EB'}`,backgroundColor:hasImage&&!processing?'#EEF2FF':'#F9FAFB',color:hasImage&&!processing?'#4F46E5':'#9CA3AF',cursor:hasImage&&!processing?'pointer':'not-allowed',fontSize:'0.75rem',fontWeight:'700',marginBottom:6 }}>
+          {processing?<><Loader size={13} style={{animation:'spin 0.8s linear infinite'}}/> Procesando...</>:<><Eraser size={13}/> Quitar fondo</>}
+        </button>
+
+        {/* Tolerance */}
+        <div style={{ marginBottom:10 }}>
+          <div style={{ display:'flex',justifyContent:'space-between',marginBottom:3 }}>
+            <label style={{ fontSize:'0.62rem',fontWeight:'600',color:'#6B7280' }}>Tolerancia</label>
+            <span style={{ fontSize:'0.62rem',color:'#9CA3AF',fontWeight:'600' }}>{bgTolerance}</span>
           </div>
-        )}
+          <input type="range" min={5} max={120} step={1} value={bgTolerance}
+            onChange={e=>setBgTolerance(Number(e.target.value))}
+            style={{ width:'100%',accentColor:'#4F46E5',cursor:'pointer',height:3 }}/>
+        </div>
+
+        {/* BG color */}
+        <div style={{ marginBottom:14 }}>
+          <label style={{ fontSize:'0.62rem',fontWeight:'700',color:'#6B7280',display:'block',marginBottom:4 }}>Color de fondo</label>
+          <div style={{ display:'flex',alignItems:'center',gap:5 }}>
+            <button onClick={()=>setBgColor('')} title="Transparente"
+              style={{ width:22,height:22,borderRadius:4,border:`2px solid ${bgColor===''?'#FF6835':'#E5E7EB'}`,backgroundImage:'repeating-conic-gradient(#ccc 0% 25%,#fff 0% 50%)',backgroundSize:'6px 6px',cursor:'pointer',flexShrink:0 }}/>
+            <label style={{ position:'relative',cursor:'pointer',width:22,height:22,flexShrink:0 }}>
+              <div style={{ width:22,height:22,borderRadius:4,border:`2px solid ${bgColor?'#FF6835':'#E5E7EB'}`,backgroundColor:bgColor||'#fff' }}/>
+              <input type="color" value={bgColor||'#ffffff'} onChange={e=>setBgColor(e.target.value)}
+                style={{ position:'absolute',inset:0,opacity:0,width:'100%',height:'100%',cursor:'pointer' }}/>
+            </label>
+            {['#ffffff','#f5f5f5','#000000','#f0ede8'].map(c=>(
+              <button key={c} onClick={()=>setBgColor(c)}
+                style={{ width:18,height:18,borderRadius:3,border:`1.5px solid ${bgColor===c?'#FF6835':'#D1D5DB'}`,backgroundColor:c,cursor:'pointer',flexShrink:0 }}/>
+            ))}
+          </div>
+        </div>
+
+        {/* Filters dropdown (text list) */}
+        <div style={{ marginBottom:12 }}>
+          <button onClick={()=>setFiltersOpen(o=>!o)}
+            style={{ width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'7px 10px',borderRadius:7,border:'1px solid #E5E7EB',backgroundColor:'#F9FAFB',color:'#374151',cursor:'pointer',fontSize:'0.72rem',fontWeight:'700' }}>
+            <span>🎨 {activePreset||'Filtros'}</span>
+            <span style={{ color:'#9CA3AF',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform 0.15s',display:'inline-block' }}>▾</span>
+          </button>
+          {filtersOpen && (
+            <div style={{ marginTop:2,borderRadius:7,border:'1px solid #E5E7EB',overflow:'hidden',boxShadow:'0 4px 12px rgba(0,0,0,0.08)' }}>
+              {FILTER_PRESETS.map((p,i)=>{
+                const active=JSON.stringify(adj)===JSON.stringify(p.values);
+                return (
+                  <div key={p.name} onClick={()=>{setAdj(p.values);setFiltersOpen(false);}}
+                    style={{ padding:'8px 12px',cursor:'pointer',fontSize:'0.72rem',backgroundColor:active?'#FFF4F0':'#fff',color:active?'#FF6835':'#374151',fontWeight:active?'700':'400',display:'flex',justifyContent:'space-between',alignItems:'center',borderBottom:i<FILTER_PRESETS.length-1?'1px solid #F3F4F6':'none',transition:'background 0.08s' }}
+                    onMouseEnter={e=>{if(!active)(e.currentTarget as HTMLDivElement).style.backgroundColor='#F9FAFB';}}
+                    onMouseLeave={e=>{(e.currentTarget as HTMLDivElement).style.backgroundColor=active?'#FFF4F0':'#fff';}}>
+                    <span>{p.name}</span>
+                    {active&&<span style={{fontSize:'0.65rem'}}>✓</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Adjustments */}
+        <p style={sLbl}>Ajustes</p>
+        {Slider('brightness','Brillo',0,200)}
+        {Slider('contrast','Contraste',0,200)}
+        {Slider('saturation','Saturación',0,200)}
+        {Slider('hue','Tono',-180,180)}
+        {Slider('sepia','Sepia',0,100)}
+        {Slider('blur','Desenfoque',0,20)}
+        {Slider('opacity','Opacidad',10,100)}
+
+        <button onClick={()=>setAdj(DEFAULT_ADJ)}
+          style={{ width:'100%',padding:'6px',borderRadius:7,border:'1px solid #E5E7EB',backgroundColor:'#F9FAFB',color:'#6B7280',cursor:'pointer',fontSize:'0.72rem',fontWeight:'600',marginBottom:14 }}>
+          ↺ Restablecer ajustes
+        </button>
+
+        {/* Tools */}
+        <p style={sLbl}>Herramientas</p>
+        <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:6 }}>
+          {LEFT_TOOLS.map(({id,Icon,label,shortcut})=>{
+            const active=activeTool===id;
+            return (
+              <button key={id} onClick={()=>setActiveTool(id)} title={`${label} (${shortcut})`}
+                style={{ display:'flex',alignItems:'center',gap:5,padding:'6px 8px',borderRadius:7,border:`1.5px solid ${active?'#FF6835':'#E5E7EB'}`,backgroundColor:active?'#FFF4F0':'#F9FAFB',color:active?'#FF6835':'#374151',cursor:'pointer',fontSize:'0.65rem',fontWeight:active?'700':'500' }}>
+                <Icon size={12}/>
+                <span style={{ lineHeight:1 }}>{label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Adjustments */}
-      <p style={sLbl}>Ajustes</p>
-      {S('brightness', 'Brillo', 0, 200)}
-      {S('contrast', 'Contraste', 0, 200)}
-      {S('saturation', 'Saturación', 0, 200)}
-      {S('hue', 'Tono', -180, 180)}
-      {S('sepia', 'Sepia', 0, 100)}
-      {S('blur', 'Desenfoque', 0, 20)}
-      {S('opacity', 'Opacidad', 10, 100)}
-
-      <button onClick={() => setAdj(DEFAULT_ADJ)}
-        style={{ width: '100%', padding: '6px', borderRadius: 7, border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#6B7280', cursor: 'pointer', fontSize: '0.72rem', fontWeight: '600' }}>
-        ↺ Restablecer
-      </button>
+      {/* Watermark – sticky bottom */}
+      <div style={{ padding:'10px 12px',borderTop:'1px solid #F3F4F6',flexShrink:0 }}>
+        <button onClick={onAddWatermark} disabled={!hasImage}
+          style={{ width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'9px',borderRadius:8,border:`1.5px solid ${hasImage?'#10B981':'#E5E7EB'}`,backgroundColor:hasImage?'#ECFDF5':'#F9FAFB',color:hasImage?'#059669':'#9CA3AF',cursor:hasImage?'pointer':'not-allowed',fontSize:'0.75rem',fontWeight:'700' }}>
+          <Droplets size={13}/> Marca de Agua
+        </button>
+      </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }
 
-/* ══════════════ SLOT STRIP ══════════════ */
-const SLOT_LABELS = ['Original', 'Auto', 'V1', 'V2', 'V3', 'V4'];
-const SLOT_ICONS  = [Lock, Zap, Plus, Plus, Plus, Plus];
+/* ══════ SLOT STRIP ══════ */
+const SLOT_LABELS=['Original','Auto','V1','V2','V3','V4'];
+const SLOT_ICONS=[Lock,Zap,Plus,Plus,Plus,Plus];
 
 function SlotStrip({ slots, activeSlot, slotSize, onSlotClick }: {
-  slots: (SlotState | null)[];
-  activeSlot: number;
-  slotSize: number;
-  onSlotClick: (i: number) => void;
+  slots: (SlotState|null)[]; activeSlot: number; slotSize: number; onSlotClick: (i:number)=>void;
 }) {
   return (
-    <div style={{ width: slotSize, flexShrink: 0, display: 'flex', flexDirection: 'column', backgroundColor: '#B0B0B0', borderRight: '1px solid #9A9A9A' }}>
-      {slots.map((slot, i) => {
-        const Icon = SLOT_ICONS[i];
-        const isActive = i === activeSlot;
-        const isEmpty = !slot;
+    <div style={{ width:slotSize,flexShrink:0,display:'flex',flexDirection:'column',backgroundColor:'#ADADAD',borderRight:'1px solid #989898' }}>
+      {slots.map((slot,i)=>{
+        const Icon=SLOT_ICONS[i]; const isActive=i===activeSlot;
         return (
-          <div key={i} onClick={() => onSlotClick(i)} title={SLOT_LABELS[i]}
-            style={{ width: slotSize, height: slotSize, flexShrink: 0, position: 'relative', cursor: 'pointer', border: `2px solid ${isActive ? '#FF6835' : 'transparent'}`, boxSizing: 'border-box', backgroundColor: '#C8C8C8', overflow: 'hidden', transition: 'border-color 0.1s' }}>
-
-            {/* Thumbnail */}
-            {slot ? (
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-conic-gradient(#B0B0B0 0% 25%, transparent 0% 50%)', backgroundSize: '8px 8px' }}>
-                <img src={slot.src} alt=""
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', filter: buildFilter(slot.adj), transform: `rotate(${slot.rotation}deg) scaleX(${slot.flipH ? -1 : 1}) scaleY(${slot.flipV ? -1 : 1})` }} />
+          <div key={i} onClick={()=>onSlotClick(i)} title={SLOT_LABELS[i]}
+            style={{ width:slotSize,height:slotSize,flexShrink:0,position:'relative',cursor:'pointer',outline:isActive?'3px solid #FF6835':'none',outlineOffset:'-2px',boxSizing:'border-box',backgroundColor:'#C0C0C0',overflow:'hidden' }}>
+            {slot?(
+              <div style={{ position:'absolute',inset:0,backgroundImage:'repeating-conic-gradient(#AAAAAA 0% 25%,transparent 0% 50%)',backgroundSize:'8px 8px' }}>
+                <img src={slot.src} alt="" style={{ position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'contain',filter:buildFilter(slot.adj),transform:`rotate(${slot.rotation}deg) scaleX(${slot.flipH?-1:1}) scaleY(${slot.flipV?-1:1})` }}/>
               </div>
-            ) : (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon size={Math.round(slotSize * 0.25)} style={{ color: '#888', opacity: 0.6 }} />
+            ):(
+              <div style={{ position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center' }}>
+                <Icon size={Math.round(slotSize*0.28)} style={{ color:'#777',opacity:0.55 }}/>
               </div>
             )}
-
-            {/* Active border accent */}
-            {isActive && <div style={{ position: 'absolute', inset: 0, border: '2px solid #FF6835', pointerEvents: 'none', boxSizing: 'border-box' }} />}
-
-            {/* Tiny index dot */}
-            <div style={{ position: 'absolute', bottom: 3, right: 4, fontSize: '0.45rem', fontWeight: '800', color: 'rgba(255,255,255,0.8)', textShadow: '0 0 3px rgba(0,0,0,0.6)', userSelect: 'none', pointerEvents: 'none' }}>
-              {SLOT_LABELS[i][0]}
-            </div>
           </div>
         );
       })}
@@ -341,253 +327,241 @@ function SlotStrip({ slots, activeSlot, slotSize, onSlotClick }: {
   );
 }
 
-/* ══════════════ CANVAS AREA ══════════════ */
+/* ══════ CANVAS AREA ══════ */
+type DragTarget = { type:'image'; startImgX:number; startImgY:number } | { type:'text'; id:string; startTx:number; startTy:number };
+
 function CanvasArea({
   imageSrc, adj, rotation, setRotation, flipH, setFlipH, flipV, setFlipV,
   zoom, onZoom, onLoad, imgDims,
   slots, activeSlot, onSlotClick,
   selectedTemplate, processing, bgColor,
+  activeTool, selectedId, setSelectedId,
+  imagePos, setImagePos,
+  textItems, setTextItems,
   fontFamily, setFontFamily, fontSize, setFontSize,
   fontBold, setFontBold, fontItalic, setFontItalic, fontUnderline, setFontUnderline,
-  textAlign, setTextAlign, textColor, setTextColor, textContent, setTextContent,
-}: {
-  imageSrc: string | null; adj: Adjustments;
-  rotation: number; setRotation: (r: number) => void;
-  flipH: boolean; setFlipH: (v: boolean) => void;
-  flipV: boolean; setFlipV: (v: boolean) => void;
-  zoom: number; onZoom: (z: number) => void;
-  onLoad: (w: number, h: number) => void;
-  imgDims: { w: number; h: number } | null;
-  slots: (SlotState | null)[];
-  activeSlot: number;
-  onSlotClick: (i: number) => void;
-  selectedTemplate: string;
-  processing: boolean;
-  bgColor: string;
-  fontFamily: string; setFontFamily: (v: string) => void;
-  fontSize: number; setFontSize: (v: number) => void;
-  fontBold: boolean; setFontBold: (v: boolean) => void;
-  fontItalic: boolean; setFontItalic: (v: boolean) => void;
-  fontUnderline: boolean; setFontUnderline: (v: boolean) => void;
-  textAlign: 'left' | 'center' | 'right'; setTextAlign: (v: 'left' | 'center' | 'right') => void;
-  textColor: string; setTextColor: (v: string) => void;
-  textContent: string; setTextContent: (v: string) => void;
-}) {
+  textAlign, setTextAlign, textColor, setTextColor,
+}: any) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const frameRef   = useRef<HTMLDivElement>(null);
   const [slotSize, setSlotSize] = useState(80);
   const [frameW, setFrameW]     = useState(400);
   const [frameH, setFrameH]     = useState(400);
-  const [textActive, setTextActive] = useState(false);
+  const [drag, setDrag]         = useState<{ target: DragTarget; startX: number; startY: number } | null>(null);
 
-  const tpl = CANVAS_TEMPLATES.find(t => t.id === selectedTemplate) ?? CANVAS_TEMPLATES[0];
+  const tpl = CANVAS_TEMPLATES.find(t=>t.id===selectedTemplate)??CANVAS_TEMPLATES[0];
 
-  useEffect(() => {
-    const el = contentRef.current; if (!el) return;
-    const update = () => {
-      const { width, height } = el.getBoundingClientRect();
-      const ss = Math.max(52, Math.floor(height / 6));
-      setSlotSize(ss);
-      const avW = width - ss - 32;
-      const avH = height - 20;
-      const ratio = tpl.w / tpl.h;
-      if (avW / avH > ratio) { const fh = avH; setFrameH(fh); setFrameW(Math.round(fh * ratio)); }
-      else                   { const fw = avW; setFrameW(fw); setFrameH(Math.round(fw / ratio)); }
+  useEffect(()=>{
+    const el=contentRef.current; if (!el) return;
+    const update=()=>{
+      const {width,height}=el.getBoundingClientRect();
+      setSlotSize(Math.max(52,Math.floor(height/6)));
+      const avW=width-Math.max(52,Math.floor(height/6))-28;
+      const avH=height-16;
+      const ratio=tpl.w/tpl.h;
+      if (avW/avH>ratio){const fh=avH;setFrameH(fh);setFrameW(Math.round(fh*ratio));}
+      else              {const fw=avW;setFrameW(fw);setFrameH(Math.round(fw/ratio));}
     };
     update();
-    const obs = new ResizeObserver(update);
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [tpl.w, tpl.h]);
+    const obs=new ResizeObserver(update); obs.observe(el);
+    return ()=>obs.disconnect();
+  },[tpl.w,tpl.h]);
 
-  const imgTransform = `rotate(${rotation}deg) scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1})`;
-  const aspectLabel  = imgDims ? aspectStr(imgDims.w, imgDims.h) : null;
+  /* drag handlers */
+  const onElemDown=(e:React.MouseEvent, target:DragTarget)=>{
+    if (activeTool!=='select') return;
+    e.preventDefault(); e.stopPropagation();
+    setSelectedId(target.type==='image'?'image':(target as any).id);
+    setDrag({ target, startX:e.clientX, startY:e.clientY });
+  };
+  const onFrameMouseMove=(e:React.MouseEvent)=>{
+    if (!drag) return;
+    const dx=e.clientX-drag.startX; const dy=e.clientY-drag.startY;
+    if (drag.target.type==='image') {
+      setImagePos({ x:drag.target.startImgX+dx, y:drag.target.startImgY+dy });
+    } else {
+      const fr=frameRef.current?.getBoundingClientRect();
+      if (!fr) return;
+      setTextItems((prev:TextItem[])=>prev.map(t=>
+        t.id===drag.target.id
+          ? {...t, x:drag.target.startTx+dx/fr.width*100, y:drag.target.startTy+dy/fr.height*100}
+          : t
+      ));
+    }
+  };
+  const onFrameMouseUp=()=>setDrag(null);
 
-  const tglBtn = (active: boolean): React.CSSProperties => ({
-    ...tbBtn, backgroundColor: active ? '#FFF4F0' : '#fff',
-    color: active ? '#FF6835' : '#374151',
-    border: `1px solid ${active ? '#FFD4C2' : '#E5E7EB'}`,
-  });
+  const aspectLabel=imgDims?aspectStr(imgDims.w,imgDims.h):null;
+  const tgl=(active:boolean):React.CSSProperties=>({...tbBtn,backgroundColor:active?'#FFF4F0':'#fff',color:active?'#FF6835':'#374151',border:`1px solid ${active?'#FFD4C2':'#E5E7EB'}`});
+  const imgTransform=`rotate(${rotation}deg) scaleX(${flipH?-1:1}) scaleY(${flipV?-1:1})`;
+  const cursorForTool:Record<ToolId,string>={ select:'default',crop:'crosshair',transform:'move',pan:'grab',text:'text' };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display:'flex',flexDirection:'column',height:'100%',overflow:'hidden' }}>
 
-      {/* ── ROW 1: Zoom · Rotation · Flip · Aspect ── */}
-      <div style={{ height: 42, backgroundColor: '#fff', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', padding: '0 10px', gap: 5, flexShrink: 0, overflowX: 'auto' }}>
+      {/* ── SINGLE TOOLBAR ── */}
+      <div style={{ height:44,backgroundColor:'#fff',borderBottom:'1px solid #E5E7EB',display:'flex',alignItems:'center',padding:'0 10px',gap:4,flexShrink:0,overflowX:'auto' }}>
         {/* Zoom */}
-        <button onClick={() => onZoom(Math.max(25, zoom - 10))} style={tbBtn}><ZoomOut size={13} /></button>
+        <button onClick={()=>onZoom(Math.max(25,zoom-10))} style={tbBtn}><ZoomOut size={13}/></button>
         <span style={tbVal}>{zoom}%</span>
-        <button onClick={() => onZoom(Math.min(200, zoom + 10))} style={tbBtn}><ZoomIn size={13} /></button>
-        <input type="range" min={25} max={200} step={5} value={zoom}
-          onChange={e => onZoom(Number(e.target.value))}
-          style={{ width: 70, accentColor: '#FF6835', cursor: 'pointer', flexShrink: 0 }} />
-        <button onClick={() => onZoom(100)} style={{ ...tbBtn, fontSize: '0.62rem', fontWeight: '700', padding: '3px 7px', width: 'auto' }}>1:1</button>
+        <button onClick={()=>onZoom(Math.min(200,zoom+10))} style={tbBtn}><ZoomIn size={13}/></button>
+        <input type="range" min={25} max={200} step={5} value={zoom} onChange={e=>onZoom(Number(e.target.value))}
+          style={{ width:65,accentColor:'#FF6835',cursor:'pointer',flexShrink:0 }}/>
+        <button onClick={()=>onZoom(100)} style={{ ...tbBtn,fontSize:'0.62rem',fontWeight:'700',padding:'3px 6px',width:'auto' }}>1:1</button>
 
-        <div style={tbSep} />
+        <div style={tbSep}/>
 
         {/* Rotation */}
-        <button onClick={() => setRotation((rotation - 1 + 360) % 360)} style={tbBtn}><RotateCcw size={13} /></button>
+        <button onClick={()=>setRotation((rotation-1+360)%360)} style={tbBtn}><RotateCcw size={13}/></button>
         <span style={tbVal}>{rotation}°</span>
-        <button onClick={() => setRotation((rotation + 1) % 360)} style={tbBtn}><RotateCw size={13} /></button>
+        <button onClick={()=>setRotation((rotation+1)%360)} style={tbBtn}><RotateCw size={13}/></button>
         <input type="range" min={0} max={360} step={1} value={rotation}
-          onChange={e => { const v = Number(e.target.value); setRotation(v >= 360 ? 0 : v); }}
-          style={{ width: 70, accentColor: '#FF6835', cursor: 'pointer', flexShrink: 0 }} />
-        <button onClick={() => setRotation(0)} style={{ ...tbBtn, fontSize: '0.62rem', fontWeight: '700', padding: '3px 7px', width: 'auto' }}>0°</button>
+          onChange={e=>{const v=Number(e.target.value);setRotation(v>=360?0:v);}}
+          style={{ width:65,accentColor:'#FF6835',cursor:'pointer',flexShrink:0 }}/>
+        <button onClick={()=>setRotation(0)} style={{ ...tbBtn,fontSize:'0.62rem',fontWeight:'700',padding:'3px 6px',width:'auto' }}>0°</button>
 
-        <div style={tbSep} />
+        <div style={tbSep}/>
 
         {/* Flip */}
-        <button onClick={() => setFlipH(!flipH)} title="Flip H"
-          style={{ ...tbBtn, backgroundColor: flipH ? '#EFF6FF' : '#fff', color: flipH ? '#3B82F6' : '#374151', border: `1px solid ${flipH ? '#BFDBFE' : '#E5E7EB'}` }}>
-          <FlipHorizontal size={14} />
+        <button onClick={()=>setFlipH(!flipH)} title="Flip H"
+          style={{ ...tbBtn,backgroundColor:flipH?'#EFF6FF':'#fff',color:flipH?'#3B82F6':'#374151',border:`1px solid ${flipH?'#BFDBFE':'#E5E7EB'}` }}>
+          <FlipHorizontal size={14}/>
         </button>
-        <button onClick={() => setFlipV(!flipV)} title="Flip V"
-          style={{ ...tbBtn, backgroundColor: flipV ? '#EFF6FF' : '#fff', color: flipV ? '#3B82F6' : '#374151', border: `1px solid ${flipV ? '#BFDBFE' : '#E5E7EB'}` }}>
-          <FlipVertical size={14} />
-        </button>
-
-        {/* Aspect */}
-        {aspectLabel && (
-          <>
-            <div style={tbSep} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '700', color: '#6B7280', whiteSpace: 'nowrap', userSelect: 'none' }}>{aspectLabel}</span>
-            {imgDims && <span style={{ fontSize: '0.62rem', color: '#9CA3AF', whiteSpace: 'nowrap', userSelect: 'none' }}>{imgDims.w}×{imgDims.h}</span>}
-          </>
-        )}
-      </div>
-
-      {/* ── ROW 2: Text tools ── */}
-      <div style={{ height: 40, backgroundColor: '#FAFAFA', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', padding: '0 10px', gap: 5, flexShrink: 0, overflowX: 'auto' }}>
-
-        {/* Text toggle */}
-        <button onClick={() => setTextActive(!textActive)} title="Herramienta de texto"
-          style={{ ...tbBtn, backgroundColor: textActive ? '#FFF4F0' : '#fff', color: textActive ? '#FF6835' : '#374151', border: `1px solid ${textActive ? '#FFD4C2' : '#E5E7EB'}` }}>
-          <Type size={14} />
+        <button onClick={()=>setFlipV(!flipV)} title="Flip V"
+          style={{ ...tbBtn,backgroundColor:flipV?'#EFF6FF':'#fff',color:flipV?'#3B82F6':'#374151',border:`1px solid ${flipV?'#BFDBFE':'#E5E7EB'}` }}>
+          <FlipVertical size={14}/>
         </button>
 
-        <div style={tbSep} />
+        {aspectLabel&&(<><div style={tbSep}/><span style={{ fontSize:'0.68rem',fontWeight:'700',color:'#6B7280',whiteSpace:'nowrap',userSelect:'none' }}>{aspectLabel}</span>{imgDims&&<span style={{ fontSize:'0.6rem',color:'#9CA3AF',whiteSpace:'nowrap',userSelect:'none' }}>{imgDims.w}×{imgDims.h}</span>}</>)}
 
-        {/* Font family */}
-        <select value={fontFamily} onChange={e => setFontFamily(e.target.value)}
-          style={{ height: 28, padding: '0 6px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: '0.72rem', backgroundColor: '#fff', cursor: 'pointer', color: '#374151', outline: 'none', flexShrink: 0, fontFamily }}>
-          {FONT_FAMILIES.map(f => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
+        <div style={tbSep}/>
+
+        {/* Text type toggle */}
+        <button onClick={()=>setActiveTool?.(activeTool==='text'?'select':'text')}
+          style={tgl(activeTool==='text')} title="Texto"><Type size={14}/></button>
+
+        <div style={tbSep}/>
+
+        {/* Font */}
+        <select value={fontFamily} onChange={e=>setFontFamily(e.target.value)}
+          style={{ height:28,padding:'0 5px',border:'1px solid #E5E7EB',borderRadius:6,fontSize:'0.7rem',backgroundColor:'#fff',cursor:'pointer',color:'#374151',outline:'none',flexShrink:0,fontFamily,maxWidth:110 }}>
+          {FONT_FAMILIES.map(f=><option key={f} value={f} style={{ fontFamily:f }}>{f}</option>)}
         </select>
 
-        {/* Font size */}
-        <button onClick={() => setFontSize(Math.max(8, fontSize - 2))} style={{ ...tbBtn, width: 22, height: 28 }}>−</button>
+        {/* Size */}
+        <button onClick={()=>setFontSize(Math.max(8,fontSize-2))} style={{ ...tbBtn,width:22,height:26 }}>−</button>
         <input type="number" value={fontSize} min={8} max={200}
-          onChange={e => setFontSize(Math.max(8, Math.min(200, Number(e.target.value))))}
-          style={{ width: 42, height: 28, padding: '0 4px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: '0.72rem', fontWeight: '700', textAlign: 'center', color: '#374151', outline: 'none', flexShrink: 0 }} />
-        <button onClick={() => setFontSize(Math.min(200, fontSize + 2))} style={{ ...tbBtn, width: 22, height: 28 }}>+</button>
+          onChange={e=>setFontSize(Math.max(8,Math.min(200,Number(e.target.value))))}
+          style={{ width:40,height:26,padding:'0 3px',border:'1px solid #E5E7EB',borderRadius:6,fontSize:'0.7rem',fontWeight:'700',textAlign:'center',color:'#374151',outline:'none',flexShrink:0 }}/>
+        <button onClick={()=>setFontSize(Math.min(200,fontSize+2))} style={{ ...tbBtn,width:22,height:26 }}>+</button>
 
-        <div style={tbSep} />
+        <div style={tbSep}/>
 
         {/* Style */}
-        <button onClick={() => setFontBold(!fontBold)} style={tglBtn(fontBold)}><Bold size={13} /></button>
-        <button onClick={() => setFontItalic(!fontItalic)} style={tglBtn(fontItalic)}><Italic size={13} /></button>
-        <button onClick={() => setFontUnderline(!fontUnderline)} style={tglBtn(fontUnderline)}><Underline size={13} /></button>
+        <button onClick={()=>setFontBold(!fontBold)} style={tgl(fontBold)}><Bold size={13}/></button>
+        <button onClick={()=>setFontItalic(!fontItalic)} style={tgl(fontItalic)}><Italic size={13}/></button>
+        <button onClick={()=>setFontUnderline(!fontUnderline)} style={tgl(fontUnderline)}><Underline size={13}/></button>
 
-        <div style={tbSep} />
+        <div style={tbSep}/>
 
-        {/* Alignment */}
-        <button onClick={() => setTextAlign('left')}   style={tglBtn(textAlign === 'left')}><AlignLeft size={13} /></button>
-        <button onClick={() => setTextAlign('center')} style={tglBtn(textAlign === 'center')}><AlignCenter size={13} /></button>
-        <button onClick={() => setTextAlign('right')}  style={tglBtn(textAlign === 'right')}><AlignRight size={13} /></button>
+        {/* Align */}
+        <button onClick={()=>setTextAlign('left')}   style={tgl(textAlign==='left')}><AlignLeft size={13}/></button>
+        <button onClick={()=>setTextAlign('center')} style={tgl(textAlign==='center')}><AlignCenter size={13}/></button>
+        <button onClick={()=>setTextAlign('right')}  style={tgl(textAlign==='right')}><AlignRight size={13}/></button>
 
-        <div style={tbSep} />
+        <div style={tbSep}/>
 
         {/* Text color */}
-        <label style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
-          <div style={{ width: 26, height: 26, borderRadius: 6, border: '1.5px solid #E5E7EB', backgroundColor: textColor, cursor: 'pointer', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: 5, backgroundColor: textColor, borderTop: '2px solid rgba(0,0,0,0.15)' }} />
-          </div>
-          <input type="color" value={textColor} onChange={e => setTextColor(e.target.value)}
-            style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
+        <label style={{ position:'relative',cursor:'pointer',flexShrink:0 }}>
+          <div style={{ width:26,height:26,borderRadius:6,border:'1.5px solid #E5E7EB',backgroundColor:textColor,cursor:'pointer' }}/>
+          <input type="color" value={textColor} onChange={e=>setTextColor(e.target.value)}
+            style={{ position:'absolute',inset:0,opacity:0,width:'100%',height:'100%',cursor:'pointer' }}/>
         </label>
-
-        {/* Text input (when active) */}
-        {textActive && (
-          <>
-            <div style={tbSep} />
-            <input
-              type="text"
-              placeholder="Escribir texto..."
-              value={textContent}
-              onChange={e => setTextContent(e.target.value)}
-              style={{ flex: 1, minWidth: 120, maxWidth: 260, height: 28, padding: '0 8px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: '0.72rem', color: '#374151', outline: 'none', fontFamily, fontWeight: fontBold ? '700' : '400', fontStyle: fontItalic ? 'italic' : 'normal' }}
-            />
-          </>
-        )}
       </div>
 
       {/* ── CONTENT ── */}
-      <div ref={contentRef} style={{ flex: 1, display: 'flex', overflow: 'hidden', backgroundColor: '#C2C2C2' }}>
+      <div ref={contentRef} style={{ flex:1,display:'flex',overflow:'hidden',backgroundColor:'#C2C2C2' }}>
+        <SlotStrip slots={slots} activeSlot={activeSlot} slotSize={slotSize} onSlotClick={onSlotClick}/>
 
-        <SlotStrip slots={slots} activeSlot={activeSlot} slotSize={slotSize} onSlotClick={onSlotClick} />
-
-        {/* Gray area + frame */}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
-
-          {/* Frame */}
-          <div style={{
-            width: frameW, height: frameH, flexShrink: 0, position: 'relative',
-            /* bg: solid color if set, otherwise checkerboard */
-            backgroundColor: bgColor || '#fff',
-            backgroundImage: bgColor ? 'none' : 'repeating-conic-gradient(#D1D5DB 0% 25%, transparent 0% 50%)',
-            backgroundSize: '20px 20px',
-            borderRadius: tpl.shape === 'circle' ? '50%' : 4,
-            boxShadow: '0 4px 24px rgba(0,0,0,0.22)',
-            overflow: 'hidden',
-          }}>
+        {/* Gray + frame */}
+        <div style={{ flex:1,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',position:'relative' }}>
+          <div
+            ref={frameRef}
+            onMouseMove={onFrameMouseMove}
+            onMouseUp={onFrameMouseUp}
+            onMouseLeave={onFrameMouseUp}
+            onClick={(e)=>{
+              if (activeTool==='text' && e.target===frameRef.current) {
+                /* click on empty frame area → add text item */
+                const fr=frameRef.current!.getBoundingClientRect();
+                const newItem:TextItem={
+                  id:uid(), content:'Texto', x:(e.clientX-fr.left)/fr.width*100, y:(e.clientY-fr.top)/fr.height*100,
+                  fontFamily, fontSize, bold:fontBold, italic:fontItalic, underline:fontUnderline,
+                  align:textAlign, color:textColor, rotation:0, opacity:100,
+                };
+                setTextItems((prev:TextItem[])=>[...prev,newItem]);
+                setSelectedId(newItem.id);
+              }
+            }}
+            style={{ width:frameW,height:frameH,flexShrink:0,position:'relative',backgroundColor:bgColor||'#fff',backgroundImage:bgColor?'none':'repeating-conic-gradient(#D1D5DB 0% 25%,transparent 0% 50%)',backgroundSize:'20px 20px',borderRadius:tpl.shape==='circle'?'50%':4,boxShadow:'0 4px 24px rgba(0,0,0,0.22)',overflow:'hidden',cursor:cursorForTool[activeTool] }}>
 
             {/* Dim label */}
-            <div style={{ position: 'absolute', bottom: 5, right: 7, fontSize: '0.52rem', fontWeight: '700', color: bgColor ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.25)', pointerEvents: 'none', userSelect: 'none', zIndex: 2 }}>{tpl.desc}</div>
+            <div style={{ position:'absolute',bottom:5,right:7,fontSize:'0.5rem',fontWeight:'700',color:'rgba(0,0,0,0.2)',pointerEvents:'none',userSelect:'none',zIndex:2 }}>{tpl.desc}</div>
 
-            {/* Image */}
-            {imageSrc && (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'center', transition: 'transform 0.12s' }}>
+            {/* Image layer */}
+            {imageSrc&&(
+              <div
+                onMouseDown={e=>onElemDown(e,{ type:'image',startImgX:imagePos.x,startImgY:imagePos.y })}
+                style={{ position:'absolute',left:'50%',top:'50%',transform:`translate(calc(-50% + ${imagePos.x}px),calc(-50% + ${imagePos.y}px))`,cursor:activeTool==='select'?'move':'default',zIndex:3,userSelect:'none' }}>
+                <div style={{ transform:`scale(${zoom/100})`,transformOrigin:'center',transition:'transform 0.12s' }}>
                   <img src={imageSrc} alt="editor"
-                    onLoad={e => { const im = e.currentTarget; onLoad(im.naturalWidth, im.naturalHeight); }}
-                    style={{ maxWidth: frameW, maxHeight: frameH, display: 'block', transform: imgTransform, filter: buildFilter(adj) }} />
+                    onLoad={e=>{const im=e.currentTarget;onLoad(im.naturalWidth,im.naturalHeight);}}
+                    draggable={false}
+                    style={{ maxWidth:frameW,maxHeight:frameH,display:'block',transform:imgTransform,filter:buildFilter(adj),outline:selectedId==='image'&&activeTool==='select'?'2px solid #FF6835':'none' }}/>
                 </div>
               </div>
             )}
 
-            {/* Text overlay */}
-            {textContent && (
-              <div style={{
-                position: 'absolute', left: 0, right: 0, bottom: '12%',
-                textAlign,
-                padding: '0 16px',
-                pointerEvents: 'none', zIndex: 5,
-              }}>
-                <span style={{
-                  fontFamily, fontSize: Math.max(10, Math.round(fontSize * frameH / 800)),
-                  fontWeight: fontBold ? '700' : '400',
-                  fontStyle: fontItalic ? 'italic' : 'normal',
-                  textDecoration: fontUnderline ? 'underline' : 'none',
-                  color: textColor,
-                  textShadow: '0 1px 4px rgba(0,0,0,0.3)',
-                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                }}>{textContent}</span>
+            {/* Text items */}
+            {(textItems as TextItem[]).map(item=>(
+              <div
+                key={item.id}
+                onMouseDown={e=>onElemDown(e,{ type:'text' as const,id:item.id,startTx:item.x,startTy:item.y })}
+                style={{ position:'absolute',left:`${item.x}%`,top:`${item.y}%`,transform:'translate(-50%,-50%)',cursor:activeTool==='select'?'move':'default',userSelect:'none',zIndex:10,outline:selectedId===item.id&&activeTool==='select'?'1.5px dashed #FF6835':'none',padding:4,borderRadius:3 }}>
+                <span
+                  contentEditable={activeTool==='text'}
+                  suppressContentEditableWarning
+                  onBlur={e=>{
+                    const content=e.currentTarget.textContent||'';
+                    setTextItems((prev:TextItem[])=>prev.map(t=>t.id===item.id?{...t,content}:t));
+                  }}
+                  style={{ fontFamily:item.fontFamily,fontSize:Math.max(8,item.fontSize*frameH/800),fontWeight:item.bold?'700':'400',fontStyle:item.italic?'italic':'normal',textDecoration:item.underline?'underline':'none',color:item.color,textAlign:item.align,whiteSpace:'nowrap',textShadow:'0 1px 4px rgba(0,0,0,0.15)',opacity:item.opacity/100,display:'block',outline:'none' }}>
+                  {item.content}
+                </span>
+                {/* Delete button when selected */}
+                {selectedId===item.id&&activeTool==='select'&&(
+                  <button onClick={e=>{e.stopPropagation();setTextItems((prev:TextItem[])=>prev.filter(t=>t.id!==item.id));setSelectedId(null);}}
+                    style={{ position:'absolute',top:-10,right:-10,width:18,height:18,borderRadius:'50%',border:'none',backgroundColor:'#EF4444',color:'#fff',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',zIndex:20 }}>
+                    <X size={10}/>
+                  </button>
+                )}
               </div>
-            )}
+            ))}
 
             {/* Processing overlay */}
-            {processing && (
-              <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(79,70,229,0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, zIndex: 10 }}>
-                <Loader size={28} color="#4F46E5" style={{ animation: 'spin 0.8s linear infinite' }} />
-                <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#4F46E5', backgroundColor: 'rgba(255,255,255,0.9)', padding: '4px 12px', borderRadius: 20 }}>Quitando fondo...</span>
+            {processing&&(
+              <div style={{ position:'absolute',inset:0,backgroundColor:'rgba(79,70,229,0.1)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,zIndex:20 }}>
+                <Loader size={28} color="#4F46E5" style={{ animation:'spin 0.8s linear infinite' }}/>
+                <span style={{ fontSize:'0.78rem',fontWeight:'700',color:'#4F46E5',backgroundColor:'rgba(255,255,255,0.9)',padding:'4px 12px',borderRadius:20 }}>Quitando fondo...</span>
               </div>
             )}
           </div>
 
-          {/* Empty state */}
-          {!imageSrc && !processing && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', gap: 6 }}>
-              <div style={{ fontSize: '3rem' }}>🖼️</div>
-              <p style={{ fontSize: '0.85rem', fontWeight: '700', color: '#fff', margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Sin imagen</p>
-              <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.8)', margin: 0, textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>Cargá o arrastrá una imagen aquí</p>
+          {!imageSrc&&!processing&&(
+            <div style={{ position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',pointerEvents:'none',gap:6 }}>
+              <div style={{ fontSize:'3rem' }}>🖼️</div>
+              <p style={{ fontSize:'0.85rem',fontWeight:'700',color:'#fff',margin:0,textShadow:'0 1px 4px rgba(0,0,0,0.3)' }}>Sin imagen</p>
+              <p style={{ fontSize:'0.72rem',color:'rgba(255,255,255,0.8)',margin:0 }}>Cargá o arrastrá aquí</p>
             </div>
           )}
         </div>
@@ -596,58 +570,67 @@ function CanvasArea({
   );
 }
 
-/* ══════════════ PROPERTIES PANEL ══════════════ */
-function PropertiesPanel({
-  imageSrc, adj, rotation, flipH, flipV, imgDims,
-  onExport, selectedTemplate, setSelectedTemplate,
-}: {
-  imageSrc: string | null; adj: Adjustments; rotation: number; flipH: boolean; flipV: boolean;
-  imgDims: { w: number; h: number } | null;
-  onExport: () => void;
-  selectedTemplate: string; setSelectedTemplate: (id: string) => void;
-}) {
-  const active = Object.entries(adj).filter(([k, v]) => v !== (DEFAULT_ADJ as Record<string, number>)[k]).length;
+/* ══════ PROPERTIES PANEL ══════ */
+function PropertiesPanel({ imageSrc, adj, rotation, flipH, flipV, imgDims, onExport, selectedTemplate, setSelectedTemplate, textItems, setTextItems, selectedId }: any) {
+  const active=Object.entries(adj).filter(([k,v])=>v!==(DEFAULT_ADJ as any)[k]).length;
+  const selText=(textItems as TextItem[]).find((t:TextItem)=>t.id===selectedId);
 
   return (
     <div>
-      {imgDims && (
-        <>
-          <p style={pLbl}>Dimensiones</p>
-          <p style={{ fontSize: '0.78rem', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{imgDims.w} × {imgDims.h} px</p>
-          <p style={{ fontSize: '0.68rem', color: '#9CA3AF', margin: '0 0 10px' }}>{aspectStr(imgDims.w, imgDims.h)}</p>
-        </>
+      {imgDims&&(
+        <><p style={pLbl}>Dimensiones</p>
+        <p style={{ fontSize:'0.78rem',fontWeight:'700',color:'#111827',margin:'0 0 2px' }}>{imgDims.w} × {imgDims.h} px</p>
+        <p style={{ fontSize:'0.68rem',color:'#9CA3AF',margin:'0 0 10px' }}>{aspectStr(imgDims.w,imgDims.h)}</p></>
       )}
 
       <p style={pLbl}>Estado</p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
-        {rotation > 0 && <Chip c="#FF6835">↻ {rotation}°</Chip>}
-        {flipH && <Chip c="#3B82F6">↔ H</Chip>}
-        {flipV && <Chip c="#3B82F6">↕ V</Chip>}
-        {active > 0 && <Chip c="#10B981">✓ {active} aj.</Chip>}
-        {!rotation && !flipH && !flipV && active === 0 && <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>Sin modificaciones</span>}
+      <div style={{ display:'flex',flexWrap:'wrap',gap:4,marginBottom:12 }}>
+        {rotation>0&&<Chip c="#FF6835">↻ {rotation}°</Chip>}
+        {flipH&&<Chip c="#3B82F6">↔ H</Chip>}
+        {flipV&&<Chip c="#3B82F6">↕ V</Chip>}
+        {active>0&&<Chip c="#10B981">✓ {active} aj.</Chip>}
+        {!rotation&&!flipH&&!flipV&&active===0&&<span style={{ fontSize:'0.7rem',color:'#9CA3AF' }}>Sin modificaciones</span>}
       </div>
 
-      <button onClick={() => imageSrc && onExport()} disabled={!imageSrc}
-        style={{ width: '100%', padding: '9px', borderRadius: 8, border: 'none', backgroundColor: imageSrc ? '#FF6835' : '#E5E7EB', color: imageSrc ? '#fff' : '#9CA3AF', cursor: imageSrc ? 'pointer' : 'not-allowed', fontSize: '0.78rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, marginBottom: 16 }}>
-        <Download size={13} /> Exportar
+      {/* Selected text properties */}
+      {selText&&(
+        <>
+          <p style={pLbl}>Texto seleccionado</p>
+          <div style={{ marginBottom:8 }}>
+            <textarea value={selText.content} rows={2}
+              onChange={e=>setTextItems((prev:TextItem[])=>prev.map((t:TextItem)=>t.id===selText.id?{...t,content:e.target.value}:t))}
+              style={{ width:'100%',padding:'6px 8px',border:'1px solid #E5E7EB',borderRadius:6,fontSize:'0.72rem',resize:'vertical',outline:'none',boxSizing:'border-box' }}/>
+          </div>
+          <div style={{ display:'flex',gap:6,marginBottom:10 }}>
+            <div style={{ flex:1 }}>
+              <label style={pLbl}>Opacidad</label>
+              <input type="range" min={10} max={100} value={selText.opacity}
+                onChange={e=>setTextItems((prev:TextItem[])=>prev.map((t:TextItem)=>t.id===selText.id?{...t,opacity:Number(e.target.value)}:t))}
+                style={{ width:'100%',accentColor:'#FF6835',height:3 }}/>
+            </div>
+          </div>
+        </>
+      )}
+
+      <button onClick={()=>imageSrc&&onExport()} disabled={!imageSrc}
+        style={{ width:'100%',padding:'9px',borderRadius:8,border:'none',backgroundColor:imageSrc?'#FF6835':'#E5E7EB',color:imageSrc?'#fff':'#9CA3AF',cursor:imageSrc?'pointer':'not-allowed',fontSize:'0.78rem',fontWeight:'700',display:'flex',alignItems:'center',justifyContent:'center',gap:5,marginBottom:16 }}>
+        <Download size={13}/> Exportar
       </button>
 
       <p style={pLbl}>Templates</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {CANVAS_TEMPLATES.map(t => {
-          const isActive = selectedTemplate === t.id;
-          const ratio = t.w / t.h;
-          const bH = Math.min(28, Math.round(36 / ratio));
-          const bW = Math.round(bH * ratio);
+      <div style={{ display:'flex',flexDirection:'column',gap:4 }}>
+        {CANVAS_TEMPLATES.map(t=>{
+          const isActive=selectedTemplate===t.id;
+          const ratio=t.w/t.h; const bH=Math.min(26,Math.round(34/ratio)); const bW=Math.round(bH*ratio);
           return (
-            <button key={t.id} onClick={() => setSelectedTemplate(t.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 7, border: `1.5px solid ${isActive ? '#FF6835' : '#E5E7EB'}`, backgroundColor: isActive ? '#FFF4F0' : '#fff', cursor: 'pointer' }}>
-              <div style={{ width: 40, height: 30, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: bW, height: bH, border: `1.5px solid ${isActive ? '#FF6835' : '#9CA3AF'}`, borderRadius: t.shape === 'circle' ? '50%' : 2, backgroundColor: isActive ? '#FECDD3' : '#F3F4F6' }} />
+            <button key={t.id} onClick={()=>setSelectedTemplate(t.id)}
+              style={{ display:'flex',alignItems:'center',gap:8,padding:'6px 8px',borderRadius:7,border:`1.5px solid ${isActive?'#FF6835':'#E5E7EB'}`,backgroundColor:isActive?'#FFF4F0':'#fff',cursor:'pointer' }}>
+              <div style={{ width:38,height:28,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center' }}>
+                <div style={{ width:bW,height:bH,border:`1.5px solid ${isActive?'#FF6835':'#9CA3AF'}`,borderRadius:t.shape==='circle'?'50%':2,backgroundColor:isActive?'#FECDD3':'#F3F4F6' }}/>
               </div>
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: '700', color: isActive ? '#FF6835' : '#111827' }}>{t.name}</div>
-                <div style={{ fontSize: '0.6rem', color: '#9CA3AF' }}>{t.desc}</div>
+              <div style={{ textAlign:'left' }}>
+                <div style={{ fontSize:'0.72rem',fontWeight:'700',color:isActive?'#FF6835':'#111827' }}>{t.name}</div>
+                <div style={{ fontSize:'0.6rem',color:'#9CA3AF' }}>{t.desc}</div>
               </div>
             </button>
           );
@@ -657,39 +640,34 @@ function PropertiesPanel({
   );
 }
 
-/* ══════════════ EXPORT DIALOG ══════════════ */
-function ExportDialog({ slots, onClose, onExportSelected }: {
-  slots: (SlotState | null)[];
-  onClose: () => void;
-  onExportSelected: (indices: number[]) => void;
-}) {
-  const filled = slots.map((s, i) => ({ s, i })).filter(({ s }) => s !== null);
-  const [checked, setChecked] = useState<boolean[]>(slots.map((s, i) => i <= 1 && s !== null));
-  const toggle = (i: number) => setChecked(prev => prev.map((v, j) => j === i ? !v : v));
-  const selected = checked.map((v, i) => v ? i : -1).filter(i => i >= 0);
-
+/* ══════ EXPORT DIALOG ══════ */
+function ExportDialog({ slots,onClose,onExportSelected }:{ slots:(SlotState|null)[];onClose:()=>void;onExportSelected:(i:number[])=>void; }) {
+  const filled=slots.map((s,i)=>({s,i})).filter(({s})=>s!==null);
+  const [checked,setChecked]=useState<boolean[]>(slots.map((s,i)=>i<=1&&s!==null));
+  const toggle=(i:number)=>setChecked(prev=>prev.map((v,j)=>j===i?!v:v));
+  const selected=checked.map((v,i)=>v?i:-1).filter(i=>i>=0);
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-      <div style={{ backgroundColor: '#fff', borderRadius: 14, padding: 24, width: 340, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '800', color: '#111827' }}>¿Qué exportar?</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={16} /></button>
+    <div style={{ position:'fixed',inset:0,backgroundColor:'rgba(0,0,0,0.55)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000 }}>
+      <div style={{ backgroundColor:'#fff',borderRadius:14,padding:24,width:340,boxShadow:'0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16 }}>
+          <h3 style={{ margin:0,fontSize:'0.95rem',fontWeight:'800',color:'#111827' }}>¿Qué exportar?</h3>
+          <button onClick={onClose} style={{ background:'none',border:'none',cursor:'pointer',color:'#9CA3AF' }}><X size={16}/></button>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-          {filled.map(({ s, i }) => s ? (
-            <label key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8, border: `1.5px solid ${checked[i] ? '#FF6835' : '#E5E7EB'}`, backgroundColor: checked[i] ? '#FFF4F0' : '#fff', cursor: 'pointer' }}>
-              <input type="checkbox" checked={checked[i]} onChange={() => toggle(i)} style={{ display: 'none' }} />
-              {checked[i] ? <CheckSquare size={15} color="#FF6835" /> : <Square size={15} color="#9CA3AF" />}
-              <img src={s.src} alt="" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 4, border: '1px solid #F3F4F6', backgroundImage: 'repeating-conic-gradient(#eee 0% 25%, transparent 0% 50%)', backgroundSize: '6px 6px' }} />
-              <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#374151' }}>{SLOT_LABELS[i]}</span>
+        <div style={{ display:'flex',flexDirection:'column',gap:8,marginBottom:20 }}>
+          {filled.map(({s,i})=>s?(
+            <label key={i} style={{ display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1.5px solid ${checked[i]?'#FF6835':'#E5E7EB'}`,backgroundColor:checked[i]?'#FFF4F0':'#fff',cursor:'pointer' }}>
+              <input type="checkbox" checked={checked[i]} onChange={()=>toggle(i)} style={{ display:'none' }}/>
+              {checked[i]?<CheckSquare size={15} color="#FF6835"/>:<Square size={15} color="#9CA3AF"/>}
+              <img src={s.src} alt="" style={{ width:36,height:36,objectFit:'contain',borderRadius:4,border:'1px solid #F3F4F6',backgroundImage:'repeating-conic-gradient(#eee 0% 25%,transparent 0% 50%)',backgroundSize:'6px 6px' }}/>
+              <span style={{ fontSize:'0.78rem',fontWeight:'700',color:'#374151' }}>{SLOT_LABELS[i]}</span>
             </label>
-          ) : null)}
+          ):null)}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '9px', borderRadius: 8, border: '1px solid #E5E7EB', backgroundColor: '#fff', color: '#374151', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '600' }}>Cancelar</button>
-          <button onClick={() => { onExportSelected(selected); onClose(); }} disabled={selected.length === 0}
-            style={{ flex: 2, padding: '9px', borderRadius: 8, border: 'none', backgroundColor: selected.length > 0 ? '#FF6835' : '#E5E7EB', color: selected.length > 0 ? '#fff' : '#9CA3AF', cursor: selected.length > 0 ? 'pointer' : 'not-allowed', fontSize: '0.78rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-            <Download size={13} /> Exportar {selected.length > 0 ? `(${selected.length})` : ''}
+        <div style={{ display:'flex',gap:8 }}>
+          <button onClick={onClose} style={{ flex:1,padding:'9px',borderRadius:8,border:'1px solid #E5E7EB',backgroundColor:'#fff',color:'#374151',cursor:'pointer',fontSize:'0.78rem',fontWeight:'600' }}>Cancelar</button>
+          <button onClick={()=>{onExportSelected(selected);onClose();}} disabled={selected.length===0}
+            style={{ flex:2,padding:'9px',borderRadius:8,border:'none',backgroundColor:selected.length>0?'#FF6835':'#E5E7EB',color:selected.length>0?'#fff':'#9CA3AF',cursor:selected.length>0?'pointer':'not-allowed',fontSize:'0.78rem',fontWeight:'700',display:'flex',alignItems:'center',justifyContent:'center',gap:5 }}>
+            <Download size={13}/> Exportar {selected.length>0?`(${selected.length})`:''}
           </button>
         </div>
       </div>
@@ -697,168 +675,166 @@ function ExportDialog({ slots, onClose, onExportSelected }: {
   );
 }
 
-/* ══════════════ STYLE TOKENS ══════════════ */
-const Chip = ({ children, c }: { children: React.ReactNode; c: string }) => (
-  <span style={{ padding: '2px 7px', borderRadius: 4, backgroundColor: `${c}18`, color: c, fontSize: '0.65rem', fontWeight: '700' }}>{children}</span>
+/* ══════ STYLE TOKENS ══════ */
+const Chip=({children,c}:{children:React.ReactNode;c:string})=>(
+  <span style={{ padding:'2px 7px',borderRadius:4,backgroundColor:`${c}18`,color:c,fontSize:'0.65rem',fontWeight:'700' }}>{children}</span>
 );
-const sLbl: React.CSSProperties = { fontSize: '0.6rem', fontWeight: '800', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 6px' };
-const pLbl: React.CSSProperties = { fontSize: '0.6rem', fontWeight: '800', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 5px' };
-const tbBtn: React.CSSProperties = { width: 28, height: 28, borderRadius: 6, border: '1px solid #E5E7EB', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#374151', flexShrink: 0 };
-const tbVal: React.CSSProperties = { fontSize: '0.72rem', fontWeight: '700', color: '#374151', minWidth: 36, textAlign: 'center', userSelect: 'none', flexShrink: 0 };
-const tbSep: React.CSSProperties = { width: 1, height: 20, backgroundColor: '#E5E7EB', margin: '0 2px', flexShrink: 0 };
+const sLbl:React.CSSProperties={ fontSize:'0.6rem',fontWeight:'800',color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'0.08em',margin:'0 0 6px' };
+const pLbl:React.CSSProperties={ fontSize:'0.6rem',fontWeight:'800',color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'0.06em',margin:'0 0 5px' };
+const tbBtn:React.CSSProperties={ width:28,height:28,borderRadius:6,border:'1px solid #E5E7EB',backgroundColor:'#fff',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#374151',flexShrink:0 };
+const tbVal:React.CSSProperties={ fontSize:'0.72rem',fontWeight:'700',color:'#374151',minWidth:34,textAlign:'center',userSelect:'none',flexShrink:0 };
+const tbSep:React.CSSProperties={ width:1,height:20,backgroundColor:'#E5E7EB',margin:'0 2px',flexShrink:0 };
 
-/* ══════════════ MAIN ══════════════ */
+/* ══════ MAIN ══════ */
 export function EditorImagenesWorkspace({ onNavigate }: Props) {
-  const [imageSrc, setImageSrc]   = useState<string | null>(null);
-  const [imageName, setImageName] = useState('imagen');
-  const [adj, setAdj]             = useState<Adjustments>(DEFAULT_ADJ);
-  const [rotation, setRotation]   = useState(0);
-  const [flipH, setFlipH]         = useState(false);
-  const [flipV, setFlipV]         = useState(false);
-  const [zoom, setZoom]           = useState(100);
-  const [imgDims, setImgDims]     = useState<{ w: number; h: number } | null>(null);
-  const [slots, setSlots]         = useState<(SlotState | null)[]>(Array(6).fill(null));
-  const [activeSlot, setActiveSlot] = useState(-1);
-  const [processing, setProcessing] = useState(false);
-  const [bgTolerance, setBgTolerance] = useState(58);
-  const [bgColor, setBgColor]     = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('square');
-  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [imageSrc,setImageSrc]     = useState<string|null>(null);
+  const [imageName,setImageName]   = useState('imagen');
+  const [adj,setAdj]               = useState<Adjustments>(DEFAULT_ADJ);
+  const [rotation,setRotation]     = useState(0);
+  const [flipH,setFlipH]           = useState(false);
+  const [flipV,setFlipV]           = useState(false);
+  const [zoom,setZoom]             = useState(100);
+  const [imgDims,setImgDims]       = useState<{w:number;h:number}|null>(null);
+  const [slots,setSlots]           = useState<(SlotState|null)[]>(Array(6).fill(null));
+  const [activeSlot,setActiveSlot] = useState(-1);
+  const [processing,setProcessing] = useState(false);
+  const [bgTolerance,setBgTolerance]= useState(58);
+  const [bgColor,setBgColor]       = useState('');
+  const [selectedTemplate,setSelectedTemplate] = useState('square');
+  const [showExportDialog,setShowExportDialog] = useState(false);
+  const [activeTool,setActiveTool] = useState<ToolId>('select');
+  const [selectedId,setSelectedId] = useState<string|null>(null);
+  const [imagePos,setImagePos]     = useState({x:0,y:0});
+  const [textItems,setTextItems]   = useState<TextItem[]>([]);
 
-  /* Text state */
-  const [fontFamily, setFontFamily]     = useState('Arial');
-  const [fontSize, setFontSize]         = useState(72);
-  const [fontBold, setFontBold]         = useState(false);
-  const [fontItalic, setFontItalic]     = useState(false);
-  const [fontUnderline, setFontUnderline] = useState(false);
-  const [textAlign, setTextAlign]       = useState<'left' | 'center' | 'right'>('center');
-  const [textColor, setTextColor]       = useState('#ffffff');
-  const [textContent, setTextContent]   = useState('');
+  /* Text formatting state */
+  const [fontFamily,setFontFamily]       = useState('Arial');
+  const [fontSize,setFontSize]           = useState(72);
+  const [fontBold,setFontBold]           = useState(false);
+  const [fontItalic,setFontItalic]       = useState(false);
+  const [fontUnderline,setFontUnderline] = useState(false);
+  const [textAlign,setTextAlign]         = useState<'left'|'center'|'right'>('center');
+  const [textColor,setTextColor]         = useState('#ffffff');
 
   const fileRef = useRef<HTMLInputElement>(null);
 
-  /* ── File load ── */
-  const handleFileLoad = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const src = e.target?.result as string;
-      setImageSrc(src);
-      setImageName(file.name.replace(/\.[^.]+$/, ''));
+  const handleFileLoad=(file:File)=>{
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      const src=e.target?.result as string;
+      setImageSrc(src); setImageName(file.name.replace(/\.[^.]+$/,''));
       setAdj(DEFAULT_ADJ); setRotation(0); setFlipH(false); setFlipV(false); setZoom(100);
-      const newSlots: (SlotState | null)[] = Array(6).fill(null);
-      newSlots[0] = { src, adj: DEFAULT_ADJ, rotation: 0, flipH: false, flipV: false, label: 'Original' };
+      setImagePos({x:0,y:0}); setTextItems([]);
+      const newSlots:(SlotState|null)[]=Array(6).fill(null);
+      newSlots[0]={src,adj:DEFAULT_ADJ,rotation:0,flipH:false,flipV:false,label:'Original'};
       setSlots(newSlots); setActiveSlot(0);
-
       setProcessing(true);
-      setTimeout(async () => {
+      setTimeout(async()=>{
         try {
-          const bgRemoved = await removeBg(src, bgTolerance);
-          const aa = await autoAdjust(bgRemoved);
-          setSlots(prev => {
-            const next = [...prev];
-            next[1] = { src: bgRemoved, adj: aa, rotation: 0, flipH: false, flipV: false, label: 'Auto' };
-            return next;
-          });
+          const bgRemoved=await removeBg(src,bgTolerance);
+          const aa=await autoAdjust(bgRemoved);
+          setSlots(prev=>{ const next=[...prev]; next[1]={src:bgRemoved,adj:aa,rotation:0,flipH:false,flipV:false,label:'Auto'}; return next; });
           setImageSrc(bgRemoved); setAdj(aa); setActiveSlot(1);
         } catch { /* keep original */ }
         finally { setProcessing(false); }
-      }, 60);
+      },60);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop=useCallback((e:React.DragEvent)=>{
     e.preventDefault();
-    const file = e.dataTransfer.files[0];
+    const file=e.dataTransfer.files[0];
     if (file?.type.startsWith('image/')) handleFileLoad(file);
-  }, [bgTolerance]);
+  },[bgTolerance]);
 
-  /* ── Manual BG removal ── */
-  const handleRemoveBg = () => {
-    if (!imageSrc || processing) return;
+  const handleRemoveBg=()=>{
+    if (!imageSrc||processing) return;
     setProcessing(true);
-    setTimeout(async () => {
-      try { setImageSrc(await removeBg(imageSrc, bgTolerance)); }
-      catch { /* noop */ }
+    setTimeout(async()=>{
+      try { setImageSrc(await removeBg(imageSrc,bgTolerance)); }
+      catch { /**/ }
       finally { setProcessing(false); }
-    }, 60);
+    },60);
   };
 
-  /* ── Slot click ── */
-  const handleSlotClick = (i: number) => {
-    const s = slots[i];
+  const handleSlotClick=(i:number)=>{
+    const s=slots[i];
     if (!s) {
       if (!imageSrc) return;
-      setSlots(prev => {
-        const next = [...prev];
-        next[i] = { src: imageSrc, adj, rotation, flipH, flipV, label: SLOT_LABELS[i] };
-        return next;
-      });
+      setSlots(prev=>{ const next=[...prev]; next[i]={src:imageSrc,adj,rotation,flipH,flipV,label:SLOT_LABELS[i]}; return next; });
       setActiveSlot(i);
     } else {
-      setImageSrc(s.src); setAdj(s.adj); setRotation(s.rotation);
-      setFlipH(s.flipH); setFlipV(s.flipV); setActiveSlot(i);
+      setImageSrc(s.src); setAdj(s.adj); setRotation(s.rotation); setFlipH(s.flipH); setFlipV(s.flipV); setActiveSlot(i);
     }
   };
 
-  /* ── Export ── */
-  const doExport = (s: SlotState, fname: string) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d')!;
-      ctx.filter = buildFilter(s.adj);
-      const cx = canvas.width / 2, cy = canvas.height / 2;
-      ctx.translate(cx, cy);
-      ctx.rotate((s.rotation * Math.PI) / 180);
-      ctx.scale(s.flipH ? -1 : 1, s.flipV ? -1 : 1);
-      ctx.drawImage(img, -cx, -cy);
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url; a.download = `${fname}.png`; a.click();
+  const handleAddWatermark=()=>{
+    if (!imageSrc) return;
+    const wm:TextItem={
+      id:'watermark_'+uid(), content:'© MARCA DE AGUA',
+      x:50, y:50,
+      fontFamily:'Arial', fontSize:80, bold:true, italic:false, underline:false,
+      align:'center', color:'rgba(255,255,255,0.35)', rotation:-30, opacity:60,
     };
-    img.src = s.src;
+    setTextItems(prev=>[...prev.filter(t=>!t.id.startsWith('watermark_')),wm]);
+    setSelectedId(wm.id);
   };
 
-  const handleExportSelected = (indices: number[]) =>
-    indices.forEach(i => { const s = slots[i]; if (s) doExport(s, `${imageName}_${SLOT_LABELS[i].toLowerCase()}`); });
+  const doExport=(s:SlotState,fname:string)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas'); canvas.width=img.naturalWidth; canvas.height=img.naturalHeight;
+      const ctx=canvas.getContext('2d')!; ctx.filter=buildFilter(s.adj);
+      const cx=canvas.width/2, cy=canvas.height/2;
+      ctx.translate(cx,cy); ctx.rotate(s.rotation*Math.PI/180); ctx.scale(s.flipH?-1:1,s.flipV?-1:1);
+      ctx.drawImage(img,-cx,-cy);
+      const url=canvas.toDataURL('image/png');
+      const a=document.createElement('a'); a.href=url; a.download=`${fname}.png`; a.click();
+    };
+    img.src=s.src;
+  };
+
+  const handleExportSelected=(indices:number[])=>
+    indices.forEach(i=>{ const s=slots[i]; if(s) doExport(s,`${imageName}_${SLOT_LABELS[i].toLowerCase()}`); });
 
   return (
     <>
-      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-        onChange={e => { const f = e.target.files?.[0]; if (f) handleFileLoad(f); }} />
-
-      {showExportDialog && (
-        <ExportDialog slots={slots} onClose={() => setShowExportDialog(false)} onExportSelected={handleExportSelected} />
-      )}
+      <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }}
+        onChange={e=>{ const f=e.target.files?.[0]; if(f) handleFileLoad(f); }}/>
+      {showExportDialog&&<ExportDialog slots={slots} onClose={()=>setShowExportDialog(false)} onExportSelected={handleExportSelected}/>}
 
       <WorkspaceShell
         toolId="editor-imagenes"
         onNavigate={onNavigate}
         leftPanel={
           <LeftPanel adj={adj} setAdj={setAdj}
-            onUpload={() => fileRef.current?.click()}
+            onUpload={()=>fileRef.current?.click()}
             onRemoveBg={handleRemoveBg}
             processing={processing} hasImage={!!imageSrc}
             bgTolerance={bgTolerance} setBgTolerance={setBgTolerance}
             bgColor={bgColor} setBgColor={setBgColor}
+            activeTool={activeTool} setActiveTool={setActiveTool}
+            onAddWatermark={handleAddWatermark}
           />
         }
         canvas={
-          <div style={{ height: '100%' }} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
+          <div style={{ height:'100%' }} onDragOver={e=>e.preventDefault()} onDrop={handleDrop}>
             <CanvasArea
               imageSrc={imageSrc} adj={adj}
               rotation={rotation} setRotation={setRotation}
               flipH={flipH} setFlipH={setFlipH}
               flipV={flipV} setFlipV={setFlipV}
               zoom={zoom} onZoom={setZoom}
-              onLoad={(w, h) => setImgDims({ w, h })}
+              onLoad={(w:number,h:number)=>setImgDims({w,h})}
               imgDims={imgDims}
               slots={slots} activeSlot={activeSlot} onSlotClick={handleSlotClick}
               selectedTemplate={selectedTemplate}
-              processing={processing}
-              bgColor={bgColor}
+              processing={processing} bgColor={bgColor}
+              activeTool={activeTool} setActiveTool={setActiveTool}
+              selectedId={selectedId} setSelectedId={setSelectedId}
+              imagePos={imagePos} setImagePos={setImagePos}
+              textItems={textItems} setTextItems={setTextItems}
               fontFamily={fontFamily} setFontFamily={setFontFamily}
               fontSize={fontSize} setFontSize={setFontSize}
               fontBold={fontBold} setFontBold={setFontBold}
@@ -866,7 +842,6 @@ export function EditorImagenesWorkspace({ onNavigate }: Props) {
               fontUnderline={fontUnderline} setFontUnderline={setFontUnderline}
               textAlign={textAlign} setTextAlign={setTextAlign}
               textColor={textColor} setTextColor={setTextColor}
-              textContent={textContent} setTextContent={setTextContent}
             />
           </div>
         }
@@ -874,20 +849,20 @@ export function EditorImagenesWorkspace({ onNavigate }: Props) {
           <PropertiesPanel
             imageSrc={imageSrc} adj={adj} rotation={rotation}
             flipH={flipH} flipV={flipV} imgDims={imgDims}
-            onExport={() => setShowExportDialog(true)}
-            selectedTemplate={selectedTemplate}
-            setSelectedTemplate={setSelectedTemplate}
+            onExport={()=>setShowExportDialog(true)}
+            selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate}
+            textItems={textItems} setTextItems={setTextItems} selectedId={selectedId}
           />
         }
-        actions={imageSrc ? (
+        actions={imageSrc?(
           <>
-            <span style={{ fontSize: '0.68rem', color: '#71717A' }}>{imageName}</span>
-            <button onClick={() => setShowExportDialog(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 5, border: 'none', backgroundColor: '#FF6835', color: '#fff', cursor: 'pointer', fontSize: '0.72rem', fontWeight: '700' }}>
-              <Download size={12} /> Exportar
+            <span style={{ fontSize:'0.68rem',color:'#71717A' }}>{imageName}</span>
+            <button onClick={()=>setShowExportDialog(true)}
+              style={{ display:'flex',alignItems:'center',gap:4,padding:'4px 10px',borderRadius:5,border:'none',backgroundColor:'#FF6835',color:'#fff',cursor:'pointer',fontSize:'0.72rem',fontWeight:'700' }}>
+              <Download size={12}/> Exportar
             </button>
           </>
-        ) : undefined}
+        ):undefined}
       />
     </>
   );
