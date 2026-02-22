@@ -7,9 +7,10 @@ import type { MainSection } from '../../../AdminDashboard';
 import {
   Search, ExternalLink, Copy, CheckCircle2, XCircle, AlertCircle,
   Clock, Key, Globe, Zap, RefreshCw, ChevronDown, ChevronRight,
-  Database, Shield, Activity,
+  Database, Shield, Activity, Eye, EyeOff, X, Save, CloudUpload,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { projectId, publicAnonKey } from '../../../utils/supabase/info';
 
 interface Props { onNavigate: (s: MainSection) => void; }
 
@@ -102,6 +103,13 @@ export function RepositorioAPIsView({ onNavigate }: Props) {
   const [catFilter, setCatFilter] = useState<Category | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<APIStatus | 'all'>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [configModal, setConfigModal] = useState<{ api: APIEntry | null; value: string }>({ api: null, value: '' });
+  const [apiSecrets, setApiSecrets] = useState<Record<string, string>>(() => {
+    // Cargar desde localStorage
+    const stored = localStorage.getItem('oddy_api_secrets');
+    return stored ? JSON.parse(stored) : {};
+  });
+  const [showSecret, setShowSecret] = useState(false);
 
   const filtered = useMemo(() => APIS.filter(a => {
     if (search && !a.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -120,6 +128,24 @@ export function RepositorioAPIsView({ onNavigate }: Props) {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => toast.success('Copiado al portapapeles'));
+  };
+
+  const handleSaveSecret = (apiId: string, envKey: string, value: string) => {
+    const updated = { ...apiSecrets, [envKey]: value };
+    setApiSecrets(updated);
+    localStorage.setItem('oddy_api_secrets', JSON.stringify(updated));
+    toast.success(`Secret guardado para ${envKey}`);
+    setConfigModal({ api: null, value: '' });
+    setShowSecret(false);
+  };
+
+  const handleOpenConfig = (api: APIEntry) => {
+    setConfigModal({ api, value: getSecretValue(api.envKey || '') });
+    setShowSecret(false);
+  };
+
+  const getSecretValue = (envKey: string): string => {
+    return apiSecrets[envKey] || '';
   };
 
   return (
@@ -246,10 +272,18 @@ export function RepositorioAPIsView({ onNavigate }: Props) {
                         <div style={{ backgroundColor: '#fff', borderRadius: 8, padding: '10px 14px', border: '1px solid #E5E7EB' }}>
                           <div style={{ fontSize: '0.65rem', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>Variable de entorno</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <code style={{ fontSize: '0.72rem', color: '#8B5CF6', flex: 1 }}>{api.envKey}=<span style={{ color: '#9CA3AF' }}>••••••••</span></code>
-                            <button onClick={() => copyToClipboard(api.envKey!)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
-                              <Copy size={12} color="#9CA3AF" />
-                            </button>
+                            <code style={{ fontSize: '0.72rem', color: '#8B5CF6', flex: 1 }}>
+                              {api.envKey}={getSecretValue(api.envKey) ? (
+                                <span style={{ color: '#059669' }}>✓ Configurado</span>
+                              ) : (
+                                <span style={{ color: '#9CA3AF' }}>••••••••</span>
+                              )}
+                            </code>
+                            {getSecretValue(api.envKey) && (
+                              <button onClick={() => copyToClipboard(getSecretValue(api.envKey))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
+                                <Copy size={12} color="#9CA3AF" />
+                              </button>
+                            )}
                           </div>
                         </div>
                       )}
@@ -277,7 +311,7 @@ export function RepositorioAPIsView({ onNavigate }: Props) {
                         <Activity size={12} /> Test de conexión
                       </button>
                       <button
-                        onClick={() => toast.info(`Abrí Supabase → Settings → Secrets y configurá ${api.envKey ?? 'las variables requeridas'}`)}
+                        onClick={() => handleOpenConfig(api)}
                         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: '1px solid #FF6835', backgroundColor: '#FFF4F0', fontSize: '0.75rem', fontWeight: '600', color: '#FF6835', cursor: 'pointer' }}>
                         <Key size={12} /> Configurar secret
                       </button>
@@ -306,6 +340,184 @@ export function RepositorioAPIsView({ onNavigate }: Props) {
         </div>
 
       </div>
+
+      {/* Modal de configuración de secret */}
+      {configModal.api && (
+        <div
+          onClick={(e) => e.target === e.currentTarget && setConfigModal({ api: null, value: '' })}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: 12,
+              padding: '24px',
+              width: '100%',
+              maxWidth: '500px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700', color: '#111827' }}>
+                  Configurar {configModal.api.name}
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#6B7280' }}>
+                  Variable: <code style={{ backgroundColor: '#F3F4F6', padding: '2px 6px', borderRadius: 4 }}>{configModal.api.envKey}</code>
+                </p>
+              </div>
+              <button
+                onClick={() => setConfigModal({ api: null, value: '' })}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <X size={20} color="#9CA3AF" />
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                Valor del secret
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showSecret ? 'text' : 'password'}
+                  value={configModal.value}
+                  onChange={(e) => setConfigModal({ ...configModal, value: e.target.value })}
+                  placeholder={`Ingresá el valor para ${configModal.api.envKey}`}
+                  style={{
+                    width: '100%',
+                    padding: '10px 40px 10px 12px',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: 8,
+                    fontSize: '0.875rem',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    fontFamily: 'monospace',
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#FF6835'}
+                  onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
+                />
+                <button
+                  onClick={() => setShowSecret(!showSecret)}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showSecret ? <EyeOff size={18} color="#9CA3AF" /> : <Eye size={18} color="#9CA3AF" />}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ 
+              padding: '12px', 
+              backgroundColor: '#F0F9FF', 
+              border: '1px solid #BAE6FD', 
+              borderRadius: 8,
+              marginBottom: '20px',
+            }}>
+              <p style={{ margin: 0, fontSize: '0.7rem', color: '#0369A1', lineHeight: 1.5 }}>
+                <strong>Nota:</strong> Guardá el valor localmente primero, luego podés sincronizarlo directamente con Supabase usando el botón "Sincronizar con Supabase". 
+                <br />
+                <strong>Requisito:</strong> Necesitás configurar <code style={{ backgroundColor: '#E0F2FE', padding: '1px 4px', borderRadius: 3 }}>SUPABASE_ACCESS_TOKEN</code> en Supabase → Edge Functions → Secrets. 
+                Obtén tu token en <a href="https://supabase.com/dashboard/account/tokens" target="_blank" rel="noopener noreferrer" style={{ color: '#0369A1', textDecoration: 'underline', fontWeight: '600' }}>Supabase Dashboard → Account → Access Tokens</a>.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setConfigModal({ api: null, value: '' })}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: 8,
+                  backgroundColor: '#fff',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: '#374151',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (configModal.api.envKey) {
+                    handleSaveSecret(configModal.api.id, configModal.api.envKey, configModal.value);
+                  }
+                }}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: 8,
+                  backgroundColor: '#fff',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <Save size={14} /> Guardar local
+              </button>
+              <button
+                onClick={() => {
+                  if (configModal.api.envKey && configModal.value) {
+                    handleSyncToSupabase(configModal.api.envKey, configModal.value);
+                  } else {
+                    toast.error('Primero guardá el valor localmente');
+                  }
+                }}
+                disabled={!configModal.value}
+                style={{
+                  padding: '8px 16px',
+                  border: 'none',
+                  borderRadius: 8,
+                  backgroundColor: configModal.value ? '#059669' : '#D1D5DB',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: '#fff',
+                  cursor: configModal.value ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  opacity: configModal.value ? 1 : 0.6,
+                }}
+              >
+                <CloudUpload size={14} /> Sincronizar con Supabase
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

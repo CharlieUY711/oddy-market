@@ -2002,6 +2002,7 @@ export default function OddyStorefront() {
   const [flashText,  setFlashText]  = useState('MARKET');
   const [flashKey,   setFlashKey]   = useState(0);
   const [showCart,   setShowCart]   = useState(false);
+  const [isHeroCompact, setIsHeroCompact] = useState(false);
 
   // Pre-populated cart: 2 Market + 1 SH
   const [cartItems, setCartItems] = useState<CartItem[]>([
@@ -2100,6 +2101,18 @@ export default function OddyStorefront() {
       cancelAnimationFrame(animationId);
     };
   }, [isSH]);
+
+  // Efecto de scroll para compactar el hero
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY || window.pageYOffset;
+      // Compactar cuando el scroll supera los 50px
+      setIsHeroCompact(scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div data-sh={isSH ? 'true' : 'false'}>
@@ -2276,51 +2289,146 @@ export default function OddyStorefront() {
       </div>
 
       {/* MAIN */}
-      <main className="oddy-main">
+      <main className="oddy-main" style={isHeroCompact ? { paddingTop: '180px' } : {}}>
         {/* HERO */}
-        <div className="oddy-hero">
-          <div className="oddy-hero-in">
-            {!isSH && (
-              <p className="oddy-hsub" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 8vw, 48px)', lineHeight: '1.1', marginBottom: '16px', maxWidth: '90%', color: '#333' }}>
-                Todo lo que necesitas lo <span style={{ color: '#FF6835' }}>encontras</span> en Oddy Market. Ya encontraste donde <span style={{ color: '#6BB87A' }}>vender</span> aquello que ya no necesitas.
-              </p>
-            )}
-            {isSH && (
-              <p className="oddy-hsub" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 8vw, 48px)', lineHeight: '1.1', marginBottom: '16px', maxWidth: '90%', color: '#333' }}>
-                Aquí podrás <span style={{ color: '#6BB87A' }}>vender</span> lo que ya no necesitas y podrás <span style={{ color: '#FF6835' }}>comprar</span>, lo que no encontrabas.
-              </p>
-            )}
-            </div>
-          <div ref={carouselRef} className="oddy-hstats" style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-start', padding: '0 0 10px 0', overflowX: 'hidden', scrollbarWidth: 'none', WebkitScrollbar: { display: 'none' }, width: '100%', marginLeft: '-18px', marginRight: '-18px', paddingLeft: '18px', paddingRight: '18px' }}>
-            {Array(10).fill(null).flatMap(() => (isSH ? MP : SH)).map((p, idx) => (
-              <div key={`${p.id}-${idx}`} style={{ 
-                width: '70px', 
-                height: '70px', 
-                borderRadius: '8px', 
-                overflow: 'hidden',
-                border: '1.5px solid rgba(255,255,255,0.3)',
+        <div 
+          className={`oddy-hero ${isHeroCompact ? 'oddy-hero-compact' : ''}`}
+          style={isHeroCompact ? {
+            position: 'fixed',
+            top: '110px',
+            left: '0',
+            right: '0',
+            width: '100%',
+            height: '50px',
+            margin: '0',
+            borderRadius: '0',
+            border: 'none',
+            borderBottom: '1.5px solid var(--line)',
+            backgroundColor: 'var(--white)',
+            zIndex: 199,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 14px',
+            gap: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            transition: 'all 0.3s ease',
+            boxSizing: 'border-box',
+          } : {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+          }}
+        >
+          {isHeroCompact ? (
+            <>
+              <div style={{ 
                 flexShrink: 0,
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                fontSize: '14px',
+                fontFamily: "'Bebas Neue', sans-serif",
+                lineHeight: '1',
+                color: '#333',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '600px',
+                flex: '2',
+              }}>
+                {!isSH ? (
+                  <>Todo lo que necesitas lo <span style={{ color: '#FF6835' }}>encontras</span> en Oddy Market</>
+                ) : (
+                  <>Aquí podrás <span style={{ color: '#6BB87A' }}>vender</span> y <span style={{ color: '#FF6835' }}>comprar</span></>
+                )}
+              </div>
+              <div 
+                ref={carouselRef} 
+                className="oddy-hstats" 
+                style={{ 
+                  flex: '1',
+                  display: 'flex', 
+                  gap: '4px', 
+                  alignItems: 'center', 
+                  justifyContent: 'flex-start', 
+                  overflowX: 'hidden', 
+                  scrollbarWidth: 'none',
+                  height: '100%',
+                }}
               >
-                <img 
-                  src={p.img} 
-                  alt={p.n}
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover' 
+                {Array(10).fill(null).flatMap(() => (isSH ? MP : SH)).map((p, idx) => (
+                  <div key={`${p.id}-${idx}`} style={{ 
+                    width: '32px', 
+                    height: '32px', 
+                    borderRadius: '4px', 
+                    overflow: 'hidden',
+                    border: '1.5px solid rgba(255,255,255,0.3)',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
-                />
-          </div>
-            ))}
-          </div>
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                  >
+                    <img 
+                      src={p.img} 
+                      alt={p.n}
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover' 
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="oddy-hero-in" style={{ flex: '2', minWidth: 0 }}>
+                {!isSH && (
+                  <p className="oddy-hsub" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 8vw, 48px)', lineHeight: '1.1', marginBottom: '16px', maxWidth: '100%', color: '#333' }}>
+                    Todo lo que necesitas lo <span style={{ color: '#FF6835' }}>encontras</span> en Oddy Market. Ya encontraste donde <span style={{ color: '#6BB87A' }}>vender</span> aquello que ya no necesitas.
+                  </p>
+                )}
+                {isSH && (
+                  <p className="oddy-hsub" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 8vw, 48px)', lineHeight: '1.1', marginBottom: '16px', maxWidth: '100%', color: '#333' }}>
+                    Aquí podrás <span style={{ color: '#6BB87A' }}>vender</span> lo que ya no necesitas y podrás <span style={{ color: '#FF6835' }}>comprar</span>, lo que no encontrabas.
+                  </p>
+                )}
+              </div>
+              <div ref={carouselRef} className="oddy-hstats" style={{ display: 'flex', gap: '6px', alignItems: 'center', justifyContent: 'flex-start', padding: '0 0 10px 0', overflowX: 'hidden', scrollbarWidth: 'none', WebkitScrollbar: { display: 'none' }, width: '100%', marginLeft: '-18px', marginRight: '-18px', paddingLeft: '18px', paddingRight: '18px', flex: '1', minWidth: 0 }}>
+                {Array(10).fill(null).flatMap(() => (isSH ? MP : SH)).map((p, idx) => (
+                  <div key={`${p.id}-${idx}`} style={{ 
+                    width: '50px', 
+                    height: '50px', 
+                    borderRadius: '6px', 
+                    overflow: 'hidden',
+                    border: '1.5px solid rgba(255,255,255,0.3)',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                  >
+                    <img 
+                      src={p.img} 
+                      alt={p.n}
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover' 
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {/* ── MARKET ── */}

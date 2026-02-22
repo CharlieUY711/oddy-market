@@ -14,6 +14,7 @@ import { ideasBoard } from "./ideas_board.tsx";
 import { cargaMasiva } from "./carga_masiva.tsx";
 import { ageVerification } from "./age_verification.tsx";
 import { rrss } from "./rrss.tsx";
+import { apiSecrets } from "./api_secrets.tsx";
 
 const app = new Hono();
 
@@ -64,5 +65,8 @@ app.route("/make-server-75638143/age-verification", ageVerification);
 
 // Redes Sociales — RRSS (Meta: Instagram + Facebook)
 app.route("/make-server-75638143/rrss", rrss);
+
+// Gestión de Secrets de APIs
+app.route("/make-server-75638143/api-secrets", apiSecrets);
 
 Deno.serve(app.fetch);

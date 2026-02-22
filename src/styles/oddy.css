@@ -30,13 +30,46 @@
   --accent2: #68C018;
 }
 
+/* Reset básico para consistencia entre localhost y deploy */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Asegurar que el scroll sea consistente */
+  scroll-behavior: smooth;
+}
+
 body {
+  margin: 0;
+  padding: 0;
   background: var(--bg);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
   min-height: 100dvh;
   overflow-x: hidden;
   transition: background .5s, color .4s;
+  /* Asegurar renderizado consistente */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Asegurar que los elementos se alineen correctamente */
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── TOPBAR ─────────────────────────────────────────────────────── */
@@ -369,16 +402,65 @@ body {
   min-height: 100dvh;
   scroll-snap-type: y proximity;
   scroll-behavior: smooth;
+  scroll-padding-top: 130px;
   scroll-padding-bottom: 20px;
+  /* Asegurar que el contenido se alinee correctamente */
+  width: 100%;
+  flex: 1;
+  /* Asegurar renderizado consistente */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── HERO ────────────────────────────────────────────────────────── */
 .oddy-hero {
   margin: 4px 8px 0;
-  background: var(--white); border: 1.5px solid var(--line);
-  border-radius: 18px; overflow: hidden; box-shadow: var(--sh);
+  margin-top: 4px;
+  margin-bottom: 0;
+  margin-left: 8px;
+  margin-right: 8px;
+  background: var(--white); 
+  border: 1.5px solid var(--line);
+  border-radius: 18px; 
+  overflow: hidden; 
+  box-shadow: var(--sh);
+  transition: all 0.3s ease;
+  /* Asegurar renderizado consistente */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Asegurar que el contenido se alinee correctamente */
+  width: calc(100% - 16px);
+  box-sizing: border-box;
+  /* Layout flex para distribución de frase y carrusel */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
-.oddy-hero-in { padding: 20px 18px 0; position: relative; }
+.oddy-hero-compact {
+  position: fixed !important;
+  top: 110px !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 50px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-bottom: 1.5px solid var(--line) !important;
+  background: var(--white) !important;
+  z-index: 199 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+.oddy-hero-in { 
+  padding: 20px 18px 0; 
+  position: relative; 
+  flex: 2;
+  min-width: 0;
+}
 .oddy-hstripe {
   position: absolute; top: 0; right: 0; width: 4px; height: 100%;
   background: linear-gradient(180deg, var(--accent), var(--accent2));
@@ -431,9 +513,19 @@ body {
 /* ── 5-COLUMN GRID ──────────────────────────────────────────────── */
 .oddy-grid {
   padding: 0 14px;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 14px;
+  padding-right: 14px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: var(--gap);
+  gap: 8px;
+  /* Asegurar que el grid se alinee correctamente */
+  width: 100%;
+  box-sizing: border-box;
+  /* Asegurar renderizado consistente */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Card slot: defines dimensions (width:height = 2:3, i.e. 1.5× taller) - 70% height */
@@ -443,6 +535,9 @@ body {
   scroll-snap-align: start;
   scroll-margin-top: 130px;
   scroll-margin-bottom: 20px;
+  /* Asegurar que las tarjetas se alineen correctamente */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── MARKET: FLIP CARDS ─────────────────────────────────────────── */
