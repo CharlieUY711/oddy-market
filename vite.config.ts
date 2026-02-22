@@ -25,6 +25,11 @@ export default defineConfig({
     cssCodeSplit: false, // Emitir un solo archivo CSS para evitar problemas de carga
     sourcemap: false,
     minify: 'esbuild', // Minificación consistente
+    cssMinify: true, // Minificar CSS en producción
+    // Asegurar que los assets se copien correctamente
+    assetsDir: 'assets',
+    // Asegurar que el build sea determinístico
+    target: 'esnext',
     rollupOptions: {
       output: {
         manualChunks: undefined, // Un solo bundle para mejor compatibilidad
@@ -34,8 +39,6 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-    // Asegurar que el build sea determinístico
-    target: 'esnext',
   },
 
   // Asegurar que las rutas base funcionen correctamente
@@ -56,6 +59,7 @@ export default defineConfig({
   // Optimizaciones CSS para consistencia
   css: {
     devSourcemap: false, // Desactivar sourcemaps en desarrollo para consistencia
+    postcss: undefined, // Usar configuración por defecto de PostCSS
   },
   
   // Asegurar que el modo de desarrollo sea consistente

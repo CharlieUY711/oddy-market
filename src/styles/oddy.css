@@ -43,6 +43,11 @@ html {
   text-rendering: optimizeLegibility;
   /* Asegurar que el scroll sea consistente */
   scroll-behavior: smooth;
+  /* Asegurar que el tamaño de fuente base sea consistente */
+  font-size: 16px;
+  /* Asegurar que no haya diferencias de renderizado */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 body {
@@ -63,6 +68,12 @@ body {
   /* Asegurar que los elementos se alineen correctamente */
   display: flex;
   flex-direction: column;
+  /* Asegurar que no haya diferencias de renderizado entre navegadores */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  /* Asegurar que el ancho sea consistente */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #root {
