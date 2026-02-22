@@ -1,5 +1,6 @@
 
-  # Charlie MarketPlace Builder
+  # ODDY Market
+  
 
   This is a code bundle for Charlie MarketPlace Builder. The original project is available at https://www.figma.com/design/5PAWEGg4AhnZSYUHjV4UV7/Charlie-MarketPlace-Builder.
 
