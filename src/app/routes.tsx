@@ -1,28 +1,33 @@
 /* =====================================================
    Charlie Marketplace Builder — Router Config (React Router v7)
    ===================================================== */
-import { createBrowserRouter, Navigate } from 'react-router';
+import { createBrowserRouter } from 'react-router';
 import MensajePage             from './public/MensajePage';
 import AdminDashboard          from './AdminDashboard';
 import OddyStorefront          from './public/OddyStorefront';
+import { ProtectedRoute }      from './components/auth/ProtectedRoute';
 
 export const router = createBrowserRouter([
-  /* ── Raíz — redirige a admin ─────────────────── */
+  /* ── Raíz — Frontstore (público) ───────────── */
   {
     path: '/',
-    element: <Navigate to="/admin" replace />,
+    Component: OddyStorefront,
   },
 
-  /* ── Admin ─────────────────────────────────── */
-  {
-    path: '/admin',
-    Component: AdminDashboard,
-  },
-
-  /* ── Tienda (Storefront) ───────────────────── */
+  /* ── Tienda (Storefront) — alias ───────────── */
   {
     path: '/tienda',
     Component: OddyStorefront,
+  },
+
+  /* ── Admin — Requiere autenticación ─────────── */
+  {
+    path: '/admin',
+    element: (
+      <ProtectedRoute>
+        <AdminDashboard />
+      </ProtectedRoute>
+    ),
   },
 
   /* ── Etiqueta Emotiva — pública ─────────────── */
