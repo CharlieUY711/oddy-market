@@ -19,4 +19,18 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  // Configuración para producción
+  build: {
+    cssCodeSplit: false, // Emitir un solo archivo CSS para evitar problemas de carga
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined, // Un solo bundle para mejor compatibilidad
+      },
+    },
+  },
+
+  // Asegurar que las rutas base funcionen correctamente
+  base: '/',
 })

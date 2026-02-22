@@ -2282,7 +2282,7 @@ export default function OddyStorefront() {
           <div className="oddy-hero-in">
             {!isSH && (
               <p className="oddy-hsub" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 8vw, 48px)', lineHeight: '1.1', marginBottom: '16px', maxWidth: '90%', color: '#333' }}>
-                Todo lo que necesitas lo <span style={{ color: '#FF6835' }}>encontras</span> en Oddy Market. Ya encontrastes donde <span style={{ color: '#6BB87A' }}>vender</span> aquello que ya no necesitas.
+                Todo lo que necesitas lo <span style={{ color: '#FF6835' }}>encontras</span> en Oddy Market. Ya encontraste donde <span style={{ color: '#6BB87A' }}>vender</span> aquello que ya no necesitas.
               </p>
             )}
             {isSH && (
