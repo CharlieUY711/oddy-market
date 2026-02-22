@@ -4,6 +4,7 @@
 import { createBrowserRouter, Navigate } from 'react-router';
 import MensajePage             from './public/MensajePage';
 import AdminDashboard          from './AdminDashboard';
+import OddyStorefront          from './public/OddyStorefront';
 
 export const router = createBrowserRouter([
   /* ── Raíz — redirige a admin ─────────────────── */
@@ -16,6 +17,12 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     Component: AdminDashboard,
+  },
+
+  /* ── Tienda (Storefront) ───────────────────── */
+  {
+    path: '/tienda',
+    Component: OddyStorefront,
   },
 
   /* ── Etiqueta Emotiva — pública ─────────────── */

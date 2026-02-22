@@ -216,7 +216,7 @@ export function AdminSidebar({ activeSection, onNavigate }: Props) {
 
       {/* ── Ver Tienda ── */}
       <a
-        href="/"
+        href="/tienda"
         target="_blank"
         rel="noopener noreferrer"
         style={{
