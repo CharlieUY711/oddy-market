@@ -2323,7 +2323,7 @@ export default function OddyStorefront() {
             <>
               <div style={{ 
                 flexShrink: 0,
-                fontSize: '14px',
+                fontSize: '18px',
                 fontFamily: "'Bebas Neue', sans-serif",
                 lineHeight: '1',
                 color: '#333',
