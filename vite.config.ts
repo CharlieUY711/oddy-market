@@ -24,13 +24,43 @@ export default defineConfig({
   build: {
     cssCodeSplit: false, // Emitir un solo archivo CSS para evitar problemas de carga
     sourcemap: false,
+    minify: 'esbuild', // Minificación consistente
     rollupOptions: {
       output: {
         manualChunks: undefined, // Un solo bundle para mejor compatibilidad
+        // Nombres determinísticos para builds consistentes
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
+    // Asegurar que el build sea determinístico
+    target: 'esnext',
   },
 
   // Asegurar que las rutas base funcionen correctamente
   base: '/',
+  
+  // Configuración del servidor de desarrollo
+  server: {
+    port: 5173,
+    strictPort: true,
+    // Asegurar que el HMR no inyecte código extra
+    hmr: {
+      overlay: true,
+    },
+    // Limpiar caché en cada inicio
+    force: true,
+  },
+  
+  // Optimizaciones CSS para consistencia
+  css: {
+    devSourcemap: false, // Desactivar sourcemaps en desarrollo para consistencia
+  },
+  
+  // Asegurar que el modo de desarrollo sea consistente
+  define: {
+    'import.meta.env.DEV': JSON.stringify(process.env.NODE_ENV !== 'production'),
+    'import.meta.env.PROD': JSON.stringify(process.env.NODE_ENV === 'production'),
+  },
 })
