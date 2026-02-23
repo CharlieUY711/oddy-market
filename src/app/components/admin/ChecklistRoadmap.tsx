@@ -844,79 +844,70 @@ export function ChecklistRoadmap({ hideHeader = false }: Props) {
       )}
 
       {/* ── Stats Cards ───────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Progreso Total */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}
-          className="bg-card rounded-xl p-5 border border-border">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">Progreso Total</span>
-            <TrendingUp className="h-4 w-4 text-[#FF6835]" />
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Progreso Total</span>
+            {!hasUnsavedChanges && !isSaving && (
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+            )}
           </div>
-          <div className="text-2xl font-bold text-foreground mb-1">{stats.progressPercent}%</div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-            <div className="bg-[#FF6835] h-1.5 rounded-full transition-all duration-700"
+          <div className="text-3xl font-bold text-gray-900 mb-2">{stats.progressPercent}%</div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-[#FF6835] h-2 rounded-full transition-all duration-700"
               style={{ width: `${stats.progressPercent}%` }} />
           </div>
-          <div className="text-xs text-muted-foreground mt-1.5">
+          <div className="text-xs text-gray-500 mt-2">
             promedio ponderado por horas
           </div>
-        </motion.div>
+        </div>
 
         {/* Completados con DB */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-          className="bg-card rounded-xl p-5 border border-border">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">Completados</span>
-            <CheckCircle2 className="h-4 w-4 text-[#FF6835]" />
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Completados</span>
           </div>
-          <div className="text-2xl font-bold text-foreground mb-1">
+          <div className="text-3xl font-bold text-gray-900 mb-2">
             {stats.completed}/{stats.total}
           </div>
-          <div className="text-xs text-muted-foreground mb-2">{stats.completedPercent}% módulos con DB</div>
+          <div className="text-xs text-gray-500 mb-3">{stats.completedPercent}% módulos con DB</div>
           {/* Mini breakdown de los 3 estados */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">
-              🟢 {stats.completed} DB
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-orange-100 text-orange-700">
+              {stats.completed} DB
             </span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-              🔵 {stats.uiOnly} UI
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+              {stats.uiOnly} UI
             </span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
-              ⚫ {stats.notStarted} pend.
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+              {stats.notStarted} pend.
             </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* UI Lista / En Progreso */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
-          className="bg-card rounded-xl p-5 border border-border">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">UI Lista / En Progreso</span>
-            <Monitor className="h-4 w-4 text-blue-500" />
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">UI Lista / En Progreso</span>
           </div>
-          <div className="text-2xl font-bold text-foreground mb-1">{stats.uiOnly}</div>
-          <div className="text-xs text-muted-foreground mb-2">vistas construidas sin backend</div>
-          {stats.specReady > 0 && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
-              🟣 {stats.specReady} en cola
-            </span>
-          )}
-        </motion.div>
+          <div className="text-3xl font-bold text-gray-900 mb-2">{stats.uiOnly}</div>
+          <div className="text-xs text-gray-500">vistas construidas sin backend</div>
+        </div>
 
         {/* Horas Restantes */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}
-          className="bg-card rounded-xl p-5 border border-border">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">Horas Restantes</span>
-            <AlertCircle className="h-4 w-4 text-[#FF6835]" />
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Horas Restantes</span>
+            <Monitor className="h-4 w-4 text-gray-400" />
           </div>
-          <div className="text-2xl font-bold text-foreground mb-1">{stats.remainingHours}h</div>
-          <div className="text-xs text-muted-foreground">de {stats.totalHours}h estimadas totales</div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-            <div className="bg-green-500 h-1.5 rounded-full transition-all duration-700"
+          <div className="text-3xl font-bold text-gray-900 mb-2">{stats.remainingHours}h</div>
+          <div className="text-xs text-gray-500 mb-2">de {stats.totalHours}h estimadas totales</div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-green-500 h-2 rounded-full transition-all duration-700"
               style={{ width: `${Math.round((stats.completedHours / Math.max(stats.totalHours, 1)) * 100)}%` }} />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* ── Filters ───────────────────────────────────── */}
