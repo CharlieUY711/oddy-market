@@ -1,50 +1,83 @@
-# 🧹 Guía para Limpiar Vercel
+# 🧹 Guía para Limpiar Vercel - Mantener Solo 3 Proyectos
 
-## 📋 Pasos para limpiar deployments antiguos en Vercel
+## 🎯 Proyectos a MANTENER:
+1. **El proyecto actual que estás usando** (probablemente `charliemarketplacebuilderv15` o `oddy-market`)
+2. **Constructor** (`constructor`)
+3. **labcine-ufsc** (`labcine-ufsc`)
 
-### 1. Acceder al Dashboard de Vercel
+## 🗑️ Proyectos a ELIMINAR (según las imágenes):
+- `marketplacebuilder1`
+- `marketplacebuilder2`
+- `oddymarket`
+- `oddymarket1`
+- `marketpplacebuilder`
+- Todos los proyectos duplicados de `oddy-market-*` (oddy-market-t45y, oddy-market-45kh, oddy-market-mvaq, etc.)
+
+---
+
+## 📋 Pasos para Eliminar Proyectos en Vercel
+
+### Paso 1: Acceder al Dashboard
 1. Ve a [vercel.com](https://vercel.com) e inicia sesión
-2. Busca tu proyecto "Charlie Marketplace Builder V 1.5" (o el nombre que tenga)
+2. Verás la lista de todos tus proyectos
 
-### 2. Limpiar Deployments Antiguos
-1. En el dashboard del proyecto, ve a la pestaña **"Deployments"**
-2. Verás una lista de todos los deployments (producción, preview, etc.)
-3. Para cada deployment antiguo que quieras eliminar:
-   - Haz clic en los **3 puntos** (⋯) al lado del deployment
-   - Selecciona **"Delete"** o **"Eliminar"**
-   - Confirma la eliminación
+### Paso 2: Eliminar Cada Proyecto No Deseado
+Para cada proyecto que quieras eliminar:
 
-### 3. Limpiar Variables de Entorno Obsoletas
-1. Ve a **Settings** → **Environment Variables**
-2. Revisa las variables y elimina las que ya no uses
-3. **IMPORTANTE**: No elimines variables que estés usando (como `SUPABASE_URL`, `SUPABASE_ANON_KEY`, etc.)
+1. **Haz clic en el proyecto** (no en el deployment, sino en el nombre del proyecto)
+2. Ve a **Settings** (Configuración) en la parte superior
+3. Desplázate hasta el final de la página
+4. En la sección **"Danger Zone"** o **"Zona de Peligro"**
+5. Haz clic en **"Delete Project"** o **"Eliminar Proyecto"**
+6. Escribe el nombre del proyecto para confirmar
+7. Haz clic en **"Delete"** o **"Eliminar"**
 
-### 4. Limpiar Dominios No Usados
-1. Ve a **Settings** → **Domains**
-2. Elimina dominios que ya no uses
+### Paso 3: Verificar los Proyectos Restantes
+Después de eliminar, deberías tener solo:
+- ✅ Tu proyecto actual (Charlie Marketplace Builder)
+- ✅ Constructor
+- ✅ labcine-ufsc
 
-### 5. Limpiar Integraciones
-1. Ve a **Settings** → **Integrations**
-2. Revisa las integraciones conectadas (GitHub, etc.)
-3. Si hay alguna que no uses, puedes desconectarla
+---
+
+## 🔍 Cómo Identificar el Proyecto Actual
+
+Si no estás seguro cuál es tu proyecto actual, busca:
+- El que tiene el commit más reciente relacionado con "catalog-extractor" o "refactor"
+- El que tiene la URL de producción que estás usando
+- El que tiene el nombre más similar a "Charlie Marketplace Builder V 1.5"
+
+---
+
+## ⚠️ IMPORTANTE - Antes de Eliminar
+
+1. **Verifica las URLs de producción** de cada proyecto antes de eliminarlo
+2. **Guarda las variables de entorno** si las necesitas (Settings → Environment Variables)
+3. **Anota los dominios personalizados** si los tienes configurados
+
+---
 
 ## ✅ Lo que ya limpié en el código local
 
 - ✅ Eliminada carpeta `extraer-catalogo/` (ya está integrado en el proyecto)
 - ✅ Eliminado archivo `extraer-catalogo.zip`
 
+---
+
 ## 📝 Notas
 
-- El archivo `vercel.json` está bien configurado y no necesita cambios
-- Los deployments antiguos no afectan el funcionamiento, pero ocupan espacio
-- Puedes mantener los últimos 3-5 deployments por si necesitas hacer rollback
+- Una vez eliminado un proyecto, **NO se puede recuperar** (a menos que tengas backup del código)
+- Los deployments antiguos dentro de un proyecto se pueden eliminar individualmente sin eliminar todo el proyecto
+- Si solo quieres limpiar deployments antiguos (no proyectos completos), ve a cada proyecto → Deployments → Elimina los antiguos
 
-## 🚀 Después de limpiar
+---
 
-Una vez que hayas limpiado en Vercel, puedes hacer un nuevo deploy:
+## 🚀 Después de Limpiar
+
+Una vez que hayas limpiado en Vercel, puedes hacer un nuevo deploy del proyecto actual:
 
 ```powershell
-pnpm deploy "Limpieza de Vercel"
+pnpm deploy "Limpieza de Vercel completada"
 ```
 
 Esto creará un deployment limpio y actualizado.
