@@ -755,6 +755,7 @@ body {
   font-family: 'DM Sans', sans-serif; letter-spacing: .03em; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; gap: 4px;
   margin-top: 5px; transition: background .2s;
+  min-height: 32px; height: 32px; box-sizing: border-box;
 }
 .oddy-fb-add:active { transform: scale(.97); }
 .oddy-fb-add svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2; flex-shrink: 0; }
@@ -1113,6 +1114,7 @@ input[type="range"]::-moz-range-track {
   font-family: 'DM Sans', sans-serif; letter-spacing: .03em;
   transition: background .2s; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; gap: 4px;
+  min-height: 32px; height: 32px; box-sizing: border-box;
 }
 .oddy-panel-btn-white {
   flex: 1; background: #fff; color: var(--text);
@@ -1121,6 +1123,7 @@ input[type="range"]::-moz-range-track {
   font-family: 'DM Sans', sans-serif; letter-spacing: .03em;
   transition: background .2s, border-color .2s; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; gap: 4px;
+  min-height: 32px; height: 32px; box-sizing: border-box;
 }
 .oddy-panel-btn-white:hover {
   background: var(--bg);

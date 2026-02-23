@@ -240,7 +240,29 @@ export function HubView({
 
         {/* Secciones de cards */}
         {sections.map((section, si) => (
-          <div key={si} style={{ marginBottom: si < sections.length - 1 ? '32px' : '0' }}>
+          <div key={si} style={{ marginBottom: si < sections.length - 1 ? '40px' : '0' }}>
+            {/* Etiqueta de sección si existe */}
+            {(section.label || section.count || section.subtitle) && (
+              <div style={{ marginBottom: '20px' }}>
+                {section.label && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', color: '#1A1A2E' }}>
+                      {section.label}
+                    </h2>
+                    {section.count && (
+                      <span style={{ fontSize: '0.75rem', color: '#6C757D', fontWeight: '600' }}>
+                        {section.count}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {section.subtitle && (
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#6C757D' }}>
+                    {section.subtitle}
+                  </p>
+                )}
+              </div>
+            )}
             <HubCardGrid cards={section.cards} />
           </div>
         ))}

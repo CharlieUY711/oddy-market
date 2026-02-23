@@ -227,6 +227,13 @@ export const MODULE_MANIFEST: ManifestEntry[] = [
     notes: 'Hub de navegación Marketing (cards a sub-módulos)',
   },
   {
+    checklistIds: [],
+    section: 'marketing-avanzado',
+    viewFile: 'MarketingAvanzadoView.tsx',
+    isReal: true,
+    notes: 'Marketing Avanzado: Activation Engine, Behavior Orchestrator y Dept Spotlight System. Integración del módulo IMKTG Avanzado.',
+  },
+  {
     checklistIds: ['marketing-campaigns'],
     section: 'google-ads',
     viewFile: 'GoogleAdsView.tsx',

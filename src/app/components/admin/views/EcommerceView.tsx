@@ -4,7 +4,7 @@ import type { MainSection } from '../../../AdminDashboard';
 import {
   ShoppingCart, DollarSign, Truck, Package, FolderTree, ShoppingBag,
   RefreshCw, CreditCard, TrendingUp, Users, Clock, CheckCircle,
-  AlertCircle, BarChart2, Tag, Percent, Box, MapPin,
+  AlertCircle, BarChart2, Tag, Percent, Box, MapPin, Receipt,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -61,6 +61,13 @@ export function EcommerceView({ onNavigate }: Props) {
       badge: 'Marketplace', label: 'Segunda Mano',
       description: 'Marketplace interno de artículos usados con publicaciones, moderación y estadísticas.',
       stats: [{ icon: Tag, value: '—', label: 'Publicaciones' }, { icon: CheckCircle, value: '—', label: 'Activas' }, { icon: ShoppingCart, value: '—', label: 'Vendidos' }],
+    },
+    {
+      id: 'ordenes-marketplace', icon: Receipt, onClick: nav('ordenes-marketplace'),
+      gradient: 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)', color: '#EC4899',
+      badge: 'Marketplace', label: 'Órdenes del Storefront',
+      description: 'Gestión de órdenes del marketplace público: carrito, checkout y seguimiento de compras.',
+      stats: [{ icon: Receipt, value: '—', label: 'Total órdenes' }, { icon: Clock, value: '—', label: 'Pendientes' }, { icon: CheckCircle, value: '—', label: 'Entregadas' }],
     },
   ];
 

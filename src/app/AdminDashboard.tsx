@@ -8,6 +8,7 @@ import { AdminSidebar }       from './components/admin/AdminSidebar';
 import { DashboardView }      from './components/admin/views/DashboardView';
 import { EcommerceView }      from './components/admin/views/EcommerceView';
 import { MarketingView }      from './components/admin/views/MarketingView';
+import { MarketingAvanzadoView } from './components/admin/views/MarketingAvanzadoView';
 import { HerramientasView }   from './components/admin/views/HerramientasView';
 import { QrGeneratorView }    from './components/admin/views/QrGeneratorView';
 import { GestionView }        from './components/admin/views/GestionView';
@@ -39,6 +40,7 @@ import { PedidosView }        from './components/admin/views/PedidosView';
 import { MetodosPagoView }    from './components/admin/views/MetodosPagoView';
 import { MetodosEnvioView }   from './components/admin/views/MetodosEnvioView';
 import { PagosView }          from './components/admin/views/PagosView';
+import { OrdenesMarketplaceView } from './components/admin/views/OrdenesMarketplaceView';
 import { EnviosView }         from './components/admin/views/EnviosView';
 import { LogisticaView }      from './components/admin/views/LogisticaView';
 import { EtiquetaEmotivaView } from './components/admin/views/EtiquetaEmotivaView';
@@ -87,6 +89,7 @@ export type MainSection =
   | 'dashboard'
   | 'ecommerce'
   | 'marketing'
+  | 'marketing-avanzado'
   | 'herramientas'
   | 'qr-generator'
   | 'gestion'
@@ -118,6 +121,7 @@ export type MainSection =
   | 'metodos-pago'
   | 'metodos-envio'
   | 'pagos'
+  | 'ordenes-marketplace'
   | 'envios'
   | 'logistica'
   | 'transportistas'
@@ -177,6 +181,7 @@ export default function AdminDashboard() {
           {activeSection === 'dashboard'       && <DashboardView      onNavigate={nav} />}
           {activeSection === 'ecommerce'       && <EcommerceView      onNavigate={nav} />}
           {activeSection === 'marketing'       && <MarketingView      onNavigate={nav} />}
+          {activeSection === 'marketing-avanzado' && <MarketingAvanzadoView onNavigate={nav} />}
           {activeSection === 'herramientas'    && <HerramientasView   onNavigate={nav} />}
           {activeSection === 'qr-generator'    && <QrGeneratorView    onNavigate={nav} />}
           {activeSection === 'gestion'         && <GestionView        onNavigate={nav} />}
@@ -209,6 +214,7 @@ export default function AdminDashboard() {
           {activeSection === 'metodos-pago'    && <MetodosPagoView     onNavigate={nav} />}
           {activeSection === 'metodos-envio'   && <MetodosEnvioView    onNavigate={nav} />}
           {activeSection === 'pagos'           && <PagosView           onNavigate={nav} />}
+          {activeSection === 'ordenes-marketplace' && <OrdenesMarketplaceView onNavigate={nav} />}
           {activeSection === 'envios'          && <EnviosView          onNavigate={nav} />}
           {activeSection === 'logistica'       && <LogisticaView       onNavigate={nav} />}
           {activeSection === 'transportistas'  && <TransportistasView  onNavigate={nav} />}

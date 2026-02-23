@@ -5,6 +5,7 @@ import {
   Megaphone, Mail, Share2, ArrowLeftRight, RotateCcw, Target, QrCode,
   TrendingUp, Users, BarChart2, Heart, MousePointerClick, Send, Star,
   Trophy, Zap, MessageCircle, Ticket, MessageSquare, FlaskConical,
+  Sparkles,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -13,6 +14,13 @@ export function MarketingView({ onNavigate }: Props) {
   const nav = (s: MainSection) => () => onNavigate(s);
 
   const cards: HubCardDef[] = [
+    {
+      id: 'marketing-avanzado', icon: Sparkles, onClick: nav('marketing-avanzado'),
+      gradient: 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)', color: '#EC4899',
+      badge: 'Avanzado · 3 módulos', label: 'Marketing Avanzado',
+      description: 'Activation Engine, Behavior Orchestrator y Dept Spotlight System. Arquitectura avanzada para rewards probabilísticos, análisis de comportamiento y protagonismo semanal.',
+      stats: [{ icon: Sparkles, value: '3', label: 'Módulos activos' }, { icon: TrendingUp, value: '—', label: 'Campañas AE' }, { icon: Users, value: '—', label: 'Perfiles BO' }],
+    },
     {
       id: 'etiqueta-emotiva', icon: QrCode, onClick: nav('etiqueta-emotiva'),
       gradient: 'linear-gradient(135deg, #FF6835 0%, #e04e20 100%)', color: '#FF6835',

@@ -7,6 +7,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { supabase } from '../../utils/supabase/client';
 import { useProductos } from '../hooks/useProductos';
+import { agregarAlCarrito } from '../services/carritoApi';
 import '../../styles/oddy.css';
 
 // ── Images ────────────────────────────────────────────────────────────────────
@@ -776,13 +777,13 @@ function FlipCard({ p, onAdd, onFlipped, deptColors }: {
               </div>
             </div>
             <div className="oddy-panel-desc">{p.desc}</div>
-            <div style={{ display: 'flex', gap: '4px', marginTop: '5px', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '4px', marginTop: '5px', width: '100%', alignItems: 'stretch' }}>
               <div 
-                style={{ position: 'relative' }}
+                style={{ position: 'relative', display: 'flex', alignItems: 'stretch' }}
                 onMouseEnter={() => setShowRatings(true)}
                 onMouseLeave={() => setShowRatings(false)}
               >
-                <button className="oddy-panel-btn-white" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <button className="oddy-panel-btn-white" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', width: '100%' }}>
                   {(() => {
                     const filled = Math.round(p.r);
                     const IconPerson = () => (
@@ -850,7 +851,7 @@ function FlipCard({ p, onAdd, onFlipped, deptColors }: {
                   </div>
                 )}
               </div>
-              <button className="oddy-panel-btn-white" style={{ flexDirection: 'column', gap: '2px', padding: '5px 4px' }}>
+              <button className="oddy-panel-btn-white" style={{ flexDirection: 'column', gap: '2px' }}>
                 <span style={{ fontSize: '9px', fontWeight: 600, lineHeight: '1.2' }}>{p.rv} visitas</span>
                 <span style={{ fontSize: '8px', fontWeight: 400, color: 'var(--muted)', lineHeight: '1.2' }}>{p.publishedDate || 'N/A'}</span>
               </button>
@@ -1434,13 +1435,13 @@ function SlideCard({ p, isOpen, dir, onToggle, onAdd, deptColors }: {
               </div>
             </div>
             <div className="oddy-panel-desc">{p.desc}</div>
-            <div style={{ display: 'flex', gap: '4px', marginTop: '5px', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '4px', marginTop: '5px', width: '100%', alignItems: 'stretch' }}>
               <div 
-                style={{ position: 'relative' }}
+                style={{ position: 'relative', display: 'flex', alignItems: 'stretch' }}
                 onMouseEnter={() => setShowRatings(true)}
                 onMouseLeave={() => setShowRatings(false)}
               >
-                <button className="oddy-panel-btn-white" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <button className="oddy-panel-btn-white" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', width: '100%' }}>
                   {(() => {
                     const filled = Math.round(p.r);
                     const IconPerson = () => (
@@ -1508,7 +1509,7 @@ function SlideCard({ p, isOpen, dir, onToggle, onAdd, deptColors }: {
                   </div>
                 )}
               </div>
-              <button className="oddy-panel-btn-white" style={{ flexDirection: 'column', gap: '2px', padding: '5px 4px' }}>
+              <button className="oddy-panel-btn-white" style={{ flexDirection: 'column', gap: '2px' }}>
                 <span style={{ fontSize: '9px', fontWeight: 600, lineHeight: '1.2' }}>{p.rv} visitas</span>
                 <span style={{ fontSize: '8px', fontWeight: 400, color: 'var(--muted)', lineHeight: '1.2' }}>{p.publishedDate || 'N/A'}</span>
               </button>
@@ -1994,6 +1995,7 @@ function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 }
 
 export default function OddyStorefront() {
+  const navigate = useNavigate();
   // Cargar productos desde la API
   const { productosMarket: apiMP, productosSecondHand: apiSH, deptColors: apiDeptColors, loading: productosLoading } = useProductos();
   
@@ -2022,11 +2024,34 @@ export default function OddyStorefront() {
 
   const isSH = mode === 'sh';
 
-  const addToCart = useCallback((p: MktProduct | ShProduct, m: 'mkt' | 'sh') => {
-    setCartItems(prev => {
-      if (prev.find(i => i.id === p.id && i.m === m)) return prev;
-      return [...prev, { id:p.id, img:p.img, n:p.n, p:p.p, pNum:parsePrice(p.p), m }];
-    });
+  const addToCart = useCallback(async (p: MktProduct | ShProduct, m: 'mkt' | 'sh') => {
+    try {
+      // Obtener el precio numérico
+      const precioNum = parsePrice(p.p);
+      
+      // Agregar al carrito en la API
+      // Nota: Los IDs en el storefront son números, pero en la API son UUIDs
+      // Por ahora mantenemos el estado local para compatibilidad
+      await agregarAlCarrito(
+        String(p.id), // Convertir a string
+        m === 'mkt' ? 'market' : 'secondhand',
+        1,
+        precioNum
+      );
+      
+      // Actualizar estado local
+      setCartItems(prev => {
+        if (prev.find(i => i.id === p.id && i.m === m)) return prev;
+        return [...prev, { id:p.id, img:p.img, n:p.n, p:p.p, pNum:precioNum, m }];
+      });
+    } catch (error) {
+      console.error('Error agregando al carrito:', error);
+      // Fallback: agregar solo al estado local si falla la API
+      setCartItems(prev => {
+        if (prev.find(i => i.id === p.id && i.m === m)) return prev;
+        return [...prev, { id:p.id, img:p.img, n:p.n, p:p.p, pNum:parsePrice(p.p), m }];
+      });
+    }
   }, []);
 
   const addToHist = useCallback((id: number, m: 'mkt' | 'sh') => {
@@ -2164,9 +2189,34 @@ export default function OddyStorefront() {
             <button className="oddy-auth-btn" onClick={() => setShowLoginModal(true)}>Mi cuenta</button>
             <button className="oddy-auth-btn">Registro</button>
           </div>
-          <div className="oddy-cart-icon">
+          <button
+            className="oddy-cart-icon"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Carrito clickeado desde topbar-group, navegando a /carrito');
+              navigate('/carrito');
+            }}
+            style={{ 
+              cursor: 'pointer',
+              border: 'none',
+              background: 'transparent',
+              padding: 0,
+              margin: 0,
+              position: 'relative',
+            }}
+            type="button"
+          >
             <IconBag />
-          </div>
+            {cartItems.length > 0 && (
+              <div 
+                className="oddy-bdg" 
+                style={{ pointerEvents: 'none' }}
+              >
+                {cartItems.length}
+              </div>
+            )}
+          </button>
         </div>
         <div className="oddy-tbr" style={{ marginLeft: 'auto', display: 'none' }}>
           <div className="oddy-mpill" onClick={() => toggleMode()}>
@@ -2243,34 +2293,36 @@ export default function OddyStorefront() {
             Admin
           </button>
 
-          {/* Cart button + hover dropdown */}
-          <div
-            className="oddy-cart-wrap"
-            onMouseEnter={() => setShowCart(true)}
-            onMouseLeave={() => setShowCart(false)}
+          {/* Cart button */}
+          <button
+            className="oddy-ibtn"
+            style={{ 
+              cursor: 'pointer', 
+              position: 'relative', 
+              zIndex: 10,
+              border: 'none',
+              background: 'var(--bg)',
+              padding: 0,
+              margin: 0,
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Carrito clickeado, navegando a /carrito');
+              navigate('/carrito');
+            }}
+            type="button"
           >
-            <div className="oddy-ibtn">
-              <IconBag />
-              <div className="oddy-bdg">{cartItems.length}</div>
-            </div>
-
-            {showCart && cartItems.length > 0 && (
-              <div className="oddy-cart-drop">
-                <div className="oddy-cart-list">
-                  {cartItems.map(item => (
-                    <div key={`${item.m}-${item.id}`} className="oddy-cart-ci">
-                      <img src={item.img} alt={item.n} />
-                      <span className={`oddy-cart-ptag ${item.m}`}>{item.p}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="oddy-cart-foot">
-                  <span className="oddy-cart-foot-lbl">Total</span>
-                  {fmtNum(cartTotal)}
-                </div>
+            <IconBag />
+            {cartItems.length > 0 && (
+              <div 
+                className="oddy-bdg" 
+                style={{ pointerEvents: 'none' }}
+              >
+                {cartItems.length}
               </div>
             )}
-          </div>
+          </button>
         </div>
       </header>
 

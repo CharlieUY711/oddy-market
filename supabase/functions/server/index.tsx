@@ -20,6 +20,8 @@ import { departamentos } from "./departamentos.tsx";
 import { preguntas } from "./preguntas.tsx";
 import { ratings } from "./ratings.tsx";
 import { catalogExtractor } from "./catalog_extractor.tsx";
+import carrito from "./carrito.tsx";
+import ordenes from "./ordenes.tsx";
 
 const app = new Hono();
 
@@ -31,7 +33,7 @@ app.use(
   "/*",
   cors({
     origin: "*",
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Session-Id"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
@@ -79,6 +81,10 @@ app.route("/make-server-75638143/productos", productos);
 app.route("/make-server-75638143/departamentos", departamentos);
 app.route("/make-server-75638143/preguntas", preguntas);
 app.route("/make-server-75638143/ratings", ratings);
+
+// Carrito y Órdenes
+app.route("/make-server-75638143/carrito", carrito);
+app.route("/make-server-75638143/ordenes", ordenes);
 
 // Catalog Extractor — Extracción de productos desde catálogos
 app.route("/make-server-75638143/catalog-extractor", catalogExtractor);

@@ -10,7 +10,7 @@ import {
   Database, Shield, Activity, Eye, EyeOff, X, Save, CloudUpload,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { projectId, publicAnonKey } from '../../../utils/supabase/info';
+import { projectId, publicAnonKey } from '../../../../utils/supabase/info';
 
 interface Props { onNavigate: (s: MainSection) => void; }
 
@@ -137,6 +137,37 @@ export function RepositorioAPIsView({ onNavigate }: Props) {
     toast.success(`Secret guardado para ${envKey}`);
     setConfigModal({ api: null, value: '' });
     setShowSecret(false);
+  };
+
+  const handleSyncToSupabase = async (envKey: string, value: string) => {
+    try {
+      const BASE = `https://${projectId}.supabase.co/functions/v1/server/make-server-75638143/api-secrets`;
+      const res = await fetch(`${BASE}/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${publicAnonKey}`,
+        },
+        body: JSON.stringify({ envKey, value }),
+      });
+
+      const json = await res.json();
+
+      if (json.ok) {
+        toast.success(`Secret sincronizado con Supabase para ${envKey}`);
+        // También guardar localmente
+        const updated = { ...apiSecrets, [envKey]: value };
+        setApiSecrets(updated);
+        localStorage.setItem('oddy_api_secrets', JSON.stringify(updated));
+        setConfigModal({ api: null, value: '' });
+        setShowSecret(false);
+      } else {
+        toast.error(json.error || `Error al sincronizar ${envKey}`);
+      }
+    } catch (error) {
+      console.error('Error sincronizando con Supabase:', error);
+      toast.error(`Error al sincronizar: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    }
   };
 
   const handleOpenConfig = (api: APIEntry) => {
