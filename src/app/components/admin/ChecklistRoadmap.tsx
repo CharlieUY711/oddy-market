@@ -846,65 +846,70 @@ export function ChecklistRoadmap({ hideHeader = false }: Props) {
       {/* ── Stats Cards ───────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Progreso Total */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Progreso Total</span>
+        <div className="bg-white rounded-lg p-5 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Progreso Total</span>
             {!hasUnsavedChanges && !isSaving && (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <span className="text-xs text-green-600 flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Sincronizado
+              </span>
             )}
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">{stats.progressPercent}%</div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-[#FF6835] h-2 rounded-full transition-all duration-700"
+          <div className="text-3xl font-bold text-gray-900 mb-3">{stats.progressPercent}%</div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+            <div className="bg-[#FF6835] h-2.5 rounded-full transition-all duration-700"
               style={{ width: `${stats.progressPercent}%` }} />
           </div>
-          <div className="text-xs text-gray-500 mt-2">
+          <div className="text-xs text-gray-500">
             promedio ponderado por horas
           </div>
         </div>
 
         {/* Completados con DB */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Completados</span>
+        <div className="bg-white rounded-lg p-5 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Completados</span>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-2">
             {stats.completed}/{stats.total}
           </div>
           <div className="text-xs text-gray-500 mb-3">{stats.completedPercent}% módulos con DB</div>
           {/* Mini breakdown de los 3 estados */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-orange-100 text-orange-700">
-              {stats.completed} DB
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FF6835] text-white text-[10px] font-bold">
+              {stats.completed}
             </span>
-            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-              {stats.uiOnly} UI
+            <span className="text-xs text-gray-600">DB</span>
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-[10px] font-bold ml-2">
+              {stats.uiOnly}
             </span>
-            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-              {stats.notStarted} pend.
+            <span className="text-xs text-gray-600">UI</span>
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-400 text-white text-[10px] font-bold ml-2">
+              {stats.notStarted}
             </span>
+            <span className="text-xs text-gray-600">pend.</span>
           </div>
         </div>
 
         {/* UI Lista / En Progreso */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">UI Lista / En Progreso</span>
+        <div className="bg-white rounded-lg p-5 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">UI Lista / En Progreso</span>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-2">{stats.uiOnly}</div>
           <div className="text-xs text-gray-500">vistas construidas sin backend</div>
         </div>
 
         {/* Horas Restantes */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Horas Restantes</span>
+        <div className="bg-white rounded-lg p-5 border border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Horas Restantes</span>
             <Monitor className="h-4 w-4 text-gray-400" />
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-2">{stats.remainingHours}h</div>
-          <div className="text-xs text-gray-500 mb-2">de {stats.totalHours}h estimadas totales</div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-green-500 h-2 rounded-full transition-all duration-700"
+          <div className="text-xs text-gray-500 mb-3">de {stats.totalHours}h estimadas totales</div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="bg-green-500 h-2.5 rounded-full transition-all duration-700"
               style={{ width: `${Math.round((stats.completedHours / Math.max(stats.totalHours, 1)) * 100)}%` }} />
           </div>
         </div>
