@@ -10,6 +10,7 @@ import {
   TrendingUp, DollarSign, Users, Star, AlertTriangle,
   Search, MessageSquare, Scale, ShieldAlert, X,
   Send, ChevronRight, RotateCcw, CheckCheck, Ban,
+  RefreshCw,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
