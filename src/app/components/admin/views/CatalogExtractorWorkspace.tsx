@@ -474,7 +474,15 @@ export function CatalogExtractorWorkspace({ onNavigate }: Props) {
           try {
             // eslint-disable-next-line @typescript-eslint/no-require-imports
             const pdfjsLib = await import('pdfjs-dist');
-            pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+            
+            // Configurar el worker - usar múltiples opciones
+            if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+              // Opción 1: Worker desde public (copiado localmente)
+              pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+              
+              // Si falla, intentar con CDN alternativo
+              // El worker se cargará automáticamente cuando se necesite
+            }
 
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
