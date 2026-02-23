@@ -14,6 +14,7 @@ export const WORKSPACE_TOOLS = [
   { id: 'gen-presupuestos'  as MainSection, emoji: '💰', label: 'Presupuestos', color: '#F59E0B' },
   { id: 'ocr'               as MainSection, emoji: '🔍', label: 'OCR',          color: '#8B5CF6' },
   { id: 'impresion'         as MainSection, emoji: '🖨️', label: 'Impresión',    color: '#EC4899' },
+  { id: 'extraer-catalogo'  as MainSection, emoji: '📄', label: 'Catálogo',     color: '#6366F1' },
 ];
 
 type RightTab = 'props' | 'library' | 'print' | 'templates';

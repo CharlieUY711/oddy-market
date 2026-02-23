@@ -64,6 +64,7 @@ import { GenDocumentosWorkspace }      from './components/admin/views/GenDocumen
 import { GenPresupuestosWorkspace }    from './components/admin/views/GenPresupuestosWorkspace';
 import { OCRWorkspace }                from './components/admin/views/OCRWorkspace';
 import { ImpresionWorkspace }          from './components/admin/views/ImpresionWorkspace';
+import { CatalogExtractorWorkspace }   from './components/admin/views/CatalogExtractorWorkspace';
 // ── Auditoría & Diagnóstico ───────────────────────────────────────────────────
 import { AuditoriaHubView }            from './components/admin/views/AuditoriaHubView';
 import { HealthMonitorView }           from './components/admin/views/HealthMonitorView';
@@ -142,6 +143,7 @@ export type MainSection =
   | 'gen-presupuestos'
   | 'ocr'
   | 'impresion'
+  | 'extraer-catalogo'
   // ── Auditoría & Diagnóstico ───────────────────────────────────────────────────
   | 'auditoria'
   | 'auditoria-health'
@@ -231,6 +233,7 @@ export default function AdminDashboard() {
           {activeSection === 'gen-presupuestos'        && <GenPresupuestosWorkspace   onNavigate={nav} />}
           {activeSection === 'ocr'                     && <OCRWorkspace               onNavigate={nav} />}
           {activeSection === 'impresion'               && <ImpresionWorkspace         onNavigate={nav} />}
+          {activeSection === 'extraer-catalogo'        && <CatalogExtractorWorkspace  onNavigate={nav} />}
           {/* ── Auditoría & Diagnóstico ── */}
           {activeSection === 'auditoria'               && <AuditoriaHubView           onNavigate={nav} />}
           {activeSection === 'auditoria-health'        && <HealthMonitorView          onNavigate={nav} />}

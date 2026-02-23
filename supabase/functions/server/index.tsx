@@ -15,6 +15,11 @@ import { cargaMasiva } from "./carga_masiva.tsx";
 import { ageVerification } from "./age_verification.tsx";
 import { rrss } from "./rrss.tsx";
 import { apiSecrets } from "./api_secrets.tsx";
+import { productos } from "./productos.tsx";
+import { departamentos } from "./departamentos.tsx";
+import { preguntas } from "./preguntas.tsx";
+import { ratings } from "./ratings.tsx";
+import { catalogExtractor } from "./catalog_extractor.tsx";
 
 const app = new Hono();
 
@@ -68,5 +73,14 @@ app.route("/make-server-75638143/rrss", rrss);
 
 // Gestión de Secrets de APIs
 app.route("/make-server-75638143/api-secrets", apiSecrets);
+
+// Marketplace — Productos, Departamentos, Preguntas, Ratings
+app.route("/make-server-75638143/productos", productos);
+app.route("/make-server-75638143/departamentos", departamentos);
+app.route("/make-server-75638143/preguntas", preguntas);
+app.route("/make-server-75638143/ratings", ratings);
+
+// Catalog Extractor — Extracción de productos desde catálogos
+app.route("/make-server-75638143/catalog-extractor", catalogExtractor);
 
 Deno.serve(app.fetch);

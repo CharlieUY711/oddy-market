@@ -356,6 +356,14 @@ export const MODULE_MANIFEST: ManifestEntry[] = [
     notes: 'Módulo de impresión — cola de trabajos, A4 preview, papel/orientación/color/calidad',
   },
   {
+    checklistIds: ['tools-catalog-extractor'],
+    section: 'extraer-catalogo',
+    viewFile: 'CatalogExtractorWorkspace.tsx',
+    isReal: true,
+    hasSupabase: false,
+    notes: 'Extracción de productos desde catálogos PDF/imagen usando Claude Vision API — export CSV/Excel',
+  },
+  {
     checklistIds: ['tools-qr'],
     section: 'qr-generator',
     viewFile: 'QrGeneratorView.tsx',

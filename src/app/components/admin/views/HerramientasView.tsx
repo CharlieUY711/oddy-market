@@ -4,7 +4,7 @@ import type { MainSection } from '../../../AdminDashboard';
 import {
   Wrench, Image, FolderOpen, FileText, DollarSign, ScanLine, Printer,
   QrCode, RotateCcw, Lightbulb, Zap, Download, CheckCircle, Star,
-  Package, Users, BarChart2, Layout, Upload, LayoutGrid, LogIn,
+  Package, Users, BarChart2, Layout, Upload, LayoutGrid, LogIn, FileSpreadsheet,
 } from 'lucide-react';
 
 interface Props { onNavigate: (s: MainSection) => void; }
@@ -54,6 +54,13 @@ export function HerramientasView({ onNavigate }: Props) {
       badge: 'Workspace · Print', label: 'Módulo de Impresión',
       description: 'Configurá papel, orientación, copias y modo color. Preview A4 antes de imprimir cualquier documento.',
       stats: [{ icon: Layout, value: '4', label: 'Formatos' }, { icon: Star, value: '2', label: 'Modos color' }, { icon: CheckCircle, value: 'A4', label: 'Preview' }],
+    },
+    {
+      id: 'extraer-catalogo', icon: FileText, onClick: nav('extraer-catalogo'),
+      gradient: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)', color: '#6366F1',
+      badge: 'Workspace · IA', label: 'Extraer Catálogo',
+      description: 'Extrae automáticamente datos de productos desde catálogos PDF/imagen usando Claude Vision API. Export CSV/Excel.',
+      stats: [{ icon: Zap, value: 'Claude', label: 'IA' }, { icon: FileText, value: 'PDF/IMG', label: 'Formatos' }, { icon: Download, value: 'CSV/XLSX', label: 'Export' }],
     },
   ];
 
@@ -106,11 +113,11 @@ export function HerramientasView({ onNavigate }: Props) {
     <HubView
       hubIcon={Wrench}
       title="Suite de Herramientas"
-      subtitle="6 workspaces especializados · 3 herramientas rápidas · Export nativo · Sin APIs externas"
+      subtitle="7 workspaces especializados · 5 herramientas rápidas · Export nativo"
       sections={[
         {
           label: 'Workspace Suite',
-          count: '6 herramientas',
+          count: '7 herramientas',
           subtitle: 'Comparten el mismo layout profesional con panel izquierdo, derecho y barra de herramientas',
           cards: workspaceCards,
         },
