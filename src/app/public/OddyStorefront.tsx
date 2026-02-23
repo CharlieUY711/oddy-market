@@ -185,8 +185,8 @@ function Stars({ r, rv, label }: { r: number; rv: number; label: string }) {
 }
 
 // ── Market Flip Card ──────────────────────────────────────────────────────────
-function FlipCard({ p, onAdd, onFlipped }: {
-  p: MktProduct; onAdd: () => void; onFlipped: () => void;
+function FlipCard({ p, onAdd, onFlipped, deptColors }: {
+  p: MktProduct; onAdd: () => void; onFlipped: () => void; deptColors: Record<string, string>;
 }) {
   const [flipped, setFlipped]   = useState(false);
   const [playing, setPlaying]   = useState(false);
@@ -502,7 +502,7 @@ function FlipCard({ p, onAdd, onFlipped }: {
 
         {/* ── FRONT FACE ── */}
         <div className="oddy-ff">
-          <div className="oddy-cimg" style={{ borderBottomColor: DEPT_COLORS_FINAL[p.d] || '#C8C4BE' }}>
+          <div className="oddy-cimg" style={{ borderBottomColor: deptColors[p.d] || '#C8C4BE' }}>
             {playing && playingVideoIndex !== null && videoArray[playingVideoIndex] ? (
               <>
               <video
@@ -759,7 +759,7 @@ function FlipCard({ p, onAdd, onFlipped }: {
             <div style={{ 
               width: 'calc(100% + 16px)', 
               height: '10px', 
-              backgroundColor: DEPT_COLORS_FINAL[p.d] || '#C8C4BE',
+              backgroundColor: deptColors[p.d] || '#C8C4BE',
               marginLeft: '-8px',
               marginRight: '-8px',
               marginBottom: '12px',
@@ -867,9 +867,9 @@ function FlipCard({ p, onAdd, onFlipped }: {
 }
 
 // ── SH Slide Card ─────────────────────────────────────────────────────────────
-function SlideCard({ p, isOpen, dir, onToggle, onAdd }: {
+function SlideCard({ p, isOpen, dir, onToggle, onAdd, deptColors }: {
   p: ShProduct; isOpen: boolean; dir: 'right' | 'left';
-  onToggle: () => void; onAdd: () => void;
+  onToggle: () => void; onAdd: () => void; deptColors: Record<string, string>;
 }) {
   const [playing, setPlaying] = useState(false);
   const [playingVideoIndex, setPlayingVideoIndex] = useState<number | null>(null);
@@ -1417,7 +1417,7 @@ function SlideCard({ p, isOpen, dir, onToggle, onAdd }: {
             <div style={{ 
               width: 'calc(100% + 16px)', 
               height: '10px', 
-              backgroundColor: DEPT_COLORS_FINAL[p.d] || '#C8C4BE',
+              backgroundColor: deptColors[p.d] || '#C8C4BE',
               marginLeft: '-8px',
               marginRight: '-8px',
               marginBottom: '12px',
@@ -2454,6 +2454,7 @@ export default function OddyStorefront() {
                     p={p}
                     onAdd={() => addToCart(p, 'mkt')}
                     onFlipped={() => handleFlipped(p.id)}
+                    deptColors={DEPT_COLORS_FINAL}
                   />
                 </div>
               ))}
@@ -2478,6 +2479,7 @@ export default function OddyStorefront() {
                   dir={panelDir(idx)}
                   onToggle={() => handleExpand(p.id)}
                   onAdd={() => addToCart(p, 'sh')}
+                  deptColors={DEPT_COLORS_FINAL}
                 />
               ))}
             </div>
