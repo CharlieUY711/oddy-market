@@ -543,7 +543,7 @@ export function CatalogExtractorWorkspace({ onNavigate }: Props) {
       <input ref={fileRef} type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" style={{ display: 'none' }}
         onChange={e => { const f = e.target.files?.[0]; if (f) loadFile(f); }} />
       <WorkspaceShell
-        toolId="catalog-extractor"
+        toolId="extraer-catalogo"
         onNavigate={onNavigate}
         leftPanel={
           <LeftPanel

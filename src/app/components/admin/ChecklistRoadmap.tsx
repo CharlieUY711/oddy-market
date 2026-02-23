@@ -375,7 +375,7 @@ export function ChecklistRoadmap({ hideHeader = false }: Props) {
   const [isSyncing, setIsSyncing] = useState(false);
 
   const API_URL = projectId
-    ? `https://${projectId}.supabase.co/functions/v1/make-server-75638143`
+    ? `https://${projectId}.supabase.co/functions/v1/server/make-server-75638143`
     : null;
 
   useEffect(() => {

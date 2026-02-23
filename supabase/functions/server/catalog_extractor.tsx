@@ -20,15 +20,14 @@ REGLAS:
 6. No inventes datos. Si no podés leer un valor con certeza, usá null.
 7. Los precios deben incluir la moneda si está visible (ej: "$1.200" o "USD 45").
 
-IMPORTANTE: RESPONDÉ ÚNICAMENTE con el JSON, sin texto adicional, sin explicaciones, sin markdown, sin comentarios.
-El JSON debe empezar con { y terminar con }. No agregues nada antes ni después.
+CRÍTICO - FORMATO DE RESPUESTA:
+Tu respuesta DEBE ser ÚNICAMENTE un objeto JSON válido. 
+NO incluyas texto antes del JSON, texto después del JSON, explicaciones, comentarios, markdown o saltos de línea antes o después del JSON.
 
-Formato exacto:
-{
-  "products": [
-    { "nombre": "...", "precio": "...", "categoria": "...", "marca": "...", "descripcion": "..." }
-  ]
-}`;
+Tu respuesta debe empezar EXACTAMENTE con { y terminar EXACTAMENTE con }.
+
+Formato exacto (copiá esto exactamente, solo cambiando los valores):
+{"products":[{"nombre":"...","precio":"...","categoria":"...","marca":"...","descripcion":"..."}]}`;
 
 /* ── Screenshot via ScreenshotOne ───────────────────────────────────────── */
 async function takeScreenshot(url: string, apiKey: string): Promise<string> {
@@ -95,41 +94,125 @@ async function callClaude(base64Images: string[], anthropicKey: string): Promise
   const data = await res.json() as { content: Array<{ type: string; text?: string }> };
   const text = data.content.find((b) => b.type === "text")?.text || "";
   
-  // Limpiar markdown code blocks y espacios
-  let clean = text
+  // Limpiar markdown code blocks y espacios iniciales
+  let cleaned = text
     .replace(/```json\n?/gi, "")
     .replace(/```\n?/g, "")
-    .replace(/^[^{]*/, "") // Eliminar todo antes del primer {
-    .replace(/[^}]*$/, "") // Eliminar todo después del último }
+    .replace(/^\s+/, "") // Eliminar espacios al inicio
     .trim();
   
-  // Si no hay {, intentar buscar de otra forma
-  if (!clean.includes('{')) {
-    // Buscar cualquier JSON en el texto
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      clean = jsonMatch[0];
+  // Buscar el JSON válido - encontrar el primer { y el último } balanceado
+  let firstBrace = cleaned.indexOf('{');
+  if (firstBrace === -1) {
+    throw new Error("No se encontró JSON en la respuesta de Claude");
+  }
+  
+  // Encontrar el último } que cierra el objeto principal contando llaves balanceadas
+  let braceCount = 0;
+  let lastBrace = -1;
+  let inString = false;
+  let escapeNext = false;
+  
+  for (let i = firstBrace; i < cleaned.length; i++) {
+    const char = cleaned[i];
+    
+    if (escapeNext) {
+      escapeNext = false;
+      continue;
+    }
+    
+    if (char === '\\') {
+      escapeNext = true;
+      continue;
+    }
+    
+    if (char === '"' && !escapeNext) {
+      inString = !inString;
+      continue;
+    }
+    
+    if (!inString) {
+      if (char === '{') braceCount++;
+      if (char === '}') {
+        braceCount--;
+        if (braceCount === 0) {
+          lastBrace = i;
+          break;
+        }
+      }
     }
   }
+  
+  if (lastBrace === -1) {
+    // Si no encontramos el cierre balanceado, usar el último }
+    lastBrace = cleaned.lastIndexOf('}');
+  }
+  
+  if (lastBrace === -1 || lastBrace <= firstBrace) {
+    throw new Error("JSON no balanceado en la respuesta de Claude");
+  }
+  
+  // Extraer solo el JSON válido
+  let clean = cleaned.substring(firstBrace, lastBrace + 1);
+  
+  // Limpiar caracteres de control invisibles pero mantener el JSON válido
+  // Solo eliminar caracteres que definitivamente no son parte de JSON válido
+  clean = clean
+    .replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '') // Eliminar caracteres de control
+    .trim();
   
   // Asegurar que empiece con { y termine con }
   if (!clean.startsWith('{')) {
-    const firstBrace = clean.indexOf('{');
-    if (firstBrace !== -1) {
-      clean = clean.substring(firstBrace);
+    const firstBraceInClean = clean.indexOf('{');
+    if (firstBraceInClean !== -1) {
+      clean = clean.substring(firstBraceInClean);
     }
   }
+  
   if (!clean.endsWith('}')) {
-    const lastBrace = clean.lastIndexOf('}');
-    if (lastBrace !== -1) {
-      clean = clean.substring(0, lastBrace + 1);
+    const lastBraceInClean = clean.lastIndexOf('}');
+    if (lastBraceInClean !== -1) {
+      clean = clean.substring(0, lastBraceInClean + 1);
     }
   }
-
+  
+  // DEBUG: Log temporal para ver qué está devolviendo Claude
+  console.log("=== DEBUG Claude Response ===");
+  console.log("Texto original (primeros 500 chars):", text.substring(0, 500));
+  console.log("Texto limpiado (primeros 500 chars):", cleaned.substring(0, 500));
+  console.log("JSON extraído (primeros 500 chars):", clean.substring(0, 500));
+  console.log("Primeros 20 caracteres del JSON:", clean.substring(0, 20));
+  console.log("Últimos 20 caracteres del JSON:", clean.substring(Math.max(0, clean.length - 20)));
+  
   try {
+    // Intentar parsear directamente
     const parsed = JSON.parse(clean) as { products?: Record<string, unknown>[] };
-    return parsed.products || [];
+    if (parsed.products && Array.isArray(parsed.products)) {
+      return parsed.products;
+    }
+    // Si no tiene products, intentar como array directo
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+    return [];
   } catch (parseErr) {
+    console.log("=== ERROR en parsing ===");
+    console.log("Error:", parseErr);
+    console.log("JSON que falló (primeros 200 chars):", clean.substring(0, 200));
+    console.log("JSON que falló (últimos 200 chars):", clean.substring(Math.max(0, clean.length - 200)));
+    
+    // Si falla, intentar extraer solo el objeto JSON más interno
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]) as { products?: Record<string, unknown>[] };
+        if (parsed.products && Array.isArray(parsed.products)) {
+          return parsed.products;
+        }
+      } catch {
+        // Continuar con las estrategias de fallback
+      }
+    }
     // Intentar múltiples estrategias de extracción
     const strategies = [
       // Estrategia 1: Buscar el objeto JSON más grande

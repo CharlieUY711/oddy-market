@@ -6,6 +6,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { supabase } from '../../utils/supabase/client';
+import { useProductos } from '../hooks/useProductos';
 import '../../styles/oddy.css';
 
 // ── Images ────────────────────────────────────────────────────────────────────
@@ -79,8 +80,8 @@ const DEPT_COLORS: Record<string, string> = {
   'Delivery': '#FFDAB9',     // Melocotón (repetido si necesario)
 };
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const MP: MktProduct[] = [
+// ── Data Mock (fallback) ──────────────────────────────────────────────────────
+const MP_MOCK: MktProduct[] = [
   { id:1,  img:IMG_CASE,    d:'Celulares', n:'Funda iPhone 15 silicona premium',  p:'$472',    o:'$590',   b:'-20%', bt:'',   desc:'Silicona líquida premium, compatible con carga inalámbrica. Protección para bordes y cámara. Disponible en 8 colores.', r:4.3, rv:89,  q:'¿Es compatible con MagSafe? Sí, totalmente.' },
   { id:2,  img:IMG_EARBUDS, d:'Electro',   n:'Auriculares TWS noise cancel',       p:'$1.890',  o:null,     b:'Nuevo',bt:'cy', desc:'Cancelación activa de ruido con 3 modos. 8hs + 22hs con estuche. Resistencia IPX4, driver 13mm, aptX.', r:4.7, rv:203, q:'¿Funciona con Android e iOS? Sí, ambos.', vids: [VID_MKT], publishedDate:'20/01/2025' },
   { id:3,  img:IMG_KITCHEN, d:'Hogar',     n:'Set organizadores cocina x6',        p:'$890',    o:null,     b:null,   bt:'',   desc:'Set 6 piezas: 3 rectangular + 2 cuadrado + 1 redondo. Tapa hermética, BPA free, apto microondas y lavavajillas.', r:4.1, rv:56,  q:'¿Son apilables? Sí, ahorra espacio.' },
@@ -91,7 +92,7 @@ const MP: MktProduct[] = [
   { id:8,  img:IMG_PETBED,  d:'Mascotas',  n:'Comedero automático 3L',             p:'$1.890',  o:null,     b:'Nuevo',bt:'cy', desc:'Temporizador con 6 porciones programables, pantalla LCD, altavoz para grabar voz. Capacidad 3L.', r:4.6, rv:94,  q:'¿Funciona sin luz? Tiene batería de respaldo.' },
 ];
 
-const SH: ShProduct[] = [
+const SH_MOCK: ShProduct[] = [
   { id:10, img:IMG_IPHONE,  d:'Celulares', n:'iPhone 13 128GB · Muy bueno',            p:'$11.500', og:'Nuevo $18.000', c:4, desc:'Batería 91% (verificado). Sin rayones en pantalla ni cuerpo. Con caja original, cargador y funda.', r:4.8, rv:12, q:'¿Tiene Face ID funcionando? Sí, perfecto.', vids: [VID_SH], publishedDate:'16/01/2025' },
   { id:11, img:IMG_MACBOOK, d:'Electro',   n:'MacBook Air M1 8GB · Excelente',          p:'$28.000', og:'Nuevo $42.000', c:5, desc:'Sin uso visible. Batería 45 ciclos. Caja original, cargador MagSafe. macOS Sonoma actualizado.', r:5.0, rv:8,  q:'¿Tiene rayones? Sin rayones, excelente estado.', publishedDate:'24/01/2025' },
   { id:12, img:IMG_BIKE,    d:'Deporte',   n:'Bicicleta mtb Rod 29 · Buen estado',      p:'$8.500',  og:'Nuevo $14.000', c:3, desc:'Frenos hidráulicos Shimano, 21 velocidades. Neumáticos Kenda nuevos. Cuadro aluminio.', r:4.2, rv:5,  q:'¿Incluye candado? No, se vende sola.', publishedDate:'14/01/2025' },
@@ -501,7 +502,7 @@ function FlipCard({ p, onAdd, onFlipped }: {
 
         {/* ── FRONT FACE ── */}
         <div className="oddy-ff">
-          <div className="oddy-cimg" style={{ borderBottomColor: DEPT_COLORS[p.d] || '#C8C4BE' }}>
+          <div className="oddy-cimg" style={{ borderBottomColor: DEPT_COLORS_FINAL[p.d] || '#C8C4BE' }}>
             {playing && playingVideoIndex !== null && videoArray[playingVideoIndex] ? (
               <>
               <video
@@ -758,7 +759,7 @@ function FlipCard({ p, onAdd, onFlipped }: {
             <div style={{ 
               width: 'calc(100% + 16px)', 
               height: '10px', 
-              backgroundColor: DEPT_COLORS[p.d] || '#C8C4BE',
+              backgroundColor: DEPT_COLORS_FINAL[p.d] || '#C8C4BE',
               marginLeft: '-8px',
               marginRight: '-8px',
               marginBottom: '12px',
@@ -1416,7 +1417,7 @@ function SlideCard({ p, isOpen, dir, onToggle, onAdd }: {
             <div style={{ 
               width: 'calc(100% + 16px)', 
               height: '10px', 
-              backgroundColor: DEPT_COLORS[p.d] || '#C8C4BE',
+              backgroundColor: DEPT_COLORS_FINAL[p.d] || '#C8C4BE',
               marginLeft: '-8px',
               marginRight: '-8px',
               marginBottom: '12px',
@@ -1993,6 +1994,14 @@ function LoginModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 }
 
 export default function OddyStorefront() {
+  // Cargar productos desde la API
+  const { productosMarket: apiMP, productosSecondHand: apiSH, deptColors: apiDeptColors, loading: productosLoading } = useProductos();
+  
+  // Usar datos de API si están disponibles, sino usar datos mock
+  const MP = apiMP.length > 0 ? apiMP : MP_MOCK;
+  const SH = apiSH.length > 0 ? apiSH : SH_MOCK;
+  const DEPT_COLORS_FINAL = Object.keys(apiDeptColors).length > 0 ? apiDeptColors : DEPT_COLORS;
+  
   const [mode,       setMode]       = useState<'mkt' | 'sh'>('mkt');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [activeDept, setActiveDept] = useState(0);
