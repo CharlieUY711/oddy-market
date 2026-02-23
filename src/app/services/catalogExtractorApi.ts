@@ -4,7 +4,7 @@
    ===================================================== */
 import { projectId, publicAnonKey } from '/utils/supabase/info';
 
-const BASE = `https://${projectId}.supabase.co/functions/v1/server/make-server-75638143/catalog-extractor`;
+const BASE = `https://${projectId}.supabase.co/functions/v1/make-server-75638143/catalog-extractor`;
 const HEADERS = {
   'Authorization': `Bearer ${publicAnonKey}`,
 };
