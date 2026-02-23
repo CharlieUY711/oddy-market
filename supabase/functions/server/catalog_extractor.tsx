@@ -20,7 +20,10 @@ REGLAS:
 6. No inventes datos. Si no podés leer un valor con certeza, usá null.
 7. Los precios deben incluir la moneda si está visible (ej: "$1.200" o "USD 45").
 
-RESPONDÉ SOLO con JSON válido, sin markdown, sin texto extra:
+IMPORTANTE: RESPONDÉ ÚNICAMENTE con el JSON, sin texto adicional, sin explicaciones, sin markdown, sin comentarios.
+El JSON debe empezar con { y terminar con }. No agregues nada antes ni después.
+
+Formato exacto:
 {
   "products": [
     { "nombre": "...", "precio": "...", "categoria": "...", "marca": "...", "descripcion": "..." }
@@ -78,7 +81,7 @@ async function callClaude(base64Images: string[], anthropicKey: string): Promise
         role: "user",
         content: [
           ...imageContent,
-          { type: "text", text: "Extraé todos los productos visibles. Respondé solo con el JSON indicado." },
+          { type: "text", text: "Extraé todos los productos visibles. Respondé ÚNICAMENTE con el JSON, sin texto adicional, sin markdown, sin explicaciones. El JSON debe empezar con { y terminar con }." },
         ],
       }],
     }),
@@ -92,40 +95,90 @@ async function callClaude(base64Images: string[], anthropicKey: string): Promise
   const data = await res.json() as { content: Array<{ type: string; text?: string }> };
   const text = data.content.find((b) => b.type === "text")?.text || "";
   
-  // Limpiar markdown code blocks
-  let clean = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+  // Limpiar markdown code blocks y espacios
+  let clean = text
+    .replace(/```json\n?/gi, "")
+    .replace(/```\n?/g, "")
+    .replace(/^[^{]*/, "") // Eliminar todo antes del primer {
+    .replace(/[^}]*$/, "") // Eliminar todo después del último }
+    .trim();
   
-  // Intentar extraer JSON si hay texto antes/después
-  // Buscar el primer { y el último } que formen un objeto JSON válido
-  const firstBrace = clean.indexOf('{');
-  const lastBrace = clean.lastIndexOf('}');
+  // Si no hay {, intentar buscar de otra forma
+  if (!clean.includes('{')) {
+    // Buscar cualquier JSON en el texto
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      clean = jsonMatch[0];
+    }
+  }
   
-  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    clean = clean.substring(firstBrace, lastBrace + 1);
+  // Asegurar que empiece con { y termine con }
+  if (!clean.startsWith('{')) {
+    const firstBrace = clean.indexOf('{');
+    if (firstBrace !== -1) {
+      clean = clean.substring(firstBrace);
+    }
+  }
+  if (!clean.endsWith('}')) {
+    const lastBrace = clean.lastIndexOf('}');
+    if (lastBrace !== -1) {
+      clean = clean.substring(0, lastBrace + 1);
+    }
   }
 
   try {
     const parsed = JSON.parse(clean) as { products?: Record<string, unknown>[] };
     return parsed.products || [];
   } catch (parseErr) {
-    // Log para debug
-    console.error("[callClaude] Error parseando JSON:", parseErr);
-    console.error("[callClaude] Texto recibido:", text.substring(0, 500));
-    console.error("[callClaude] Texto limpiado:", clean.substring(0, 500));
-    
-    // Intentar extraer JSON con regex más agresivo
-    const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
+    // Intentar múltiples estrategias de extracción
+    const strategies = [
+      // Estrategia 1: Buscar el objeto JSON más grande
+      () => {
+        const matches = text.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
+        if (matches) {
+          return matches.sort((a, b) => b.length - a.length)[0]; // El más largo
+        }
+        return null;
+      },
+      // Estrategia 2: Buscar entre las primeras llaves
+      () => {
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          return text.substring(firstBrace, lastBrace + 1);
+        }
+        return null;
+      },
+      // Estrategia 3: Buscar productos específicamente
+      () => {
+        const productsMatch = text.match(/"products"\s*:\s*\[[\s\S]*?\]/);
+        if (productsMatch) {
+          return `{${productsMatch[0]}}`;
+        }
+        return null;
+      },
+    ];
+
+    for (const strategy of strategies) {
       try {
-        const parsed = JSON.parse(jsonMatch[0]) as { products?: Record<string, unknown>[] };
-        return parsed.products || [];
+        const extracted = strategy();
+        if (extracted) {
+          const parsed = JSON.parse(extracted) as { products?: Record<string, unknown>[] };
+          if (parsed.products) {
+            return parsed.products;
+          }
+        }
       } catch {
-        // Si falla, lanzar error con más contexto
-        throw new Error(`Respuesta de Claude no es JSON válido. Primeros 200 chars: ${clean.substring(0, 200)}`);
+        // Continuar con la siguiente estrategia
       }
     }
     
-    throw new Error(`Respuesta de Claude no es JSON válido. Error: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`);
+    // Si todas las estrategias fallan, lanzar error con contexto
+    throw new Error(
+      `Respuesta de Claude no es JSON válido. ` +
+      `Error: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}. ` +
+      `Primeros 300 chars del texto: ${text.substring(0, 300)}`
+    );
   }
 }
 
@@ -198,7 +251,6 @@ catalogExtractor.post("/", async (c) => {
     return c.json({ ok: true, products });
 
   } catch (err) {
-    console.error("[catalog-extractor]", err);
     return c.json({ 
       ok: false, 
       error: err instanceof Error ? err.message : "Error interno al procesar el catálogo." 
